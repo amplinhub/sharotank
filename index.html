@@ -184,6 +184,14 @@ body.crit #critV{animation:cv .9s ease-in-out infinite alternate}
 .abil{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:3px 0 0 4px;width:230px;max-width:44vw}.abil b{color:var(--ink);font-weight:600}.abil.on b{color:#7fe8ff;text-shadow:0 0 8px rgba(127,232,255,.6)}
 .pkintro{font-size:11px;color:var(--dim);margin:0 0 4px;line-height:1.4}.pk{cursor:pointer}.pkst{display:grid;gap:5px;margin:6px 0 8px}
 .pkb{display:grid;grid-template-columns:92px 1fr;align-items:center;gap:8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.gtitle small{display:block;font-family:var(--f-mono,inherit);font-size:11px;font-weight:500;letter-spacing:.14em;color:var(--dim);margin-top:6px;text-transform:uppercase}
+.pk{transition:border-color .2s,background .2s}.pk.focus{border-color:var(--acc);background:linear-gradient(90deg,rgba(255,201,74,.13),rgba(255,201,74,.03));box-shadow:inset 3px 0 0 var(--acc)}
+.pk.cur:not(.focus){border-color:rgba(61,255,181,.5)}.pkn{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:8px;font-style:normal;font-size:10px;border:1px solid var(--line);color:var(--dim)}.pk.focus .pkn{background:var(--acc);border-color:var(--acc);color:#0b1220}
+.pktag{font-style:normal;font-size:9px;letter-spacing:.18em;text-transform:uppercase;padding:2px 6px;border:1px solid currentColor}.pktag.cur{color:#3dffb5}.pktag.look{color:var(--acc)}
+.pkshort{margin:0;font-size:11px;color:var(--dim)}
+.gpick{position:fixed;left:24px;bottom:28px;z-index:3;display:flex;flex-direction:column;gap:3px;pointer-events:none;text-shadow:0 2px 12px rgba(0,0,0,.6)}.gpick span{font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--acc)}
+.gpick b{font-family:var(--f-disp);font-size:clamp(20px,3.4vw,34px);font-weight:800;line-height:1.05}.gpick em{font-style:normal;font-size:11px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+@media (orientation:portrait) and (max-width:820px){ .gpick{top:calc(64px + env(safe-area-inset-top,0px));bottom:auto;left:16px} }
 .pkb i{height:6px;background:linear-gradient(90deg,var(--acc) calc(var(--v)*100%),rgba(255,255,255,.08) 0)}.pkab b{color:var(--acc)}
 #win{position:fixed;inset:0;z-index:12;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,rgba(255,201,74,.2),rgba(6,12,26,0) 60%);overflow:hidden}
 #win::before{content:"";position:absolute;width:140vmax;height:140vmax;left:50%;top:50%;margin:-70vmax 0 0 -70vmax;background:repeating-conic-gradient(rgba(255,201,74,.11) 0 7deg,transparent 7deg 18deg);animation:wspin 16s linear infinite;-webkit-mask:radial-gradient(circle,#000 8%,transparent 50%);mask:radial-gradient(circle,#000 8%,transparent 50%)}
@@ -417,6 +425,7 @@ kbd{font-family:var(--f-mono);border:1px solid var(--line);padding:0 4px;font-si
 
 <div id="garage" hidden>
   <div class="gtop"><div class="gtitle" id="gTitle">ГАРАЖ <span class="cjk">车库</span></div><div class="ghint">тяни по экрану, чтобы покрутить танк</div></div>
+  <div class="gpick" id="gPick" hidden></div>
   <aside class="gpanel" id="gpanel">
     <div class="gscrap"><i class="nut" aria-hidden="true"></i><b id="gScrap">0</b><span>лома</span></div>
     <section class="gcard" id="gHull">
@@ -1322,14 +1331,14 @@ const MGS={gau:{name:'Миниган',code:'GAU-6M',speed:95,g:0,spread:0.011,ra
   twin:{name:'Спарка',code:'GAU-6M×2',speed:95,g:0,spread:0.014,rate:28,radius:0.33,power:0.55,spin:true,heat:0.019,cost:450,info:'2 блока стволов, 28 выстр/с'},
   kpv:{name:'Крупняк',code:'КПВ-14.5',speed:115,g:0,spread:0.005,rate:6.5,radius:0.62,power:0.8,spin:false,heat:0.055,cost:600,info:'1 тяжёлый ствол, грызёт стены'}};
 const AMMO_CAP={mg:[600,900,1300,1800],cn:[30,45,65,90],rk:[24,36,48,64]};
-const ST={scrap:600,ammo:{mg:600,cn:30,rk:24},kits:{rep:0,ammo:0,art:0}}; const UP={engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},rdr:0,tank:'base',tanks:{base:1}};
+const ST={scrap:600,ammo:{mg:600,cn:30,rk:24},kits:{rep:0,ammo:0,art:0}}; const UP={engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},rdr:0,tank:'base',tanks:{base:1},per:{},abl:0};
 const MS={i:0,active:false,prog:0,rank:0};
 function ammoCap(id){ return AMMO_CAP[id][UP.ammo]; }
 function refillAmmo(){ for(const id of ['mg','cn','rk']) ST.ammo[id]=ammoCap(id); }
 const SAVE_KEY='sharotank-5tl-v3';
 function save(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify({scrap:Math.floor(ST.scrap),hp:TK.hp,dmg:TK.dmgS,up:UP,ammo:ST.ammo,ms:MS,kits:ST.kits,seen:SEEN})); }catch(e){} }
 function loadSave(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return false; ST.scrap=d.scrap|0;
-  const u=d.up||{}; for(const k of ['engine','armor','cal','load','stab','rk','ammo','rdr']) if(typeof u[k]==='number') UP[k]=u[k]; if(MGS[u.mg]) UP.mg=u.mg; UP.own=Object.assign({gau:1},u.own||{}); UP.tanks=Object.assign({base:1},u.tanks||{}); UP.tank=(CHASSIS[u.tank]&&UP.tanks[u.tank])?u.tank:'base';
+  const u=d.up||{}; for(const k of ['engine','armor','cal','load','stab','rk','ammo','rdr','abl']) if(typeof u[k]==='number') UP[k]=u[k]; if(MGS[u.mg]) UP.mg=u.mg; UP.own=Object.assign({gau:1},u.own||{}); UP.tanks=Object.assign({base:1},u.tanks||{}); UP.tank=(CHASSIS[u.tank]&&UP.tanks[u.tank])?u.tank:'base'; UP.per=u.per||{}; perFix();
   TK.hp=clamp(+d.hp||maxHP(),1,maxHP()); if(Array.isArray(d.dmg)) for(let i=0;i<5;i++) TK.dmgS[i]=clamp(+d.dmg[i]||0,0,1);
   refillAmmo(); if(d.ammo) for(const id of ['mg','cn','rk']) if(typeof d.ammo[id]==='number') ST.ammo[id]=clamp(d.ammo[id],0,ammoCap(id));
   if(d.kits){ ST.kits.rep=clamp(d.kits.rep|0,0,2); ST.kits.ammo=clamp(d.kits.ammo|0,0,2); ST.kits.art=clamp(d.kits.art|0,0,2); }
@@ -1467,66 +1476,107 @@ const plateTex=(()=>{ const pc=document.createElement('canvas'); pc.width=160; p
 const plateMat=new THREE.MeshBasicMaterial({map:plateTex}); const plateGeo=new THREE.PlaneGeometry(0.9,0.32);
 const glowMats={}; function glowMat(cc){ return glowMats[cc]||(glowMats[cc]=new THREE.MeshBasicMaterial({color:cc})); }
 const TANK_SKIN={turret:0x6c9a80,chassis:0x2b363a,wheels:0x7a383d};
-/* ================= v12: tank chassis — stats, abilities and models (built from the references) ================= */
+/* ================= v13: tank chassis — stats, weapon sets, ability upgrades and detailed models ================= */
 const CHASSIS={
- base:{name:'Шаротанк 5T-L',cls:'Универсал',cost:0,hp:1,spd:1,acc:1,turn:1,ram:1,cn:1,abil:null,abN:'Без особенностей',abI:'надёжная стартовая машина, хороша во всём понемногу',desc:'Колёсный танк со сферической башней. С него начинают все водители лагеря.'},
- ten:{name:'ЛТ-7 «Тень»',cls:'Лёгкий',cost:1600,hp:0.7,spd:1.3,acc:1.35,turn:1.3,ram:0.6,cn:1,abil:'stealth',abN:'Маскировка',abI:'через 2 с без стрельбы враги не замечают танк дальше 15 м, а первый выстрел из маскировки наносит двойной урон',desc:'Разведчик на колёсах-роликах с длинными рычагами подвески. Быстрый, вёрткий и хрупкий.'},
- krep:{name:'ТТ-14 «Крепость»',cls:'Тяжёлый',cost:2600,hp:1.75,spd:0.72,acc:0.7,turn:0.78,ram:2,cn:1.1,abil:'shield',abN:'Щит (E)',abI:'на стоянке раскрывает створки и поднимает купол: снаружи по танку не попасть, а сам он стреляет. Пока купол стоит, танк не двигается',desc:'Шестиколёсная бронированная махина с кабиной-аквариумом. Медленная, но выдерживает всё.'},
- igla:{name:'ПТ-6 «Игла»',cls:'Дальнобойный',cost:2200,hp:0.9,spd:0.88,acc:0.85,turn:0.9,ram:0.8,cn:1.7,abil:'rail',abN:'Рельсотрон',abI:'вместо снаряда — мгновенный луч на 70 м: прошивает всех роботов на линии и бьёт за ними',desc:'Гусеничная машина с массивной башней и двумя светящимися ячейками рельсотрона.'},
- pchela:{name:'ИТ-1 «Пчела»',cls:'Инженерный',cost:2000,hp:1.05,spd:0.95,acc:1,turn:1,ram:1,cn:0.85,abil:'drones',abN:'Рой',abI:'три боевых мини-дрона сами атакуют ближайших врагов, плюс один встроенный ремонтный дрон. Сбитые дроны возвращаются через 20 с',desc:'Бронеавтомобиль с ульем для дронов на корме. Сам стреляет слабее, зато никогда не воюет один.'}};
+ base:{name:'Шаротанк 5T-L',cls:'Универсал',cost:0,hp:1,spd:1,acc:1,turn:1,ram:1,cn:1,abil:null,w:[0,1,2],mgs:['gau','twin','kpv'],arms:'пулемёт, пушка, ракеты',abN:'Без особенностей',abI:'надёжная стартовая машина, хороша во всём понемногу',desc:'Колёсный танк со сферической башней. С него начинают все водители лагеря.'},
+ ten:{name:'ЛТ-7 «Тень»',cls:'Лёгкий',cost:1600,hp:0.7,spd:1.3,acc:1.35,turn:1.3,ram:0.6,cn:1,abil:'stealth',w:[0,1],mgs:['gau'],arms:'миниган и пушка',abN:'Маскировка',abI:'после паузы в стрельбе враги перестают замечать танк издалека, а первый выстрел из маскировки наносит двойной урон',desc:'Разведчик на колёсах-роликах с длинными рычагами подвески. Быстрый, вёрткий и хрупкий.'},
+ krep:{name:'ТТ-14 «Крепость»',cls:'Тяжёлый',cost:2600,hp:1.75,spd:0.72,acc:0.7,turn:0.78,ram:2,cn:1.1,abil:'shield',w:[0,1],mgs:['twin'],arms:'спаренный пулемёт и трёхствольная пушка',abN:'Щит (E)',abI:'на стоянке раскрывает створки и поднимает купол: снаружи по танку не попасть, а сам он стреляет. Пока купол стоит, танк не двигается',desc:'Шестиколёсная бронированная махина с кабиной-аквариумом и дымящей трубой. Медленная, но выдерживает всё.'},
+ igla:{name:'ПТ-6 «Игла»',cls:'Дальнобойный',cost:2200,hp:0.9,spd:0.95,acc:0.9,turn:0.9,ram:0.8,cn:1.7,abil:'rail',w:[1,2],mgs:[],arms:'сдвоенный рельсотрон и ракеты',abN:'Рельсотрон',abI:'вместо снаряда — сдвоенный мгновенный луч на 70 м: прошивает всех роботов на линии и бьёт за ними',desc:'Длинный шестиколёсный истребитель с вытянутой башней и двумя энергетическими стволами.'},
+ pchela:{name:'ИТ-1 «Пчела»',cls:'Инженерный',cost:2000,hp:1.05,spd:0.95,acc:1,turn:1,ram:1,cn:0.85,abil:'drones',w:[0],mgs:['gau','twin','kpv'],arms:'только пулемёт',abN:'Рой камикадзе',abI:'дроны-камикадзе кружат над танком и таранят ближайшего врага со взрывом, новые вылетают из люка в корме. Сначала один, улучшается до трёх',desc:'Бронеавтомобиль с ульем для дронов на корме. Сам стреляет только из пулемёта, зато не воюет один.'}};
 const CH_ORDER=['base','ten','krep','igla','pchela'];
 function chs(){ return CHASSIS[UP.tank]||CHASSIS.base; }
-function chWheel(T,o,x,y0,z,r,w,tc,hc,opt){ const g=new THREE.Group(); g.position.set(x,y0,z); T.root.add(g); const sp=new THREE.Group(); g.add(sp);
-  o.add(o.xc(o.Cy(r,r,w,14*o.S)),tc,sp,0,0,0,o.hi?1.04:1.06); o.add(o.xc(o.Cy(r*0.56,r*0.56,w+0.02,10*o.S)),hc,sp,0,0,0); const sd=Math.sign(x)||1;
-  if(opt.rim) o.add(o.xc(o.Cy(r*0.4,r*0.4,0.05,12)),opt.rim,sp,sd*(w/2+0.01),0,0);
-  const nl=o.hi?14:8, lg=o.B(w+0.02,0.1,0.16); for(let k=0;k<nl;k++){ const a=k/nl*TAU; const l=o.add(lg,opt.lug||tc,sp,0,Math.cos(a)*r,Math.sin(a)*r); l.rotation.x=-a; }
+const ABL={ten:{t:'Маскировка',cur:l=>`включается через ${[2,1.5,1][l]} с · видят с ${[15,12,9][l]} м`,info:'Быстрее уходит в тень, враги замечают её с меньшего расстояния.'},
+ krep:{t:'Генератор щита',cur:l=>`щит ${[260,340,420][l]} ед.`,info:'Купол выдерживает больше попаданий, прежде чем погаснет.'},
+ igla:{t:'Накопитель рельсотрона',cur:l=>`урон луча ×${[1,1.2,1.4][l]}`,info:'Луч рельсотрона бьёт сильнее.'},
+ pchela:{t:'Рой камикадзе',cur:l=>`${l+1} ${l?'дрона':'дрон'} в рое`,info:'Больше дронов-камикадзе одновременно кружит над танком.'}};
+const STL_DELAY=[2,1.5,1], STL_R=[15,12,9], SHD_MAX=[260,340,420], RAIL_K=[1,1.2,1.4];
+function chWheel(T,o,x,y0,z,r,w,tc,hc,opt){ const g=new THREE.Group(); g.position.set(x,y0,z); T.root.add(g); const sp=new THREE.Group(); g.add(sp); const sd=Math.sign(x)||1;
+  o.add(o.xc(o.Cy(r,r,w,16*o.S)),tc,sp,0,0,0,o.hi?1.04:1.06); o.add(o.xc(o.Cy(r*0.58,r*0.58,w+0.02,12*o.S)),hc,sp,0,0,0);
+  if(opt.rim){ o.add(o.xc(o.Cy(r*0.44,r*0.44,0.05,14)),opt.rim,sp,sd*(w/2+0.015),0,0); o.add(o.xc(o.Cy(r*0.16,r*0.2,0.12,10)),0x2a2e33,sp,sd*(w/2+0.05),0,0); }
+  if(o.hi&&opt.rim) for(let k=0;k<6;k++){ const a=k/6*TAU; o.add(o.xc(o.Cy(0.03,0.03,0.06,6)),0x3b424c,sp,sd*(w/2+0.04),Math.cos(a)*r*0.3,Math.sin(a)*r*0.3); }
+  const nl=o.hi?16:9, lg=o.B(w+0.03,0.1,0.15); for(let k=0;k<nl;k++){ const a=k/nl*TAU; const l=o.add(lg,opt.lug||tc,sp,0,Math.cos(a)*r,Math.sin(a)*r); l.rotation.x=-a; }
+  if(o.hi&&opt.lug) for(let k=0;k<nl;k++){ const a=(k+0.5)/nl*TAU; for(const s of [-1,1]){ const l=o.add(o.B(w*0.32,0.07,0.12),opt.lug,sp,s*w*0.25,Math.cos(a)*r,Math.sin(a)*r); l.rotation.x=-a; } }
   g.userData={y0,wi:opt.wi,st:opt.st||0,rs:0.56/r}; T.wheels.push(g); T.spins.push(sp); return sp; }
 function chBeacon(T,par,x,y,z){ T.beacon=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,6),new THREE.MeshBasicMaterial({color:0xffb53a})); T.beacon.userData.keep=true; T.beacon.position.set(x,y,z); par.add(T.beacon); }
+function chRivets(o,par,col,pts){ if(!o.hi) return; for(const [x,y,z,ax] of pts){ const g=ax==='x'?o.xc(o.Cy(0.028,0.028,0.04,6)):ax==='z'?o.zc(o.Cy(0.028,0.028,0.04,6)):o.Cy(0.028,0.028,0.04,6); o.add(g,col,par,x,y,z); } }
+function chAntenna(o,par,x,y,z,h,col){ o.add(o.Cy(0.03,0.04,0.12,8),0x2a2e33,par,x,y+0.06,z); o.add(o.Cy(0.016,0.01,h,6),col||0x1d2226,par,x,y+h/2+0.1,z); if(o.hi) o.add(new THREE.SphereGeometry(0.035,6,4),0x1d2226,par,x,y+h+0.12,z); }
 const CH_BUILD={
- /* «Тень»: rover with omni-roller wheels on long arms, black glass canopy (ref: white rover, here in stealth graphite) */
- ten(T,o){ const {add,B,Cy,xc}=o, Sp=T.susp, Tu=T.turret, C=0x30363b, D=0x15191c, G=0x0b1115, A=0x4a535b, GL=glowMat(0x5dff9a);
-  for(const [x,z,wi] of [[1.42,1.2,0],[-1.42,1.2,1],[1.42,-1.15,2],[-1.42,-1.15,3]]){ const sp=chWheel(T,o,x,0.5,z,0.5,0.44,0x101316,0x5b646c,{wi,st:z>0?1:0,lug:0x1d2226,rim:A}); add(xc(Cy(0.09,0.09,0.5,8)),GL,sp,0,0,0); }
-  for(const s of [-1,1]) for(const z of [1.2,-1.15]){ const a=add(B(0.95,0.13,0.16),A,Sp,s*0.95,0.66,z*0.93,true); a.rotation.z=s*-0.2; add(B(0.12,0.12,0.42),D,Sp,s*0.52,0.78,z*0.86); add(xc(Cy(0.13,0.13,0.18,10)),D,Sp,s*1.3,0.52,z); }
-  add(B(1.2,0.55,2.2),C,Sp,0,0.98,-0.2,true); const nose=add(xc(Cy(0.6,0.6,1.2,16*o.S)),C,Sp,0,0.98,0.9,true); nose.scale.set(1,0.48,1);
-  const cp=add(B(1.02,0.42,0.95),G,Sp,0,1.32,0.62,true); cp.rotation.x=0.2; add(B(1.08,0.07,1.05),A,Sp,0,1.56,0.55); add(B(0.08,0.4,0.08),A,Sp,0.5,1.36,1.02); add(B(0.08,0.4,0.08),A,Sp,-0.5,1.36,1.02);
-  add(B(0.86,0.03,0.02),GL,Sp,0,1.2,1.1); for(const s of [-1,1]){ add(B(0.02,0.05,1.8),GL,Sp,s*0.61,1.06,-0.25); add(xc(Cy(0.22,0.22,0.3,12)),D,Sp,s*0.42,1.0,-1.3,true); add(xc(Cy(0.12,0.12,0.32,10)),glowMat(0x1d6b46),Sp,s*0.42,1.0,-1.32); }
+ /* «Тень» — ref: rover with omni-roller wheels on long articulated arms and a black glass canopy; stealth graphite */
+ ten(T,o){ const {add,B,Cy,xc,zc,hi}=o, Sp=T.susp, Tu=T.turret, C=0x30363b, C2=0x262b30, D=0x15191c, G=0x0b1115, A=0x4a535b, GL=glowMat(0x5dff9a);
+  for(const [x,z,wi] of [[1.45,1.22,0],[-1.45,1.22,1],[1.45,-1.18,2],[-1.45,-1.18,3]]){ const sp=chWheel(T,o,x,0.5,z,0.5,0.44,0x101316,0x5b646c,{wi,st:z>0?1:0,lug:0x1d2226,rim:A});
+    add(xc(Cy(0.09,0.09,0.5,8)),GL,sp,0,0,0); const n=hi?14:8; for(let k=0;k<n;k++){ const a=(k+0.5)/n*TAU, rl=add(Cy(0.07,0.07,0.36,8),0x23282c,sp,0,Math.cos(a)*0.5,Math.sin(a)*0.5); rl.rotation.x=-a; } }
+  for(const s of [-1,1]) for(const z of [1.22,-1.18]){ const a=add(B(1.0,0.13,0.17),A,Sp,s*0.97,0.66,z*0.93,true); a.rotation.z=s*-0.2; const a2=add(B(0.8,0.08,0.1),C2,Sp,s*0.9,0.82,z*0.9); a2.rotation.z=s*-0.32;
+    add(B(0.14,0.14,0.46),D,Sp,s*0.52,0.78,z*0.86); add(xc(Cy(0.14,0.14,0.2,12)),D,Sp,s*1.32,0.52,z); add(xc(Cy(0.09,0.09,0.24,10)),A,Sp,s*0.5,0.78,z*0.86); if(hi) add(Cy(0.05,0.05,0.32,8),0x8a9096,Sp,s*0.75,0.98,z*0.88); }
+  add(B(1.2,0.55,2.2),C,Sp,0,0.98,-0.2,true); const nose=add(xc(Cy(0.6,0.6,1.2,18*o.S)),C,Sp,0,0.98,0.9,true); nose.scale.set(1,0.48,1); add(B(1.24,0.06,2.1),D,Sp,0,0.72,-0.2);
+  const cp=add(B(1.02,0.42,0.95),G,Sp,0,1.32,0.62,true); cp.rotation.x=0.2; add(B(1.08,0.07,1.05),A,Sp,0,1.56,0.55); for(const s of [-1,1]) add(B(0.08,0.42,0.08),A,Sp,s*0.5,1.36,1.02);
+  add(B(0.86,0.03,0.02),GL,Sp,0,1.2,1.1); for(const s of [-1,1]){ add(B(0.02,0.05,1.8),GL,Sp,s*0.61,1.06,-0.25); add(xc(Cy(0.22,0.22,0.3,12)),D,Sp,s*0.42,1.0,-1.3,true); add(xc(Cy(0.12,0.12,0.32,10)),glowMat(0x1d6b46),Sp,s*0.42,1.0,-1.32);
+    add(zc(Cy(0.07,0.07,0.04,10)),glowMat(0xe8fff2),Sp,s*0.38,0.98,1.2); add(B(0.04,0.12,0.18),A,Sp,s*0.62,1.48,0.95); add(B(0.03,0.1,0.14),G,Sp,s*0.66,1.48,1.0); }
+  add(B(0.9,0.06,0.04),glowMat(0xff3a3a),Sp,0,1.05,-1.31);
+  if(hi){ for(let k=0;k<4;k++) add(B(1.22,0.012,0.012),D,Sp,0,1.26,-1.1+k*0.42); for(let k=0;k<6;k++) add(B(0.5,0.02,0.04),D,Sp,0,1.27,-0.45-k*0.1);
+    chRivets(o,Sp,A,[[0.61,0.85,0.4,'x'],[0.61,0.85,-0.3,'x'],[0.61,0.85,-1.0,'x'],[-0.61,0.85,0.4,'x'],[-0.61,0.85,-0.3,'x'],[-0.61,0.85,-1.0,'x']]);
+    add(B(0.5,0.05,0.3),0x8a9096,Sp,0,1.27,-0.95); add(B(0.08,0.08,0.3),D,Sp,0.3,0.7,1.32); add(B(0.08,0.08,0.3),D,Sp,-0.3,0.7,1.32); }
   Sp.add(T.stab); T.stab.position.set(0,1.27,-0.45); T.stab.add(Tu);
-  add(B(0.86,0.32,1.0),A,Tu,0,0.18,0,true); add(B(0.6,0.12,0.62),D,Tu,0,0.4,-0.12); add(B(0.3,0.16,0.2),G,Tu,0.25,0.42,0.3);
-  add(Cy(0.022,0.012,1.7,6),D,Tu,-0.32,1.12,-0.38); chBeacon(T,Tu,-0.32,1.98,-0.38); T.gun.position.set(0,0.2,0.45); },
- /* «Крепость»: six-wheeler armoured truck with a fishbowl cab, antennas and shield flaps (ref: orange 6x6) */
- krep(T,o){ const {add,B,Cy,zc}=o, Sp=T.susp, Tu=T.turret, O=0xe0582a, O2=0xc84a22, D=0x2a2d31, Ti=0x2e2a27, Gl=0x14222a, M=0x5a5f64;
-  for(const [x,z,wi,st] of [[1.2,1.3,0,1],[-1.2,1.3,1,1],[1.2,0.02,-1,0],[-1.2,0.02,-1,0],[1.2,-1.26,2,0],[-1.2,-1.26,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,Ti,0xf0a030,{wi,st,lug:0x221f1d,rim:D});
-  add(B(1.7,0.45,3.7),D,Sp,0,0.88,0,true);
-  add(B(2.05,1.1,1.15),O,Sp,0,1.62,1.25,true); add(B(1.78,0.72,0.04),D,Sp,0,1.76,1.83); add(B(1.62,0.58,0.04),Gl,Sp,0,1.77,1.85); for(const s of [-1,1]){ add(B(0.04,0.48,0.62),Gl,Sp,s*1.03,1.8,1.28); add(zc(Cy(0.12,0.12,0.08,12)),glowMat(0xfff2d2),Sp,s*0.86,1.08,1.96); add(zc(Cy(0.07,0.07,0.06,10)),glowMat(0xfff2d2),Sp,s*0.5,2.1,1.84); }
-  add(B(2.15,0.26,0.28),D,Sp,0,0.98,1.92,true);
-  add(B(2.15,1.35,2.3),O,Sp,0,1.75,-0.6,true); for(const s of [-1,1]){ for(let k=0;k<2;k++) add(B(0.05,0.72,0.9),O2,Sp,s*1.1,1.78,-0.12-k*1.0); add(B(0.05,0.08,1.9),D,Sp,s*1.1,1.18,-0.6); add(zc(Cy(0.13,0.13,0.08,12)),glowMat(0xffd27a),Sp,s*0.8,1.95,-1.78); }
-  add(B(1.95,0.06,2.1),D,Sp,0,2.45,-0.6); add(B(0.5,0.3,0.4),M,Sp,0.55,2.6,-1.25,true);
-  for(const [x,z,h] of [[0.8,1.55,1.5],[-0.85,1.5,1.0],[0.88,-1.55,1.8],[0.62,-1.62,1.25],[-0.7,-1.6,1.4]]) add(Cy(0.022,0.014,h,6),D,Sp,x,2.3+h/2,z);
-  T.flaps=[]; for(const s of [-1,1]){ const f=new THREE.Group(); f.position.set(s*1.12,2.42,-0.6); Sp.add(f); add(B(0.08,0.95,2.0),O2,f,s*0.04,-0.48,0,true); add(B(0.03,0.06,1.8),glowMat(0x7fe8ff),f,s*0.1,-0.25,0); f.userData.s=s; T.flaps.push(f); }
-  const em=new THREE.Group(); em.position.set(-0.45,2.5,-1.2); Sp.add(em); add(Cy(0.07,0.07,0.32,8),M,em,0,0.16,0); const dish=add(new THREE.SphereGeometry(0.42,14,6,0,TAU,0,Math.PI/2.6),M,em,0,0.42,0,true); dish.rotation.x=Math.PI; add(new THREE.SphereGeometry(0.1,8,6),glowMat(0x7fe8ff),em,0,0.26,0); T.spinners.push(em);
-  Sp.add(T.stab); T.stab.position.set(0,2.2,0.7); T.stab.add(Tu); add(Cy(0.55,0.62,0.16,16),D,Tu,0,0.04,0,true); add(B(1.02,0.5,1.05),O,Tu,0,0.36,0,true); add(B(0.92,0.06,0.9),D,Tu,0,0.63,0); add(B(0.32,0.26,0.3),M,Tu,0.42,0.74,-0.22,true);
-  chBeacon(T,Tu,-0.38,0.75,-0.3); T.gun.position.set(0,0.38,0.52); },
- /* «Игла»: tracked crimson hull, oversized turret, twin glowing rail cells (ref: red tracked tank) */
- igla(T,o){ const {add,B,Cy,xc,zc}=o, Sp=T.susp, Tu=T.turret, R=0xb8323a, Rd=0x8c2630, D=0x2e1b20, Te=0x3fd0c0, BL=glowMat(0x7fe8ff);
-  for(const s of [-1,1]){ add(B(0.64,0.78,3.35),0x2a2224,Sp,s*1.06,0.46,0,true); for(let k=0;k<12;k++) add(B(0.66,0.06,0.12),0x17110f,Sp,s*1.06,0.86,-1.52+k*0.275); add(B(0.78,0.2,3.45),R,Sp,s*1.06,0.98,0,true); }
-  for(const [s,z] of [[1,1.25],[-1,1.25],[1,-1.25],[-1,-1.25]]){ const g=new THREE.Group(); g.position.set(s*1.4,0.46,z); T.root.add(g); const sp=new THREE.Group(); g.add(sp); add(xc(Cy(0.34,0.34,0.06,16)),z>0?Te:0x3a2a2e,sp,0,0,0,true); add(B(0.07,0.5,0.08),D,sp,s*0.03,0,0); g.userData={y0:0.46,wi:-1,st:0,rs:1.6}; T.wheels.push(g); T.spins.push(sp); }
-  add(B(1.5,0.68,2.9),R,Sp,0,1.12,-0.15,true); const sh=add(xc(Cy(0.74,0.74,1.5,16*o.S)),R,Sp,0,1.06,1.2,true); sh.scale.set(1,0.62,0.85);
-  for(const s of [-1,1]){ add(zc(Cy(0.1,0.1,0.06,10)),D,Sp,s*0.45,1.12,1.82); add(new THREE.SphereGeometry(0.05,8,6),BL,Sp,s*0.45,1.12,1.86); }
-  Sp.add(T.stab); T.stab.position.set(0,1.48,-0.35); T.stab.add(Tu);
-  add(Cy(0.72,0.82,0.18,16),D,Tu,0,0.05,0,true); add(B(1.5,0.78,2.1),R,Tu,0,0.52,0.05,true); add(B(1.32,0.16,1.85),Rd,Tu,0,0.98,-0.05); add(B(1.52,0.2,0.4),D,Tu,0,0.4,-1.05,true);
-  add(B(1.22,0.66,0.95),D,Tu,0,0.5,1.5,true); add(B(1.25,0.1,0.8),Te,Tu,0,0.88,1.48); for(const s of [-1,1]){ add(B(0.38,0.52,0.1),BL,Tu,s*0.28,0.5,1.99); for(let k=0;k<3;k++) add(B(0.42,0.06,0.04),D,Tu,s*0.28,0.3+k*0.2,2.03); add(B(0.05,0.24,0.24),D,Tu,s*0.77,0.6,0.6); }
-  chBeacon(T,Tu,0.5,1.2,-0.6); add(Cy(0.02,0.02,0.5,6),D,Tu,0.5,0.95,-0.6);
-  T.customCn=true; T.gun.position.set(0,0.5,1.6); T.cnMuz.position.set(0,0,0.5); T.cn.add(T.cnMuz); add(B(0.9,0.42,0.05),BL,T.cn,0,0,0.42); },
- /* «Пчела»: angular armoured car, white with red panels, drone hive on the back (ref: white/red APC) */
- pchela(T,o){ const {add,B,Cy}=o, Sp=T.susp, Tu=T.turret, W=0xe8e6df, Rr=0xd8322a, Or=0xf0a030, D=0x2a2e33, M=0x8a9096;
+  add(Cy(0.5,0.55,0.1,16),D,Tu,0,0.03,0,true); add(B(0.86,0.32,1.0),A,Tu,0,0.2,0,true); const wd=add(B(0.86,0.1,0.4),A,Tu,0,0.33,0.62); wd.rotation.x=0.4; add(B(0.6,0.12,0.62),D,Tu,0,0.42,-0.12);
+  add(B(0.3,0.16,0.2),G,Tu,0.25,0.44,0.3); add(B(0.22,0.04,0.02),GL,Tu,0.25,0.44,0.41); chAntenna(o,Tu,-0.32,0.38,-0.38,1.6); chBeacon(T,Tu,-0.32,2.12,-0.38);
+  if(hi){ add(B(0.88,0.012,0.012),D,Tu,0,0.36,-0.25); chRivets(o,Tu,D,[[0.43,0.2,0.3,'x'],[0.43,0.2,-0.3,'x'],[-0.43,0.2,0.3,'x'],[-0.43,0.2,-0.3,'x']]); add(B(0.18,0.18,0.3),C2,Tu,-0.5,0.2,-0.2,true); }
+  T.gun.position.set(0,0.2,0.48); },
+ /* «Крепость» — ref: orange 6x6 armoured truck; triple rotary cannon, twin MG, vertical smoking exhaust */
+ krep(T,o){ const {add,B,Cy,zc,xc,hi}=o, Sp=T.susp, Tu=T.turret, O=0xe0582a, O2=0xc84a22, D=0x2a2d31, Gl=0x14222a, M=0x5a5f64, Y=0xf0a030;
+  for(const [x,z,wi,st] of [[1.2,1.3,0,1],[-1.2,1.3,1,1],[1.2,0.02,-1,0],[-1.2,0.02,-1,0],[1.2,-1.26,2,0],[-1.2,-1.26,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,0x2e2a27,Y,{wi,st,lug:0x221f1d,rim:D});
+  add(B(1.7,0.45,3.7),D,Sp,0,0.88,0,true); for(const s of [-1,1]) for(const z of [0.66,-0.62]){ add(B(0.5,0.16,0.08),D,Sp,s*1.2,1.0,z); if(hi) add(B(0.52,0.4,0.04),0x1a1c1f,Sp,s*1.2,0.78,z-0.05); }
+  add(B(2.05,1.1,1.15),O,Sp,0,1.62,1.25,true); add(B(1.78,0.72,0.04),D,Sp,0,1.76,1.83); add(B(1.62,0.58,0.04),Gl,Sp,0,1.77,1.85); add(B(0.04,0.58,0.05),D,Sp,0,1.77,1.86);
+  for(const s of [-1,1]){ add(B(0.04,0.48,0.62),Gl,Sp,s*1.03,1.8,1.28); add(zc(Cy(0.12,0.12,0.08,12)),glowMat(0xfff2d2),Sp,s*0.86,1.08,1.96); add(zc(Cy(0.07,0.07,0.06,10)),glowMat(0xfff2d2),Sp,s*0.5,2.1,1.84);
+    const ma=add(B(0.3,0.04,0.04),D,Sp,s*1.18,1.95,1.6); ma.rotation.y=s*0.4; add(B(0.06,0.22,0.14),D,Sp,s*1.33,1.9,1.52); add(B(0.05,0.12,0.12),glowMat(0xffb53a),Sp,s*0.98,1.32,1.86); }
+  add(B(2.15,0.26,0.28),D,Sp,0,0.98,1.92,true); for(let k=0;k<5;k++) add(B(0.08,0.2,0.06),M,Sp,-0.5+k*0.25,1.2,1.84); add(B(0.4,0.1,0.12),Y,Sp,0,0.94,2.08);
+  add(B(2.15,1.35,2.3),O,Sp,0,1.75,-0.6,true); for(const s of [-1,1]){ for(let k=0;k<2;k++){ add(B(0.05,0.72,0.9),O2,Sp,s*1.1,1.78,-0.12-k*1.0); if(hi){ add(B(0.06,0.04,0.3),D,Sp,s*1.12,1.95,-0.12-k*1.0); chRivets(o,Sp,D,[[s*1.13,2.1,0.25-k,'x'],[s*1.13,2.1,-0.48-k,'x'],[s*1.13,1.46,0.25-k,'x'],[s*1.13,1.46,-0.48-k,'x']]); } }
+    add(B(0.05,0.08,1.9),D,Sp,s*1.1,1.18,-0.6); add(zc(Cy(0.13,0.13,0.08,12)),glowMat(0xffd27a),Sp,s*0.8,1.95,-1.78); add(xc(Cy(0.16,0.16,0.7,12)),M,Sp,s*0.95,0.95,-0.1,true); }
+  add(B(1.95,0.06,2.1),D,Sp,0,2.45,-0.6); for(let k=0;k<5;k++) add(B(1.95,0.04,0.04),M,Sp,0,2.52,-1.5+k*0.45); add(B(0.5,0.3,0.4),M,Sp,0.55,2.62,-1.25,true);
+  add(B(0.6,0.9,0.06),O2,Sp,0,1.75,-1.77); add(B(0.08,0.2,0.06),D,Sp,0.22,1.75,-1.8); add(B(0.3,0.3,0.02),glowMat(0xffc94a),Sp,-0.55,2.15,-1.77); if(hi) for(let k=0;k<6;k++) add(B(0.4,0.04,0.06),M,Sp,0.75,0.95+k*0.22,-1.82);
+  const ex=add(Cy(0.11,0.12,1.5,12),M,Sp,-0.9,2.6,0.55,true); add(Cy(0.14,0.14,0.12,12),D,Sp,-0.9,3.38,0.55); add(B(0.3,0.06,0.3),D,Sp,-0.9,3.46,0.55); add(B(0.12,0.4,0.2),D,Sp,-0.9,2.2,0.55); T.exh=new THREE.Object3D(); T.exh.position.set(-0.9,3.5,0.55); Sp.add(T.exh);
+  for(const [x,z,h] of [[0.8,1.55,1.5],[-0.55,1.5,1.0],[0.88,-1.55,1.8],[0.62,-1.62,1.25],[-0.7,-1.6,1.4]]) chAntenna(o,Sp,x,2.22,z,h);
+  T.flaps=[]; for(const s of [-1,1]){ const f=new THREE.Group(); f.position.set(s*1.12,2.42,-0.6); Sp.add(f); add(B(0.08,0.95,2.0),O2,f,s*0.04,-0.48,0,true); add(B(0.03,0.06,1.8),glowMat(0x7fe8ff),f,s*0.1,-0.25,0); for(let k=0;k<3;k++) add(B(0.03,0.6,0.05),D,f,s*0.09,-0.5,-0.7+k*0.7); f.userData.s=s; T.flaps.push(f); }
+  const em=new THREE.Group(); em.position.set(-0.4,2.5,-1.2); Sp.add(em); add(Cy(0.07,0.07,0.32,8),M,em,0,0.16,0); const dish=add(new THREE.SphereGeometry(0.42,14,6,0,TAU,0,Math.PI/2.6),M,em,0,0.42,0,true); dish.rotation.x=Math.PI; add(new THREE.SphereGeometry(0.1,8,6),glowMat(0x7fe8ff),em,0,0.26,0); T.spinners.push(em);
+  Sp.add(T.stab); T.stab.position.set(0,2.2,0.7); T.stab.add(Tu); add(Cy(0.58,0.64,0.16,18),D,Tu,0,0.04,0,true); add(B(1.1,0.5,1.1),O,Tu,0,0.36,-0.05,true); add(B(1.0,0.06,1.0),D,Tu,0,0.63,-0.05);
+  add(B(0.32,0.26,0.3),M,Tu,0.42,0.76,-0.25,true); add(B(0.26,0.04,0.02),glowMat(0x7fe8ff),Tu,0.42,0.78,-0.09); for(const s of [-1,1]) add(B(0.06,0.4,0.6),O2,Tu,s*0.58,0.36,0.1);
+  chRivets(o,Tu,D,[[0.56,0.5,-0.4,'x'],[-0.56,0.5,-0.4,'x'],[0.56,0.2,-0.4,'x'],[-0.56,0.2,-0.4,'x']]); chBeacon(T,Tu,-0.4,0.75,-0.35);
+  T.gun.position.set(0,0.38,0.52); T.customCn=true; add(B(0.66,0.56,0.5),D,T.cn,0,0,0.2,true); add(zc(Cy(0.34,0.34,0.16,16)),M,T.cn,0,0,0.5,true);
+  const sp=new THREE.Group(); sp.position.z=0.55; T.cn.add(sp); T.cnSpin=sp; for(let k=0;k<3;k++){ const a=k/3*TAU; add(zc(Cy(0.09,0.1,2.0,10*o.S)),0x454d55,sp,Math.cos(a)*0.17,Math.sin(a)*0.17,1.0,true); add(zc(Cy(0.12,0.12,0.18,10)),0x2a3036,sp,Math.cos(a)*0.17,Math.sin(a)*0.17,1.95); }
+  add(zc(Cy(0.3,0.3,0.1,14)),0x2a3036,sp,0,0,0.6,true); add(zc(Cy(0.3,0.3,0.08,14)),0x2a3036,sp,0,0,1.5,true); T.cnMuz.position.set(0,0,2.6); T.cn.add(T.cnMuz); },
+ /* «Игла» — wheeled 6x6 tank destroyer, long stretched turret with a twin energy cannon (ref: crimson tank with twin glowing cells) */
+ igla(T,o){ const {add,B,Cy,xc,zc,hi}=o, Sp=T.susp, Tu=T.turret, R=0xb8323a, Rd=0x8c2630, D=0x2e1b20, Te=0x3fd0c0, BL=glowMat(0x7fe8ff), M=0x5a5f64;
+  for(const [x,z,wi,st] of [[1.18,1.35,0,1],[-1.18,1.35,1,1],[1.18,0.05,-1,0],[-1.18,0.05,-1,0],[1.18,-1.25,2,0],[-1.18,-1.25,3,0]]) chWheel(T,o,x,0.55,z,0.55,0.48,0x2a2224,0x3a2a2e,{wi,st,lug:0x17110f,rim:Te});
+  add(B(1.6,0.62,3.9),R,Sp,0,1.02,0.05,true); const nose=add(B(1.6,0.14,1.0),R,Sp,0,1.26,2.05,true); nose.rotation.x=0.38; add(B(1.0,0.03,0.5),Rd,nose,0,0.08,0);
+  for(const s of [-1,1]){ add(B(0.08,0.32,3.6),Rd,Sp,s*0.82,0.86,0); add(B(0.1,0.05,3.5),Te,Sp,s*0.86,1.12,0); for(const z of [1.35,0.05,-1.25]){ add(B(0.5,0.08,1.0),R,Sp,s*1.2,1.2,z,true); }
+    add(zc(Cy(0.1,0.1,0.06,10)),D,Sp,s*0.48,1.12,2.42); add(new THREE.SphereGeometry(0.055,8,6),BL,Sp,s*0.48,1.12,2.46); add(B(0.12,0.12,0.04),glowMat(0xff3a3a),Sp,s*0.6,1.1,-1.9); }
+  add(B(1.3,0.08,1.0),D,Sp,0,1.34,-1.3); if(hi){ for(let k=0;k<7;k++) add(B(1.1,0.02,0.04),M,Sp,0,1.39,-1.7+k*0.12); for(let k=0;k<5;k++) add(B(1.62,0.012,0.012),D,Sp,0,1.1,-1.6+k*0.8);
+    chRivets(o,Sp,D,[[0.81,1.0,1.2,'x'],[0.81,1.0,0.2,'x'],[0.81,1.0,-0.8,'x'],[-0.81,1.0,1.2,'x'],[-0.81,1.0,0.2,'x'],[-0.81,1.0,-0.8,'x']]); add(B(0.4,0.2,0.3),M,Sp,0.5,1.42,-1.6,true); add(B(0.4,0.2,0.3),M,Sp,-0.5,1.42,-1.6,true); }
+  Sp.add(T.stab); T.stab.position.set(0,1.42,-0.45); T.stab.add(Tu);
+  add(Cy(0.68,0.76,0.16,18),D,Tu,0,0.05,0,true); add(B(1.2,0.55,2.9),R,Tu,0,0.38,0.35,true); const wg=add(B(1.2,0.12,0.8),R,Tu,0,0.62,1.75,true); wg.rotation.x=0.3; add(B(1.05,0.14,2.4),Rd,Tu,0,0.7,0.1);
+  add(B(1.24,0.08,0.06),Te,Tu,0,0.5,1.82); add(B(1.0,0.3,0.6),D,Tu,0,0.36,-1.3,true); for(const s of [-1,1]){ add(B(0.06,0.32,2.2),Rd,Tu,s*0.62,0.36,0.4); add(B(0.04,0.04,2.0),BL,Tu,s*0.64,0.5,0.4); }
+  add(B(0.3,0.2,0.36),M,Tu,0.38,0.88,-0.4,true); add(B(0.24,0.12,0.02),BL,Tu,0.38,0.9,-0.21); chAntenna(o,Tu,-0.4,0.78,-0.9,1.2); chBeacon(T,Tu,-0.4,2.1,-0.9);
+  if(hi) chRivets(o,Tu,D,[[0.61,0.55,1.2,'x'],[0.61,0.55,-0.6,'x'],[-0.61,0.55,1.2,'x'],[-0.61,0.55,-0.6,'x'],[0.4,0.66,1.3],[-0.4,0.66,1.3]]);
+  T.noMg=true; T.customCn=true; T.gun.position.set(0,0.36,1.95);
+  add(B(0.92,0.42,0.6),D,T.cn,0,0,0.15,true); for(const s of [-1,1]){ add(zc(Cy(0.11,0.12,2.6,12*o.S)),0x3a3f46,T.cn,s*0.26,0,1.6,true); for(let k=0;k<4;k++){ add(zc(Cy(0.17,0.17,0.12,12)),Te,T.cn,s*0.26,0,0.75+k*0.42); add(zc(Cy(0.175,0.175,0.03,12)),BL,T.cn,s*0.26,0,0.84+k*0.42); }
+    add(zc(Cy(0.15,0.13,0.22,12)),D,T.cn,s*0.26,0,2.95,true); add(zc(Cy(0.07,0.07,0.04,10)),BL,T.cn,s*0.26,0,3.07); }
+  add(B(0.2,0.06,2.3),BL,T.cn,0,0,1.6); add(B(0.3,0.14,2.3),D,T.cn,0,-0.1,1.6); T.cnMuz.position.set(0,0,3.1); T.cn.add(T.cnMuz); T.rkPos=new THREE.Vector3(-0.95,0.1,-1.6); },
+ /* «Пчела» — ref: white/red armoured car; drone hive with an opening hatch, machine gun only */
+ pchela(T,o){ const {add,B,Cy,zc,xc,hi}=o, Sp=T.susp, Tu=T.turret, W=0xe8e6df, W2=0xcfccc4, Rr=0xd8322a, Or=0xf0a030, D=0x2a2e33, M=0x8a9096;
   for(const [x,z,wi,st] of [[1.22,1.15,0,1],[-1.22,1.15,1,1],[1.22,-1.15,2,0],[-1.22,-1.15,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,0x2a2a2c,M,{wi,st,lug:0x1c1c1e,rim:0xd8d6cf});
-  add(B(1.78,0.78,3.0),W,Sp,0,1.15,-0.12,true); const n=add(B(1.72,0.12,1.05),W,Sp,0,1.36,1.42,true); n.rotation.x=0.42; add(B(1.0,0.03,0.62),Rr,n,0,0.07,0.02);
-  add(B(1.52,0.42,1.85),W,Sp,0,1.75,-0.5,true); add(B(1.24,0.18,0.05),0x1a2228,Sp,0,1.72,0.44); for(const s of [-1,1]){ add(B(0.02,0.26,1.65),Rr,Sp,s*0.9,1.0,-0.35); add(B(0.03,0.32,0.4),Or,Sp,s*0.9,1.18,0.9); }
-  add(B(0.95,0.24,0.12),Or,Sp,0,0.84,1.34); add(B(1.9,0.22,0.24),D,Sp,0,0.82,1.48,true); for(const s of [-1,1]) add(B(0.2,0.1,0.04),glowMat(0xfff2d2),Sp,s*0.62,1.0,1.62);
-  add(B(1.25,0.36,0.92),D,Sp,0,2.12,-1.0,true); for(let k=0;k<3;k++){ add(Cy(0.18,0.18,0.05,6),Or,Sp,-0.4+k*0.4,2.32,-1.0); add(Cy(0.1,0.1,0.06,6),D,Sp,-0.4+k*0.4,2.34,-1.0); }
-  for(const [x,z,h] of [[0.7,-1.5,1.4],[-0.72,-1.45,1.1]]) add(Cy(0.02,0.014,h,6),D,Sp,x,2.3+h/2,z);
-  Sp.add(T.stab); T.stab.position.set(0,1.98,0.2); T.stab.add(Tu); add(Cy(0.55,0.6,0.14,16),D,Tu,0,0.04,0,true); add(B(1.05,0.46,1.25),W,Tu,0,0.32,0,true); add(B(0.7,0.03,0.6),Rr,Tu,0,0.56,0.15); add(B(0.3,0.26,0.36),M,Tu,-0.45,0.62,-0.3,true);
-  chBeacon(T,Tu,0.42,0.72,-0.4); T.gun.position.set(0,0.32,0.6); } };
+  add(B(1.78,0.78,3.0),W,Sp,0,1.15,-0.12,true); const n=add(B(1.72,0.12,1.05),W,Sp,0,1.36,1.42,true); n.rotation.x=0.42; add(B(1.0,0.03,0.62),Rr,n,0,0.07,0.02); add(B(0.2,0.03,0.2),D,n,0.55,0.07,-0.2);
+  add(B(1.52,0.42,1.85),W,Sp,0,1.75,-0.5,true); add(B(1.24,0.18,0.05),0x1a2228,Sp,0,1.72,0.44); add(B(1.3,0.04,0.06),Or,Sp,0,1.84,0.44);
+  for(const s of [-1,1]){ add(B(0.02,0.26,1.65),Rr,Sp,s*0.9,1.0,-0.35); add(B(0.03,0.32,0.4),Or,Sp,s*0.9,1.18,0.9); add(B(0.06,0.5,0.75),W2,Sp,s*0.92,1.25,-0.8,true); add(B(0.06,0.08,0.3),D,Sp,s*0.95,1.25,-0.8);
+    for(const z of [1.15,-1.15]){ const f=add(B(0.62,0.1,1.25),W,Sp,s*1.22,1.32,z,true); f.rotation.z=s*0.12; add(B(0.6,0.03,0.2),Rr,Sp,s*1.22,1.39,z+0.45); } add(zc(Cy(0.06,0.06,0.05,8)),glowMat(0xffb53a),Sp,s*0.85,1.38,1.0); }
+  add(B(0.95,0.24,0.12),Or,Sp,0,0.84,1.34); add(B(1.9,0.22,0.24),D,Sp,0,0.82,1.48,true); for(const s of [-1,1]){ add(B(0.2,0.1,0.04),glowMat(0xfff2d2),Sp,s*0.62,1.0,1.62); add(B(0.1,0.18,0.12),Or,Sp,s*0.4,0.74,1.62); }
+  add(B(0.8,0.06,0.04),glowMat(0xff3a3a),Sp,0,1.1,-1.63); add(B(0.5,0.4,0.06),W2,Sp,0.4,1.15,-1.64); if(hi){ for(let k=0;k<4;k++) add(B(1.8,0.012,0.012),D,Sp,0,0.95+k*0.12,-1.645);
+    chRivets(o,Sp,M,[[0.89,1.5,0.6,'x'],[0.89,1.5,-0.2,'x'],[0.89,1.5,-1.0,'x'],[-0.89,1.5,0.6,'x'],[-0.89,1.5,-0.2,'x'],[-0.89,1.5,-1.0,'x']]); add(B(0.08,0.4,0.08),D,Sp,0.8,1.5,-1.6); add(B(0.08,0.4,0.08),D,Sp,0.6,1.5,-1.6); }
+  add(B(1.25,0.36,0.92),D,Sp,0,2.12,-1.0,true); for(let k=0;k<3;k++){ if(k===1) continue; add(Cy(0.18,0.18,0.05,6),Or,Sp,-0.4+k*0.4,2.32,-1.0); add(Cy(0.1,0.1,0.06,6),D,Sp,-0.4+k*0.4,2.34,-1.0); }
+  const hatch=new THREE.Group(); hatch.position.set(0,2.31,-0.82); Sp.add(hatch); add(Cy(0.2,0.2,0.05,6),Or,hatch,0,0,-0.18,true); add(B(0.12,0.03,0.08),D,hatch,0,0.03,-0.18); T.hatch=hatch;
+  T.hatchPt=new THREE.Object3D(); T.hatchPt.position.set(0,2.4,-1.0); Sp.add(T.hatchPt); add(Cy(0.16,0.16,0.02,6),0x05080a,Sp,0,2.3,-1.0);
+  for(const [x,z,h] of [[0.7,-1.5,1.4],[-0.72,-1.45,1.1]]) chAntenna(o,Sp,x,2.28,z,h);
+  Sp.add(T.stab); T.stab.position.set(0,1.98,0.2); T.stab.add(Tu); add(Cy(0.55,0.6,0.14,16),D,Tu,0,0.04,0,true); add(B(1.05,0.46,1.25),W,Tu,0,0.32,0,true); add(B(0.7,0.03,0.6),Rr,Tu,0,0.56,0.15);
+  add(B(0.3,0.26,0.36),M,Tu,-0.45,0.62,-0.3,true); add(B(0.26,0.06,0.02),glowMat(0x7fe8ff),Tu,-0.45,0.64,-0.11); for(const s of [-1,1]) add(B(0.06,0.3,0.9),W2,Tu,s*0.54,0.3,0.05);
+  chRivets(o,Tu,M,[[0.53,0.45,0.4,'x'],[-0.53,0.45,0.4,'x'],[0.53,0.45,-0.4,'x'],[-0.53,0.45,-0.4,'x']]); chBeacon(T,Tu,0.42,0.72,-0.4);
+  T.customCn=true; T.gun.position.set(0,0.32,0.62); } };
 
 function makeTank(hi,up){
   const U={rootInv:{value:new THREE.Matrix4()},dmg:{value:new THREE.Vector4()},top:{value:0}};
@@ -1539,7 +1589,7 @@ function makeTank(hi,up){
   const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d), Cy=(r1,r2,h,s)=>new THREE.CylinderGeometry(r1,r2,h,s);
   const SK=up.skin||TANK_SKIN, C_BODY=SK.turret, C_CH=SK.chassis, C_TIRE=SK.wheels, C_HUB=0x5d8a72, C_MET=0x3b424c, C_DK=0x222b2f, C_ARM=0x557a66, C_GUN=0x454d55, C_GUN2=0x30373e, C_RIM=0x2a3036;
   const Rt=T.root, Sp=T.susp; Rt.add(Sp);
-  const CHID=(up.tank&&CH_BUILD[up.tank])?up.tank:'base'; if(CHID!=='base') CH_BUILD[CHID](T,{add,B,Cy,zc,xc,hi,S,mt}); else {
+  const CHID=(up.tank&&CH_BUILD[up.tank])?up.tank:'base'; T.chid=CHID; if(CHID!=='base') CH_BUILD[CHID](T,{add,B,Cy,zc,xc,hi,S,mt}); else {
   const tireG=xc(Cy(0.56,0.56,0.48,14*S)), hubG=xc(Cy(0.3,0.3,0.5,10*S)), lugG=B(0.5,0.12,0.18); const nl=hi?14:8;
   for(const [x,z] of WHL){ const w=new THREE.Group(); w.position.set(x,0.56,z); Rt.add(w); const sp=new THREE.Group(); w.add(sp);
     add(tireG,C_TIRE,sp,0,0,0,hi?1.04:1.06); add(hubG,C_HUB,sp,0,0,0);
@@ -1593,8 +1643,9 @@ function makeTank(hi,up){
     add(zc(Cy(0.21,0.21,0.08,16*S)),C_RIM,br,0,0,0.5,true); add(zc(Cy(0.21,0.21,0.08,16*S)),C_RIM,br,0,0,1.22,true);
     if(hi){ add(zc(Cy(0.07,0.07,1.3,8)),C_RIM,br,0,0,0.65); add(zc(Cy(0.19,0.19,0.05,16)),C_GUN,br,0,0,0.9); }
     T.barrels.push(br); const mz=new THREE.Object3D(); mz.position.set(x,0,1.95); par.add(mz); T.mgMuz.push(mz); };
-  if(up.mg==='twin'){ gatling(T.mg,-0.27); gatling(T.mg,0.27); add(B(0.95,0.16,0.4),C_GUN2,T.mg,0,-0.2,0.3,true); }
-  else if(up.mg==='kpv'){ add(B(0.5,0.42,0.7),C_GUN2,T.mg,0,0,0.3,true); add(zc(Cy(0.1,0.1,1.9,12*S)),C_GUN,T.mg,0,0.02,1.55,true); add(zc(Cy(0.16,0.16,1.1,12*S)),C_RIM,T.mg,0,0.02,1.15,true);
+  const MGK=CHASSIS[CHID].mgs.includes(up.mg)?up.mg:CHASSIS[CHID].mgs[0];
+  if(T.noMg){ /* no machine gun on this chassis */ } else if(MGK==='twin'){ gatling(T.mg,-0.27); gatling(T.mg,0.27); add(B(0.95,0.16,0.4),C_GUN2,T.mg,0,-0.2,0.3,true); }
+  else if(MGK==='kpv'){ add(B(0.5,0.42,0.7),C_GUN2,T.mg,0,0,0.3,true); add(zc(Cy(0.1,0.1,1.9,12*S)),C_GUN,T.mg,0,0.02,1.55,true); add(zc(Cy(0.16,0.16,1.1,12*S)),C_RIM,T.mg,0,0.02,1.15,true);
     if(hi) for(let k=0;k<8;k++) add(zc(Cy(0.168,0.168,0.035,12)),0x161b1f,T.mg,0,0.02,0.7+k*0.12);
     add(zc(Cy(0.14,0.12,0.22,12*S)),C_RIM,T.mg,0,0.02,2.5,true); add(B(0.3,0.35,0.34),0x3a4248,T.mg,0.38,-0.05,0.25,true);
     const mz=new THREE.Object3D(); mz.position.set(0,0.02,2.64); T.mg.add(mz); T.mgMuz.push(mz); }
@@ -1608,7 +1659,7 @@ function makeTank(hi,up){
   if(up.load>=1){ const s=1+0.18*(up.load-1); add(xc(Cy(0.22*s,0.22*s,0.52,16*S)),0x3a4248,T.cn,0,0.4,0.24,true); if(hi) for(const o of [-0.18,0.18]) add(xc(Cy(0.23*s,0.23*s,0.04,16)),C_MET,T.cn,o,0.4,0.24);
     if(up.load>=3) add(B(0.12,0.3,0.12),C_MET,T.cn,0.3,0.15,0.3,true); }
   T.cnMuz.position.set(0,0,0.3+L+0.3); T.cn.add(T.cnMuz); }
-  if(up.rk>=1){ const rows=up.rk>=2?3:2, pod=new THREE.Group(); pod.position.set(-1.25,0.15,-0.62); T.gun.add(pod); T.rk=pod;
+  if(up.rk>=1&&CHASSIS[CHID].w.includes(2)){ const rows=up.rk>=2?3:2, pod=new THREE.Group(); if(T.rkPos) pod.position.copy(T.rkPos); else pod.position.set(-1.25,0.15,-0.62); T.gun.add(pod); T.rk=pod;
     add(B(0.6,0.24*rows+0.14,0.95),C_ARM,pod,0,0,0,true); add(B(0.3,0.16,0.4),C_MET,pod,0.42,0,-0.1);
     for(let r=0;r<rows;r++) for(let cI=0;cI<2;cI++){ const x=(cI-0.5)*0.26, y=(r-(rows-1)/2)*0.24; add(zc(Cy(0.09,0.09,0.06,12)),0x0b0f16,pod,x,y,0.48);
       if(hi){ const tip=add(new THREE.ConeGeometry(0.06,0.14,10),glowMat(0xffb53a),pod,x,y,0.46); tip.rotation.x=Math.PI/2; }
@@ -1729,7 +1780,7 @@ const shellGeo=new THREE.SphereGeometry(0.17,10,8); const shellMat=new THREE.Mes
 const shellPool=[]; function getShell(){ let m=shellPool.pop(); if(!m){ m=new THREE.Mesh(shellGeo,shellMat); scene.add(m); } m.visible=true; m.scale.setScalar(1); return m; }
 function freeProj(p){ if(p.mesh){ p.mesh.visible=false; shellPool.push(p.mesh); } }
 let lastMain=0, dryT=0;
-function switchWeapon(i){ const n=WEAP.length; i=((i%n)+n)%n; if(i===wcur) return; wcur=i; if(i<2) lastMain=i; wswap=0.35; sfxClick(); sO(1400,700,0.06,0.06,'square'); drumTo(true); }
+function switchWeapon(i){ if(!wAllowed().includes(i)||i===wcur) return; wcur=i; if(i<2) lastMain=i; wswap=0.35; sfxClick(); sO(1400,700,0.06,0.06,'square'); drumTo(true); }
 const AIM={x:40,y:0,z:30, yawRel:Math.PI, dist:14, lockE:null, manual:null}; const PRED={x:0,y:0,z:0,ok:false};
 const muz=new THREE.Vector3(), mdir=new THREE.Vector3(), piv=new THREE.Vector3();
 function solvePitch(gx_,gy,gz,tx,ty,tz,w){ const d=Math.hypot(tx-gx_,tz-gz), h=ty-gy; if(!w.g) return Math.atan2(h,d); const v2=w.speed*w.speed, disc=v2*v2-w.g*(w.g*d*d+2*h*v2); if(disc<0) return 0.6; return Math.atan((v2-Math.sqrt(disc))/(w.g*d)); }
@@ -1737,7 +1788,7 @@ function fire(w){ const T=tank; const mz=w.id==='mg'?T.mgMuz[mgAlt++%T.mgMuz.len
   stealthShot(); if(w.id==='cn'&&chs().abil==='rail'){ railShot(w); return; }
   const sp=w.spread; mdir.x+=(rnd()-0.5)*sp*2; mdir.y+=(rnd()-0.5)*sp*2; mdir.z+=(rnd()-0.5)*sp*2; mdir.normalize();
   const p={x:muz.x,y:muz.y,z:muz.z,vx:mdir.x*w.speed,vy:mdir.y*w.speed,vz:mdir.z*w.speed,w,life:w.id==='mg'?1.2:3.5,mesh:null};
-  if(w.id==='cn'){ p.mesh=getShell(); p.mesh.position.set(p.x,p.y,p.z); const rel=TK.tYaw-TK.h; TK.pitchV-=w.recoil*Math.cos(rel); TK.rollV-=w.recoil*Math.sin(rel)*0.8; TK.vx-=mdir.x*1.4; TK.vz-=mdir.z*1.4; TK.recoil=1; shake=Math.min(1,shake+0.18); sfxCannon(); camPunch=Math.max(camPunch,0.4); groundFlash(muz.x,muz.z,5,P.glow2,0.18);
+  if(w.id==='cn'){ p.mesh=getShell(); p.mesh.position.set(p.x,p.y,p.z); const rel=TK.tYaw-TK.h; TK.pitchV-=w.recoil*Math.cos(rel); TK.rollV-=w.recoil*Math.sin(rel)*0.8; TK.vx-=mdir.x*1.4; TK.vz-=mdir.z*1.4; TK.recoil=1; if(T.cnSpin) T.cnSpinT=(T.cnSpinT||0)+TAU/3; shake=Math.min(1,shake+0.18); sfxCannon(); camPunch=Math.max(camPunch,0.4); groundFlash(muz.x,muz.z,5,P.glow2,0.18);
     for(let k=0;k<6;k++) SMOKE.spawn(muz.x,muz.y,muz.z,mdir.x*4+(rnd()-0.5)*2,mdir.y*4+rnd(),mdir.z*4+(rnd()-0.5)*2,0.8,2,0.9,0.5,0.75,0.8,0.88);
     FIRE.spawn(muz.x+mdir.x*0.3,muz.y,muz.z+mdir.z*0.3,mdir.x*3,0,mdir.z*3,2.6,3,0.1,1,1,0.85,0.5); }
   else { FIRE.spawn(muz.x,muz.y,muz.z,0,0,0,(UP.mg==='kpv'?1.4:0.9)+rnd()*0.6,2,0.05,1,1,0.85,0.5);
@@ -1916,9 +1967,9 @@ function garPalette(){ if(!GAR.scene) return; const s=PALETTES[PAL];
 function setGarView(){ const W=innerWidth,H=innerHeight, portrait=W<H&&W<=820; GAR.cam.aspect=W/H; GAR.cam.fov=portrait?50:32;
   if(portrait) GAR.cam.setViewOffset(W,H,0,H*0.27,W,H); else { const pw=Math.min(430,W*0.44); GAR.cam.setViewOffset(W,H,pw/2,0,W,H); }
   GAR.cam.updateProjectionMatrix(); }
-function garRebuildModel(){ if(GAR.model){ GAR.turn.remove(GAR.model.root); disposeTank(GAR.model); } GAR.model=makeTank(true,GAR.mode==='park'?Object.assign({},UP,{tank:GAR.pick}):UP); GAR.model.root.position.y=0.16; GAR.turn.add(GAR.model.root); garApplyView(); }
-function garApplyView(){ if(!GAR.model) return; GAR.model.mg.visible=GAR.view==='mg'; GAR.model.cn.visible=GAR.view==='cn'; }
-function openGarage(mode){ if(GAR.open||TK.dead) return; GAR.mode=mode||'gar'; GAR.pick=UP.tank||'base'; $('#gTitle').innerHTML=GAR.mode==='park'?'АВТОПАРК <span class="cjk">车队</span>':'ГАРАЖ <span class="cjk">车库</span>'; $('#gHull').hidden=GAR.mode==='park'; if(!GAR.scene) garInit(); GAR.open=true; document.body.classList.add('garage'); $('#garage').hidden=false;
+function garRebuildModel(){ if(GAR.model){ GAR.turn.remove(GAR.model.root); disposeTank(GAR.model); } GAR.model=makeTank(true,GAR.mode==='park'&&GAR.pick!==UP.tank?Object.assign({},UP,(UP.per&&UP.per[GAR.pick])||perDefault(GAR.pick),{tank:GAR.pick}):UP); garApplyView(); GAR.model.root.position.y=0.16; GAR.turn.add(GAR.model.root); garApplyView(); }
+function garApplyView(){ if(!GAR.model) return; const w=(CHASSIS[GAR.model.chid]||CHASSIS.base).w; let v=GAR.view; if(v!=='cn'&&!w.includes(0)) v='cn'; if(v==='cn'&&!w.includes(1)) v='mg'; GAR.model.mg.visible=v==='mg'; GAR.model.cn.visible=v==='cn'; }
+function openGarage(mode){ if(GAR.open||TK.dead) return; GAR.mode=mode||'gar'; GAR.pick=UP.tank||'base'; $('#gTitle').innerHTML=GAR.mode==='park'?'АВТОПАРК <span class="cjk">车队</span>':`ГАРАЖ <span class="cjk">车库</span><small>${chs().name} · улучшения этого танка</small>`; $('#gHull').hidden=GAR.mode==='park'; $('#gPick').hidden=GAR.mode!=='park'; if(!GAR.scene) garInit(); GAR.open=true; document.body.classList.add('garage'); $('#garage').hidden=false;
   TK.vx=TK.vz=TK.vF=0; mouse.down=false; GAR.view=(wcur<2?wcur:lastMain)===1?'cn':'mg'; GAR.ang=0.75; GAR.idle=0; garRebuildModel(); setGarView(); renderGarage(); sfxWrench(); }
 function closeGarage(){ if(!GAR.open) return; GAR.open=false; document.body.classList.remove('garage'); $('#garage').hidden=true;
   const DR=GAR.mode==='park'?{x:27.5,z:63.3,h:Math.PI/2}:CAMP_DOOR; STL.on=false; buildGameTank(); updateWeaponUI(); Object.assign(TK,{x:DR.x,z:DR.z,h:DR.h,tYaw:DR.h,vx:0,vz:0,vF:0,prevVF:0,aL:0}); save(); canvas.focus(); }
@@ -1929,22 +1980,24 @@ const UPDEF=[
  {k:'load',t:'Автомат заряжания',max:3,cost:[250,550,950],v:'cn',cur:l=>`перезарядка ${LOAD_T[l]} с`,info:'Пушка стреляет чаще. Над казёнником встаёт барабан.'},
  {k:'stab',t:'Стабилизатор',max:2,cost:[400,800],cur:l=>`гасит ${Math.round(STAB_K[l]*100)}% крена`,info:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков.'},
  {k:'ammo',t:'Боеукладка',max:3,cost:[300,600,1000],cur:l=>`${AMMO_CAP.mg[l]} пат · ${AMMO_CAP.cn[l]} сн · ${AMMO_CAP.rk[l]} рак`,info:'Больше патронов, снарядов и ракет с собой. Пополняется при каждом заезде в лагерь.'},
+ {k:'abl',get t(){ return (ABL[UP.tank]||{}).t||''; },max:2,cost:[500,900],cur:l=>ABL[UP.tank]?ABL[UP.tank].cur(l):'',get info(){ return (ABL[UP.tank]||{}).info||''; }},
  {k:'rdr',t:'Ремонтный дрон',max:2,cost:[450,650],cur:l=>l?`${l} ${l===1?'дрон':'дрона'} в звене`:'дронов нет',info:'Квадрокоптер со сварочным аппаратом летает за танком и потихоньку заваривает повреждения. Стоишь на месте — чинит быстрее. Сбитый врагом дрон теряется.'},
  {k:'rk',t:'Ракетный блок',max:2,cost:[700,1000],cur:l=>l?`${RK_N[l]} ракет в залпе`:'не установлен',info:'Третье оружие: самонаводящийся залп в точку прицела. Блок на левом боку башни.'},
 ];
 const nutI='<i class="nut" aria-hidden="true"></i>';
+function upShown(k){ const c=chs(); if(k==='cal'||k==='load') return c.w.includes(1); if(k==='rk') return c.w.includes(2); if(k==='abl') return !!c.abil; return true; }
 function renderGarage(){ if(GAR.mode==='park'){ renderPark(); return; } const mh=maxHP(), hp=Math.round(TK.hp), miss=mh-hp, rc=Math.ceil(miss*0.6);
   $('#gScrap').textContent=Math.floor(ST.scrap); $('#gHpTxt').textContent=`${hp} / ${mh}`; const f=$('#gHpFill'); f.style.width=(hp/mh*100)+'%'; f.classList.toggle('bad',hp/mh<0.3);
   const names=['Нос','Корма','Лево','Право','Верх']; $('#gSides').innerHTML=TK.dmgS.map((v,i)=>`<div class="${v>0.15?'hurt':''}">${names[i]}<b>${Math.round(v*100)}%</b></div>`).join('');
   const rb=$('#gRepair'); if(miss<=0&&TK.dmgS.every(v=>v<0.01)){ rb.disabled=true; rb.innerHTML='Корпус цел'; } else if(ST.scrap<1){ rb.disabled=true; rb.innerHTML='Нет лома на ремонт'; }
   else { rb.disabled=false; rb.innerHTML=ST.scrap>=rc?`Отремонтировать · ${nutI} ${Math.max(1,rc)}`:`Подлатать на ${Math.floor(ST.scrap/0.6)} ед. · ${nutI} ${Math.floor(ST.scrap)}`; }
   let h='';
-  for(const u of UPDEF){ const l=UP[u.k], mx=l>=u.max, cost=mx?0:u.cost[l], can=ST.scrap>=cost;
+  for(const u of UPDEF){ if(!upShown(u.k)) continue; const l=UP[u.k], mx=l>=u.max, cost=mx?0:u.cost[l], can=ST.scrap>=cost;
     h+=`<section class="gcard${GAR.view===u.v?' focus':''}" data-view="${u.v||''}"><div class="ghead"><h3>${u.t}</h3><div class="pips">${Array.from({length:u.max},(_,i)=>`<i class="${i<l?'on':''}"></i>`).join('')}</div></div>
       <div class="now">${u.cur(l)}${mx?'':` → <em>${u.cur(l+1)}</em>`}</div><p>${u.info}</p>
       <button class="btn${mx?'':' solid'}" data-buy="${u.k}" ${mx||!can?'disabled':''}>${mx?'Максимум':can?`Улучшить · ${nutI} ${cost}`:`Не хватает · ${nutI} ${cost}`}</button></section>`; }
-  h+=`<section class="gcard${GAR.view==='mg'?' focus':''}" data-view="mg"><div class="ghead"><h3>Пулемёт</h3><span>${MGS[UP.mg].code}</span></div><div class="mgopts">`+
-    Object.entries(MGS).map(([k,m])=>{ const own=!!UP.own[k], cur=UP.mg===k; const btn=cur?`<button class="btn" disabled>Стоит</button>`:own?`<button class="btn" data-mg="${k}">Поставить</button>`:`<button class="btn solid" data-mg="${k}" ${ST.scrap>=m.cost?'':'disabled'}>${nutI} ${m.cost}</button>`;
+  if(chs().mgs.length) h+=`<section class="gcard${GAR.view==='mg'?' focus':''}" data-view="mg"><div class="ghead"><h3>Пулемёт</h3><span>${MGS[UP.mg].code}</span></div><div class="mgopts">`+
+    Object.entries(MGS).filter(([k])=>chs().mgs.includes(k)).map(([k,m])=>{ const own=!!UP.own[k], cur=UP.mg===k; const btn=cur?`<button class="btn" disabled>Стоит</button>`:own?`<button class="btn" data-mg="${k}">Поставить</button>`:`<button class="btn solid" data-mg="${k}" ${ST.scrap>=m.cost?'':'disabled'}>${nutI} ${m.cost}</button>`;
       return `<div class="mgo${cur?' cur':''}"><b>${m.name}</b><span>${m.info}</span>${btn}</div>`; }).join('')+`</div></section>`;
   h+=kitsCard(); $('#gUps').innerHTML=h; }
 $('#gpanel').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b||b.disabled) return;
@@ -1971,7 +2024,7 @@ addEventListener('keydown',e=>{ sInit(); if(helpOpen){ closeHelp(); }
   if(GAR.open){ if(e.code==='Escape') closeGarage(); return; }
   if(mcOpen&&(e.code==='Enter'||e.code==='KeyE')){ acceptMC(); return; }
   if(e.code==='KeyR'){ useRepair(); return; } if(e.code==='KeyT'){ useAmmo(); return; } if(e.code==='KeyG'){ useArt(); return; } if(e.code==='KeyE'&&!mcOpen&&!GAR.open){ shieldToggle(); return; } if(mcOpen&&e.code==='Escape'){ closeMC(); return; }
-  if(e.code==='Digit1') switchWeapon(0); else if(e.code==='Digit2') switchWeapon(1); else if(e.code==='Digit3'&&WEAP.length>2) switchWeapon(2); else if(e.code==='KeyQ') switchWeapon(wcur+1); else if(e.code==='KeyP') applyPalette((PAL+1)%PALETTES.length); });
+  if(e.code==='Digit1') selPos(0); else if(e.code==='Digit2') selPos(1); else if(e.code==='Digit3') selPos(2); else if(e.code==='KeyQ') cycleWeapon(1); else if(e.code==='KeyP') applyPalette((PAL+1)%PALETTES.length); });
 addEventListener('keyup',e=>{ keys[e.code]=false; });
 addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; mouse.down=false; TCH.mActive=false; TCH.active=false; });
 addEventListener('pointermove',e=>{ if(e.pointerType==='mouse'&&!(e.target.closest&&e.target.closest('.pad'))){ mouse.x=e.clientX; mouse.y=e.clientY; aimMode='mouse'; aimActivity(); } });
@@ -1984,12 +2037,12 @@ canvas.addEventListener('pointermove',e=>{ if(GAR.open&&GAR.drag&&e.pointerId===
 const endDrag=e=>{ if(GAR.drag&&e.pointerId===GAR.drag.id) GAR.drag=null; };
 canvas.addEventListener('pointerup',endDrag); canvas.addEventListener('pointercancel',endDrag);
 addEventListener('pointerup',e=>{ if(e.pointerType==='mouse'&&e.button===0) mouse.down=false; });
-canvas.addEventListener('wheel',e=>{ e.preventDefault(); if(GAR.open){ GAR.dist=clamp(GAR.dist+e.deltaY*0.004,6.5,15); return; } if(Math.abs(e.deltaY)>4) switchWeapon(wcur+(e.deltaY>0?1:-1)); },{passive:false});
+canvas.addEventListener('wheel',e=>{ e.preventDefault(); if(GAR.open){ GAR.dist=clamp(GAR.dist+e.deltaY*0.004,6.5,15); return; } if(Math.abs(e.deltaY)>4) cycleWeapon(e.deltaY>0?1:-1); },{passive:false});
 canvas.addEventListener('contextmenu',e=>e.preventDefault());
 { const fb=$('#bFire'); let fid=null; const end=e=>{ if(e.pointerId!==fid) return; fid=null; TCH.fire=false; fb.classList.remove('on'); };
   fb.addEventListener('pointerdown',e=>{ e.preventDefault(); sInit(); if(helpOpen) closeHelp(); fid=e.pointerId; try{ fb.setPointerCapture(e.pointerId); }catch(_){} TCH.fire=true; if(!TCH.active) aimMode='stick'; fb.classList.add('on'); });
   fb.addEventListener('pointerup',end); fb.addEventListener('pointercancel',end); fb.addEventListener('lostpointercapture',end); fb.addEventListener('contextmenu',e=>e.preventDefault()); }
-$('#bSwap').addEventListener('pointerdown',e=>{ e.preventDefault(); sInit(); if(helpOpen) closeHelp(); switchWeapon(wcur+1); });
+$('#bSwap').addEventListener('pointerdown',e=>{ e.preventDefault(); sInit(); if(helpOpen) closeHelp(); cycleWeapon(1); });
 function makeStick(el,onMove,onEnd){ const kn=el.querySelector('.knob'); let id=null;
   const mv=e=>{ const r=el.getBoundingClientRect(), R=r.width/2; let dx=e.clientX-(r.left+R), dy=e.clientY-(r.top+R); const m=Math.hypot(dx,dy); if(m>R){ dx*=R/m; dy*=R/m; }
     kn.style.transform=`translate(${dx}px,${dy}px)`; onMove(dx/R,dy/R); };
@@ -1999,7 +2052,7 @@ function makeStick(el,onMove,onEnd){ const kn=el.querySelector('.knob'); let id=
   el.addEventListener('pointerup',end); el.addEventListener('pointercancel',end); el.addEventListener('lostpointercapture',end); el.addEventListener('contextmenu',e=>e.preventDefault()); }
 makeStick($('#aimStick'),(x,y)=>{ TCH.sx=x; TCH.sy=y; TCH.amag=Math.hypot(x,y); TCH.active=TCH.amag>0.15; if(TCH.active) aimMode='stick'; },()=>{ TCH.active=false; TCH.amag=0; });
 makeStick($('#moveStick'),(x,y)=>{ TCH.mx=x; TCH.my=y; TCH.mActive=Math.hypot(x,y)>0.2; },()=>{ TCH.mActive=false; });
-$('#wdrum').addEventListener('click',e=>{ e.stopPropagation(); switchWeapon(wcur+1); });
+$('#wdrum').addEventListener('click',e=>{ e.stopPropagation(); cycleWeapon(1); });
 function readInput(){ const k=keys; const kt=((k.KeyW||k.ArrowUp)?1:0)-((k.KeyS||k.ArrowDown)?1:0), ks=((k.KeyA||k.ArrowLeft)?1:0)-((k.KeyD||k.ArrowRight)?1:0);
   const joy=(TCH.mActive&&!kt&&!ks)?{x:TCH.mx,y:TCH.my,m:Math.min(1,(Math.hypot(TCH.mx,TCH.my)-0.2)/0.6)}:null;
   return { throttle:kt, steer:ks, hb:!!k.Space, joy, fire:!!(mouse.down||k.KeyF||TCH.fire) }; }
@@ -2033,12 +2086,12 @@ const sv=new THREE.Vector3();
 function toScreen(x,y,z){ sv.set(x,y,z).project(camera); return [(sv.x*0.5+0.5)*innerWidth,(-sv.y*0.5+0.5)*innerHeight,sv.z<1]; }
 const WIDS=['mg','cn','rk'];
 function ammoTxt(id){ return ST.ammo[id]>0?String(Math.floor(ST.ammo[id])):'пусто'; }
-function updateWeaponUI(){ WEAP=buildWeapons(); if(wcur>=WEAP.length) wcur=0;
-  const items=[[WEAP[0].name,'mg'],['Пушка','cn']]; if(UP.rk) items.push(['Ракеты','rk']);
-  $('#wdIn').innerHTML=items.map((it,i)=>`<div class="w" data-w="${i}"><span class="k">0${i+1}</span><span>${it[0]}</span><span class="am" id="wam${i}">${ammoTxt(it[1])}</span></div>`).join('');
-  $('#wchm').innerHTML=items.map(()=>'<i></i>').join(''); drumTo(false); }
-function drumTo(anim){ const el=$('#wdIn'), d=$('#wdrum'); el.style.transition=anim?'transform .34s cubic-bezier(.3,1.45,.5,1)':'none'; el.style.transform=`translateY(${-wcur*26}px)`;
-  [...el.children].forEach((b,k)=>b.classList.toggle('on',k===wcur)); [...$('#wchm').children].forEach((b,k)=>b.classList.toggle('on',k===wcur));
+function updateWeaponUI(){ WEAP=buildWeapons(); const a=wAllowed(); if(!a.includes(wcur)) wcur=a[0]; const mains=a.filter(i=>i<2); if(!mains.includes(lastMain)) lastMain=mains.length?mains[0]:0;
+  const nm=[WEAP[0].name,chs().abil==='rail'?'Рельсотрон':UP.tank==='krep'?'Трёхствольная пушка':'Пушка','Ракеты'];
+  $('#wdIn').innerHTML=a.map((wi,p)=>`<div class="w" data-w="${wi}"><span class="k">0${p+1}</span><span>${nm[wi]}</span><span class="am" id="wam${wi}">${ammoTxt(WIDS[wi])}</span></div>`).join('');
+  $('#wchm').innerHTML=a.map(()=>'<i></i>').join(''); drumTo(false); }
+function drumTo(anim){ const el=$('#wdIn'), d=$('#wdrum'), pos=Math.max(0,wAllowed().indexOf(wcur)); el.style.transition=anim?'transform .34s cubic-bezier(.3,1.45,.5,1)':'none'; el.style.transform=`translateY(${-pos*26}px)`;
+  [...el.children].forEach((b,k)=>b.classList.toggle('on',k===pos)); [...$('#wchm').children].forEach((b,k)=>b.classList.toggle('on',k===pos));
   if(anim){ d.classList.remove('spin'); void d.offsetWidth; d.classList.add('spin'); }
   const mv=wcur<2?wcur:lastMain; if(tank){ tank.mg.visible=mv===0; tank.cn.visible=mv===1; } }
 function ammoHud(){ for(let i=0;i<3;i++){ const el=document.getElementById('wam'+i); if(!el||(i===2&&!UP.rk)) continue; const id=WIDS[i]; el.textContent=ammoTxt(id); el.classList.toggle('low',ST.ammo[id]<ammoCap(id)*0.2); } }
@@ -2097,7 +2150,7 @@ $('#kArt').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useArt();
 $('#kAbil').addEventListener('click',e=>{ e.stopPropagation(); sInit(); shieldToggle(); });
 let menuOpen=false; $('#bMenu').addEventListener('click',e=>{ e.stopPropagation(); menuOpen=!menuOpen; $('#trMenu').hidden=!menuOpen; document.body.classList.toggle('menu',menuOpen); $('#bMenu').setAttribute('aria-expanded',String(menuOpen)); sfxClick(); });
 $('#bGo').addEventListener('click',e=>{ e.stopPropagation(); closeHelp(); });
-$('#bReset').addEventListener('click',e=>{ e.stopPropagation(); try{ localStorage.removeItem(SAVE_KEY); }catch(_){} ST.scrap=600; Object.assign(UP,{engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},tank:'base',tanks:{base:1}}); TK.hp=ARM_HP[0]; TK.dmgS.fill(0);
+$('#bReset').addEventListener('click',e=>{ e.stopPropagation(); try{ localStorage.removeItem(SAVE_KEY); }catch(_){} ST.scrap=600; Object.assign(UP,{engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},tank:'base',tanks:{base:1},per:{},abl:0,rdr:0}); TK.hp=ARM_HP[0]; TK.dmgS.fill(0);
   refillAmmo(); ST.kits.rep=ST.kits.ammo=0; Object.assign(MS,{i:0,active:false,prog:0,rank:0}); rankUI(); objUI(); for(const k in LOC_STATE) delete LOC_STATE[k];
   wcur=0; buildGameTank(); updateWeaponUI(); closeHelp(); if(LOC_ID!=='camp') goLocation('camp',null,{x:40,z:44,h:Math.PI}); toast('Прогресс сброшен'); });
 $('#help').addEventListener('pointerdown',e=>{ if(e.target.id==='help') closeHelp(); });
@@ -2332,7 +2385,7 @@ function lampLOS(ax,ay,az,bx,by,bz){ // thin walls pass, thick block
   for(let i=1;i<n;i++){ const t=i/n, x=ax+dx*t, y=ay+dy*t, z=az+dz*t; if(y<0) return {clear:false,t}; const s=get(Math.floor(x/VS),Math.floor(y/VS),Math.floor(z/VS)); if(s) return {clear:false,t}; }
   return {clear:true,t:1}; }
 function updLamp(e,dt){ const dx=TK.x-e.x, dz=TK.z-e.z, d=Math.max(1e-3,Math.hypot(dx,dz)); e.t+=dt; e.g.updateMatrixWorld(true); e.lampPos.getWorldPosition(_lp);
-  const tY=TK.y+1.3; let see=false; if(d<(STL.on?15:34)&&!TK.dead){ e.losT=(e.losT||0)-dt; if(e.losT<=0){ e.losT=0.25; e.seeC=lampLOS(_lp.x,_lp.y,_lp.z,TK.x,tY,TK.z).clear; } see=e.seeC; }
+  const tY=TK.y+1.3; let see=false; if(d<(STL.on?STL_R[UP.abl|0]:34)&&!TK.dead){ e.losT=(e.losT||0)-dt; if(e.losT<=0){ e.losT=0.25; e.seeC=lampLOS(_lp.x,_lp.y,_lp.z,TK.x,tY,TK.z).clear; } see=e.seeC; }
   let heatT=0;
   switch(e.state){
   case 'disguise': eBrake(e,dt,4); e.idleT=(e.idleT||0)+dt; if(!see&&e.idleT>20){ e.idleT=0; const p=pickNear(e.x+(rnd()-0.5)*24,e.z+(rnd()-0.5)*24,1.2); if(p){ e.state='move'; e.t=0; e.mv={x:p[0],z:p[1]}; } break; } if(see){ e.idleT=0; e.state='charge'; e.t=0; e.aggro=true; e.bx=TK.x; e.by=tY; e.bz=TK.z; sfxCharge(1); } break;
@@ -2844,7 +2897,7 @@ function navMove(e,tx,tz,spd,dt){ e.pathT=(e.pathT||0)-dt; const r=e.navR||Math.
   eMove(e,tx,tz,spd,dt); return 0; }
 /* perception: sees the tank (range + line of sight), remembers where, loses interest after a while */
 function ePerceive(e,dt,range,eyeY){ e.seeT=(e.seeT||0)-dt; const d=Math.hypot(TK.x-e.x,TK.z-e.z);
-  if(e.seeT<=0){ e.seeT=0.25+rnd()*0.1; e.sees=!TK.dead&&d<(STL.on?Math.min(range,15):range)&&losClear(e.x,e.y+(eyeY||0.5),e.z,TK.x,TK.y+1.4,TK.z); }
+  if(e.seeT<=0){ e.seeT=0.25+rnd()*0.1; e.sees=!TK.dead&&d<(STL.on?Math.min(range,STL_R[UP.abl|0]):range)&&losClear(e.x,e.y+(eyeY||0.5),e.z,TK.x,TK.y+1.4,TK.z); }
   if(e.sees||(e.hurtT>2.6)){ e.aggro=true; e.lostT=0; e.last={x:TK.x,z:TK.z}; } else if(e.aggro){ e.lostT=(e.lostT||0)+dt; if(e.lostT>6){ e.aggro=false; e.wp=null; } }
   return e.sees; }
 function ePatrol(e,dt,spd){ e.wpT=(e.wpT||0)-dt;
@@ -3287,7 +3340,7 @@ function rdMake(){ const g=new THREE.Group(), add=(geo,mat,x,y,z,sx,sy,sz,par)=>
   scene.add(g); return {g,hang,rotors,tip,p:new THREE.Vector3(TK.x,TK.y+3.5,TK.z),v:new THREE.Vector3(),st:'follow',cool:1+rnd(),part:0,wt:0,loc:LOC_ID,dead:false,rd:true,snd:0}; }
 function rdLocal(lx,ly,lz,out){ const ch=Math.cos(TK.h), sh=Math.sin(TK.h); out.set(TK.x+lx*ch+lz*sh,TK.y+ly,TK.z-lx*sh+lz*ch); return out; }
 const _rt=new THREE.Vector3(), _rp=new THREE.Vector3();
-function rdUpdate(dt,t){ const want=Math.min(3,Math.max(0,Math.min(2,UP.rdr|0))+(chs().abil==='drones'&&BEE.freeCD<=0?1:0)); while(RDR.list.length<want) RDR.list.push(rdMake()); while(RDR.list.length>want){ const d=RDR.list.pop(); scene.remove(d.g); }
+function rdUpdate(dt,t){ const want=Math.max(0,Math.min(2,UP.rdr|0)); while(RDR.list.length<want) RDR.list.push(rdMake()); while(RDR.list.length>want){ const d=RDR.list.pop(); scene.remove(d.g); }
   const need=!TK.dead&&(TK.hp<maxHP()-0.3||TK.dmgS.some(v=>v>0.01))&&Math.hypot(TK.vx,TK.vz)<ENG_V[UP.engine]*chs().spd*0.7, still=Math.hypot(TK.vx,TK.vz)<0.6, rate=still?1.8:1;
   RDR.list.forEach((d,i)=>{ d.g.visible=!transit; if(d.loc!==LOC_ID){ d.loc=LOC_ID; rdLocal(i?-2.4:2.4,3.4,-1.8,d.p); d.v.set(0,0,0); d.st='follow'; }
     d.cool-=dt; d.snd-=dt;
@@ -3311,7 +3364,7 @@ function rdUpdate(dt,t){ const want=Math.min(3,Math.max(0,Math.min(2,UP.rdr|0))+
     d.hang.rotation.x+=((d.st==='weld'?0:-d.g.rotation.x*1.6-lvz*0.02)-d.hang.rotation.x)*Math.min(1,dt*4); d.hang.rotation.z+=((d.st==='weld'?0:-d.g.rotation.z*1.6+lvx*0.02)-d.hang.rotation.z)*Math.min(1,dt*4);
     for(const r of d.rotors) r.rotation.y+=dt*40;
     if(!LOC.safe) shadowAdd(d.p.x,d.p.z,0.9,d.p.y-groundH(d.p.x,d.p.z),0.35); }); }
-function rdDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=RDR.list.indexOf(d); if(i>=0) RDR.list.splice(i,1); if(chs().abil==='drones'&&RDR.list.length+1>(UP.rdr|0)) BEE.freeCD=30; else UP.rdr=Math.max(0,(UP.rdr|0)-1); save();
+function rdDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=RDR.list.indexOf(d); if(i>=0) RDR.list.splice(i,1); UP.rdr=Math.max(0,(UP.rdr|0)-1); save();
   const p=d.p; for(let k=0;k<6;k++) FIRE.spawn(p.x,p.y,p.z,(rnd()-0.5)*4,rnd()*3,(rnd()-0.5)*4,0.8+rnd()*0.5,2,0.25,1,1,0.7,0.3); sparkBurst(p.x,p.y,p.z,18); sfxGlass(0.6); sfxThud(0.5);
   for(const c of d.g.children.slice(0,6)){ const m=new THREE.Mesh(c.geometry||rdGeo.box,c.material||rdMat.dark); c.getWorldPosition(m.position); m.scale.copy(c.scale); scene.add(m); EXTRAS.push(m); GIBS.push(gibOf(m,ux*4+(rnd()-0.5)*5,2+rnd()*4,uz*4+(rnd()-0.5)*5,14)); }
   scene.remove(d.g); toast('Ремонтный дрон сбит · новый — в гараже'); }
@@ -3628,8 +3681,8 @@ function shieldToggle(){ if(chs().abil!=='shield'||TK.dead||transit) return; if(
   if(SHD.cd>0||SHD.hp<SHD.max*0.25){ toast('Щит перезаряжается'); sfxClick(); return; } SHD.on=true; SHD.grow=0; TK.vx*=0.3; TK.vz*=0.3; sO(220,880,0.5,0.08,'sine'); sNz(0.4,'bandpass',1800,1,0.08); }
 function shieldHit(a,hx,hy,hz){ SHD.hp-=a; SHD.rip=1; if(hx!=null){ for(let k=0;k<6;k++) spark(hx,hy,hz,(rnd()-0.5)*6,(rnd()-0.5)*6,(rnd()-0.5)*6,1,0.85,0.45,0.3); FIRE.spawn(hx,hy,hz,0,0,0,1.4,2,0.12,1,1,0.85,0.45); } sNz(0.12,'bandpass',2200,2,0.1);
   if(SHD.hp<=0){ SHD.hp=0; SHD.on=false; SHD.cd=8; toast('Щит пробит · перезарядка 8 с'); sO(900,110,0.6,0.12,'sawtooth'); shake=Math.min(1,shake+0.2); } }
-function shieldUpdate(dt,t){ if(!SHD.g) shieldMake(); const on=SHD.on&&chs().abil==='shield'&&!TK.dead&&!LOC.safe&&!transit; if(!on) SHD.on=false;
-  SHD.cd=Math.max(0,SHD.cd-dt); if(!on&&SHD.cd<=0) SHD.hp=Math.min(SHD.max*chs().hp/1.75,SHD.hp+20*dt); SHD.rip=Math.max(0,SHD.rip-dt*3); SHD.grow=Math.min(1,SHD.grow+dt*1.6);
+function shieldUpdate(dt,t){ if(!SHD.g) shieldMake(); SHD.max=SHD_MAX[UP.abl|0]; const on=SHD.on&&chs().abil==='shield'&&!TK.dead&&!LOC.safe&&!transit; if(!on) SHD.on=false;
+  SHD.cd=Math.max(0,SHD.cd-dt); if(!on&&SHD.cd<=0) SHD.hp=Math.min(SHD.max,SHD.hp+20*dt); SHD.rip=Math.max(0,SHD.rip-dt*3); SHD.grow=Math.min(1,SHD.grow+dt*1.6);
   const g=SHD.g; g.visible=on; if(on){ const k=1-Math.pow(1-SHD.grow,3); g.position.set(TK.x,TK.y+0.3,TK.z); g.scale.setScalar(SHD.R*(0.15+0.85*k)*(1+SHD.rip*0.03)); g.rotation.y+=dt*0.2;
     const low=SHD.hp<SHD.max*0.3, fl=low?0.5+0.5*Math.sin(t*24):1; g.children[0].material.opacity=(0.07+SHD.rip*0.25)*fl; g.children[1].material.opacity=(0.32+SHD.rip*0.5)*fl; }
   if(tank&&tank.flaps) for(const f of tank.flaps) f.rotation.z+=((on?f.userData.s*-1.25:0)-f.rotation.z)*Math.min(1,dt*5); }
@@ -3638,56 +3691,89 @@ const SHD_HIT={shd:true};
 /* ---- «Игла»: piercing rail beam ---- */
 const RAILS=[];
 function railShot(w){ mdir.y=clamp(mdir.y,-0.12,0.3); mdir.normalize(); const L0=70, wall=raycast(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L0); let L=wall?RH.t:L0, zHit=null; const zp=zontProj(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L); if(zp){ L=zp[1]; zHit=zp[0]; }
-  const dmg=95*w.power*stealthMul(), hits=[];
+  const dmg=95*w.power*stealthMul()*RAIL_K[UP.abl|0], hits=[];
   for(const e of ENEMIES){ if(e.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,e.x,e.y+e.hy,e.z,e.hr); if(t>=0) hits.push([t,e]); }
   for(const d of DRONES){ if(d.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,d.x,d.y,d.z,0.9); if(t>=0) hits.push([t,d]); }
   for(const c of CIV.list){ if(c.st==='dead'||c.st==='saved') continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,c.x,groundH(c.x,c.z)+0.95,c.z,0.5); if(t>=0) hits.push([t,c]); }
   hits.sort((a,b)=>a[0]-b[0]); for(const [t,e] of hits){ const hx=muz.x+mdir.x*t, hy=muz.y+mdir.y*t, hz=muz.z+mdir.z*t;
     if(e.civ) civDie(e,mdir.x,mdir.z,4); else if(e.type===undefined){ e.hp-=dmg; e.flash=1; if(e.hp<=0) droneDie(e,mdir.x,mdir.z); } else enemyHit(e,dmg,mdir.x,mdir.z,8,'rail'); hitSpark(hx,hy,hz,mdir.x,mdir.z,12); FIRE.spawn(hx,hy,hz,0,0,0,1.6,2,0.15,1,0.5,0.9,1); }
   const ex=muz.x+mdir.x*L, ey=muz.y+mdir.y*L, ez=muz.z+mdir.z*L; if(zHit) zontAbsorb(zHit,dmg*0.8,ex,ey,ez); else if(L<L0) explode(ex,ey,ez,w.radius*0.8,w.power,mdir.x,mdir.y,mdir.z,'shell',null,0,null,1);
-  RAILS.push({a:[muz.x,muz.y,muz.z],b:[ex,ey,ez],t:0}); for(let s=1.2;s<L;s+=1.6) FIRE.spawn(muz.x+mdir.x*s,muz.y+mdir.y*s,muz.z+mdir.z*s,0,0,0,0.5,1.5,0.18,1,0.45,0.85,1);
+  { const ox=mdir.z*0.26, oz=-mdir.x*0.26; for(const s2 of [-1,1]) RAILS.push({a:[muz.x+ox*s2,muz.y,muz.z+oz*s2],b:[ex+ox*s2*0.3,ey,ez+oz*s2*0.3],t:0}); } for(let s=1.2;s<L;s+=1.6) FIRE.spawn(muz.x+mdir.x*s,muz.y+mdir.y*s,muz.z+mdir.z*s,0,0,0,0.5,1.5,0.18,1,0.45,0.85,1);
   const rel=TK.tYaw-TK.h; TK.pitchV-=w.recoil*1.3*Math.cos(rel); TK.rollV-=w.recoil*Math.sin(rel); TK.recoil=1; shake=Math.min(1,shake+0.25); camPunch=Math.max(camPunch,0.6); groundFlash(muz.x,muz.z,6,[0.45,0.85,1],0.22);
   sNz(0.5,'highpass',1800,0.7,0.3); sO(2400,160,0.45,0.18,'sawtooth'); sfxCannon(); }
 function railsUpdate(dt){ for(let i=RAILS.length-1;i>=0;i--){ const r=RAILS[i]; r.t+=dt; const k=1-r.t/0.35; if(k<=0){ RAILS.splice(i,1); continue; } LINES.push(r.a[0],r.a[1],r.a[2],r.b[0],r.b[1],r.b[2],0.55*k+0.3,0.9*k+0.1,1*k,0); } }
-/* ---- «Пчела»: combat drone swarm + built-in repair drone ---- */
-const BEE={list:[],cd:[0,0,0],freeCD:0};
-function beeMake(i){ const d=rdMake(); d.hang.visible=false; d.g.scale.setScalar(0.72); d.bee=true; d.i=i; d.fcd=rnd(); d.tgt=null; d.tT=0; const s=new THREE.Mesh(rdGeo.box,new THREE.MeshBasicMaterial({color:0xff4a30})); s.scale.set(0.5,0.06,0.5); s.position.y=-0.12; d.g.add(s); return d; }
-function beeDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=BEE.list.indexOf(d); if(i>=0) BEE.list.splice(i,1); BEE.cd[d.i]=20; const p=d.p;
-  for(let k=0;k<4;k++) FIRE.spawn(p.x,p.y,p.z,(rnd()-0.5)*3,rnd()*2,(rnd()-0.5)*3,0.6,2,0.2,1,1,0.7,0.3); sparkBurst(p.x,p.y,p.z,10); sfxGlass(0.4); scene.remove(d.g); }
-function beesClear(){ for(const d of BEE.list) scene.remove(d.g); BEE.list.length=0; }
-const _bv=new THREE.Vector3();
-function beesUpdate(dt,t){ if(chs().abil!=='drones'||TK.dead){ if(BEE.list.length) beesClear(); return; } BEE.freeCD=Math.max(0,BEE.freeCD-dt);
-  for(let i=0;i<3;i++){ BEE.cd[i]=Math.max(0,BEE.cd[i]-dt); if(BEE.cd[i]<=0&&!BEE.list.some(d=>d.i===i)){ const d=beeMake(i); rdLocal(0,3,-1,d.p); BEE.list.push(d); } }
-  for(const d of BEE.list){ d.g.visible=!transit; if(d.loc!==LOC_ID){ d.loc=LOC_ID; rdLocal(0,3,-1,d.p); }
-    d.tT-=dt; if(d.tT<=0){ d.tT=0.4; d.tgt=null; let bd=22; if(!LOC.safe) for(const e of ENEMIES){ if(e.dead||e.state==='fly') continue; const dd=Math.hypot(e.x-d.p.x,e.z-d.p.z); if(dd<bd&&losClear(d.p.x,d.p.y,d.p.z,e.x,e.y+e.hy,e.z)){ bd=dd; d.tgt=e; } } }
-    const a=t*0.9+d.i*TAU/3; let tx=TK.x+Math.cos(a)*3.4, tz=TK.z+Math.sin(a)*3.4, ty=TK.y+3.2+Math.sin(t*2+d.i)*0.25;
-    if(d.tgt){ const e=d.tgt, dx=e.x-TK.x, dz=e.z-TK.z, l=Math.hypot(dx,dz)||1; tx=TK.x+dx/l*Math.min(6,l*0.4)+Math.cos(a)*1.5; tz=TK.z+dz/l*Math.min(6,l*0.4)+Math.sin(a)*1.5; }
-    d.v.x+=((tx-d.p.x)*3-d.v.x)*Math.min(1,dt*4); d.v.y+=((ty-d.p.y)*3-d.v.y)*Math.min(1,dt*4); d.v.z+=((tz-d.p.z)*3-d.v.z)*Math.min(1,dt*4); d.p.addScaledVector(d.v,dt); d.g.position.copy(d.p);
-    const look=d.tgt?Math.atan2(d.tgt.x-d.p.x,d.tgt.z-d.p.z):TK.h; d.g.rotation.y=turnTo(d.g.rotation.y,look,dt*6); d.g.rotation.x=clamp(d.v.z*0.03,-0.35,0.35); d.g.rotation.z=clamp(-d.v.x*0.03,-0.35,0.35); for(const r of d.rotors) r.rotation.y+=dt*45;
-    d.fcd-=dt; if(d.tgt&&!d.tgt.dead&&d.fcd<=0){ d.fcd=0.32+rnd()*0.12; const e=d.tgt, ey=e.y+e.hy; LINES.push(d.p.x,d.p.y-0.1,d.p.z,e.x,ey,e.z,1,0.8,0.35,0); const ux=e.x-d.p.x, uz=e.z-d.p.z, ul=Math.hypot(ux,uz)||1;
-      if(e.type===undefined){ e.hp-=6; e.flash=1; if(e.hp<=0) droneDie(e,ux/ul,uz/ul); } else if(!zontCovered(e,d.p.x,d.p.y,d.p.z)) enemyHit(e,6*stealthMul(),ux/ul,uz/ul,0.3,'proj'); hitSpark(e.x,ey,e.z,ux/ul,uz/ul,2); if(rnd()<0.5) sO(1300,900,0.03,0.025,'square'); }
-    if(!LOC.safe) shadowAdd(d.p.x,d.p.z,0.7,d.p.y-groundH(d.p.x,d.p.z),0.3); } }
 /* ---- motor pool: buy and switch tanks ---- */
-function selectTank(id){ const f=TK.hp/maxHP(); UP.tank=id; TK.hp=Math.max(1,f*maxHP()); SHD.on=false; SHD.hp=SHD.max; STL.on=false; STL.t=0; save(); }
-function renderPark(){ $('#gScrap').textContent=Math.floor(ST.scrap); let h='<p class="pkintro">Танки покупаются только за лом. Улучшения из гаража работают на любом танке.</p>';
-  const bar=(l,v)=>`<div class="pkb"><span>${l}</span><i style="--v:${Math.min(1,v/1.8).toFixed(2)}"></i></div>`;
-  for(const id of CH_ORDER){ const c=CHASSIS[id], own=!!UP.tanks[id], cur=UP.tank===id, can=ST.scrap>=c.cost;
-    h+=`<section class="gcard pk${GAR.pick===id?' focus':''}" data-pick="${id}"><div class="ghead"><h3>${c.name}</h3><span>${c.cls}</span></div><div class="pkst">${bar('Скорость',c.spd)}${bar('Броня',c.hp)}${bar('Огонь',c.cn)}</div>
-      <p>${c.desc}</p><p class="pkab"><b>${c.abN}</b> — ${c.abI}</p>${cur?'<button class="btn" disabled>В строю</button>':own?`<button class="btn solid" data-tk="${id}">Выехать на нём</button>`:`<button class="btn solid" data-tkbuy="${id}" ${can?'':'disabled'}>${can?'Купить':'Не хватает'} · ${nutI} ${c.cost}</button>`}</section>`; }
-  $('#gUps').innerHTML=h; }
 $('#gpanel').addEventListener('click',e=>{ if(GAR.mode!=='park') return; const b=e.target.closest('button');
   if(b&&!b.disabled&&b.dataset.tkbuy){ const id=b.dataset.tkbuy, c=CHASSIS[id]; if(ST.scrap<c.cost) return; ST.scrap-=c.cost; UP.tanks[id]=1; selectTank(id); GAR.pick=id; sfxBuy(); later(0.3,sfxAccept); toast(`${c.name} теперь твой`); garRebuildModel(); renderPark(); return; }
   if(b&&!b.disabled&&b.dataset.tk){ selectTank(b.dataset.tk); GAR.pick=b.dataset.tk; sfxWrench(); garRebuildModel(); renderPark(); return; }
   const s=e.target.closest('[data-pick]'); if(s&&!b&&GAR.pick!==s.dataset.pick){ GAR.pick=s.dataset.pick; sfxClick(); garRebuildModel(); renderPark(); } });
+/* ---- «Пчела»: kamikaze drone swarm launched from the hull hatch ---- */
+const BEE={list:[],cd:0,hatch:0};
+const kmGeo={body:new THREE.BoxGeometry(0.3,0.14,0.44),nose:new THREE.SphereGeometry(0.11,10,8),rot:new THREE.CylinderGeometry(0.17,0.17,0.02,12),arm:new THREE.BoxGeometry(0.66,0.04,0.05),fin:new THREE.BoxGeometry(0.02,0.14,0.12)};
+const kmMat={y:new THREE.MeshToonMaterial({color:0xf2b21e,gradientMap:gradTex}),d:new THREE.MeshToonMaterial({color:0x22262b,gradientMap:gradTex}),r:new THREE.MeshBasicMaterial({color:0xff4030})};
+function kmMake(){ const g=new THREE.Group(), m=(geo,mat,x,y,z)=>{ const o=new THREE.Mesh(geo,mat); o.position.set(x,y,z); g.add(o); return o; };
+  m(kmGeo.body,kmMat.y,0,0,0); m(kmGeo.body,kmMat.d,0,0.06,-0.05).scale.set(0.7,0.4,0.6); m(kmGeo.nose,kmMat.r,0,0,0.25); m(kmGeo.fin,kmMat.d,0,0.1,-0.2);
+  for(const a of [Math.PI/4,-Math.PI/4]) m(kmGeo.arm,kmMat.d,0,0.02,0).rotation.y=a; const rotors=[]; for(const [x,z] of [[0.23,0.23],[-0.23,0.23],[0.23,-0.23],[-0.23,-0.23]]) rotors.push(m(kmGeo.rot,rdMat.rotor,x,0.07,z));
+  scene.add(g); return {g,rotors,p:new THREE.Vector3(),v:new THREE.Vector3(),st:'launch',t:0,tgt:null,tT:0,bee:true,rd:true,dead:false,loc:LOC_ID,ph:rnd()*TAU}; }
+function beeLaunch(){ const d=kmMake(); tank.root.updateMatrixWorld(true); tank.hatchPt.getWorldPosition(d.p); d.v.set(-Math.sin(TK.h)*1.5,5,-Math.cos(TK.h)*1.5); BEE.list.push(d); BEE.hatch=1; sO(420,1200,0.35,0.06,'square'); sNz(0.2,'bandpass',900,1,0.06); }
+function beeRemove(d){ d.dead=true; const i=BEE.list.indexOf(d); if(i>=0) BEE.list.splice(i,1); scene.remove(d.g); }
+function beeBoom(d){ if(d.dead) return; beeRemove(d); const e=d.tgt; if(e&&!e.dead&&Math.hypot(e.x-d.p.x,e.z-d.p.z)<(e.hr||0.8)+1.2&&!zontCovered(e,d.p.x,d.p.y,d.p.z)){ const l=Math.hypot(d.v.x,d.v.z)||1; if(e.type===undefined){ e.hp-=40; e.flash=1; if(e.hp<=0) droneDie(e,d.v.x/l,d.v.z/l); } else enemyHit(e,40,d.v.x/l,d.v.z/l,4,'proj'); } explode(d.p.x,d.p.y,d.p.z,1.8,1.2,0,-1,0,'shell',null,0,null,0); }
+function beeDie(d,ux,uz){ if(d.dead) return; beeRemove(d); FIRE.spawn(d.p.x,d.p.y,d.p.z,0,0,0,1,2,0.2,1,1,0.7,0.3); sparkBurst(d.p.x,d.p.y,d.p.z,10); sfxGlass(0.4); }
+function beesClear(){ for(const d of BEE.list.slice()) beeRemove(d); }
+const _bv=new THREE.Vector3();
+function beesUpdate(dt,t){ if(chs().abil!=='drones'||TK.dead||!tank||!tank.hatchPt){ if(BEE.list.length) beesClear(); return; } const mx=1+(UP.abl|0);
+  BEE.cd-=dt; if(BEE.list.length<mx&&BEE.cd<=0&&!transit){ beeLaunch(); BEE.cd=2.5; }
+  BEE.hatch=Math.max(0,BEE.hatch-dt*1.1); if(tank.hatch) tank.hatch.rotation.x=-Math.min(1,BEE.hatch*2.2)*1.9;
+  for(const d of BEE.list.slice()){ if(d.loc!==LOC_ID){ beeRemove(d); continue; } d.t+=dt; d.g.visible=!transit;
+    let tx,ty,tz,k=3, vm=9;
+    if(d.st==='dive'){ const e=d.tgt; if(!e||e.dead){ d.st='orbit'; d.tgt=null; } else { tx=e.x; ty=e.y+(e.hy||0.6); tz=e.z; k=8; vm=17;
+        const dd=Math.hypot(tx-d.p.x,ty-d.p.y,tz-d.p.z); if(dd<(e.hr||0.8)+0.45||d.t>3.2){ beeBoom(d); continue; }
+        for(const z of ENEMIES){ if(zontOn(z)&&zontInside(z,d.p.x,d.p.y,d.p.z,0)&&!zontInside(z,TK.x,TK.y+1,TK.z,0)&&!zontInside(z,d.p.x-d.v.x*dt*2,d.p.y-d.v.y*dt*2,d.p.z-d.v.z*dt*2,0)){ beeBoom(d); break; } } if(d.dead) continue;
+        if(get(Math.floor(d.p.x/VS),Math.floor(d.p.y/VS),Math.floor(d.p.z/VS))||d.p.y<groundH(d.p.x,d.p.z)+0.1){ beeBoom(d); continue; }
+        if(rnd()<0.6) spark(d.p.x,d.p.y,d.p.z,-d.v.x*0.2+(rnd()-0.5),-d.v.y*0.2,-d.v.z*0.2+(rnd()-0.5),1,0.6,0.25,0.25); } }
+    if(d.st!=='dive'){ const a=t*1.1+d.ph; tx=TK.x+Math.cos(a)*3.1; tz=TK.z+Math.sin(a)*3.1; ty=TK.y+3.4+Math.sin(t*2.3+d.ph)*0.3; if(d.st==='launch'&&d.t>0.7) d.st='orbit';
+      d.tT-=dt; if(d.st==='orbit'&&d.tT<=0&&!LOC.safe){ d.tT=0.3; let bd=18, best=null; for(const e of ENEMIES){ if(e.dead||BEE.list.some(o=>o!==d&&o.tgt===e)&&ENEMIES.filter(q=>!q.dead).length>1) continue; const dd=Math.hypot(e.x-d.p.x,e.z-d.p.z); if(dd<bd&&losClear(d.p.x,d.p.y,d.p.z,e.x,e.y+(e.hy||0.6),e.z)){ bd=dd; best=e; } }
+        if(best){ d.st='dive'; d.tgt=best; d.t=0; sO(900,1800,0.4,0.06,'sawtooth'); } } }
+    _bv.set(tx-d.p.x,ty-d.p.y,tz-d.p.z).multiplyScalar(k); if(_bv.length()>vm) _bv.setLength(vm); d.v.lerp(_bv,Math.min(1,dt*(d.st==='dive'?5:4))); d.p.addScaledVector(d.v,dt); d.g.position.copy(d.p);
+    d.g.rotation.y=turnTo(d.g.rotation.y,Math.atan2(d.v.x,d.v.z),dt*8); d.g.rotation.x=d.st==='dive'?clamp(-d.v.y*0.06,-0.9,0.9):clamp(Math.hypot(d.v.x,d.v.z)*0.03,0,0.3); for(const r of d.rotors) r.rotation.y+=dt*50;
+    if(!LOC.safe) shadowAdd(d.p.x,d.p.z,0.5,d.p.y-groundH(d.p.x,d.p.z),0.3); } }
+/* ---- weapon sets per tank ---- */
+function wAllowed(){ return chs().w.filter(i=>i!==2||UP.rk); }
+function cycleWeapon(dr){ const a=wAllowed(); let p=a.indexOf(wcur); p=((p+dr)%a.length+a.length)%a.length; switchWeapon(a[p]); }
+function selPos(p){ const a=wAllowed(); if(a[p]!=null) switchWeapon(a[p]); }
+/* ---- per-tank upgrades: each tank keeps its own hangar upgrades ---- */
+const PER_KEYS=['engine','armor','cal','load','stab','rk','ammo','mg','own','rdr','abl'];
+function perDefault(id){ const c=CHASSIS[id], mg=(c.mgs&&c.mgs[0])||'gau'; return {engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg,own:{[mg]:1},rdr:0,abl:0}; }
+function perSnap(){ const o={}; for(const k of PER_KEYS) o[k]=k==='own'?Object.assign({},UP.own):UP[k]; return o; }
+function perFix(){ const c=chs(); if(c.mgs.length&&!c.mgs.includes(UP.mg)){ UP.mg=c.mgs[0]; UP.own[UP.mg]=1; } }
+function selectTank(id){ if(id===UP.tank) return; if(!UP.per) UP.per={}; const f=TK.hp/maxHP(); UP.per[UP.tank]=perSnap(); UP.tank=id; const d=UP.per[id]||perDefault(id);
+  for(const k of PER_KEYS) UP[k]=k==='own'?Object.assign({},d.own||{}):(d[k]==null?perDefault(id)[k]:d[k]); perFix(); TK.hp=Math.max(1,f*maxHP());
+  for(const a of ['mg','cn','rk']) ST.ammo[a]=Math.min(ST.ammo[a],ammoCap(a)); SHD.on=false; SHD.hp=SHD_MAX[UP.abl|0]; STL.on=false; STL.t=0; BEE.cd=1; updateWeaponUI(); save(); }
+/* ---- «Крепость»: rotary cannon spin-down + black exhaust while driving ---- */
+let exT=0;
+function krepUpdate(dt){ if(!tank) return; if(tank.cnSpin) tank.cnSpin.rotation.z+=((tank.cnSpinT||0)-tank.cnSpin.rotation.z)*Math.min(1,dt*6);
+  if(tank.exh&&!transit&&!TK.dead){ exT-=dt; const sp=Math.hypot(TK.vx,TK.vz); if(exT<=0){ exT=sp>0.6?0.07:0.35; tank.root.updateMatrixWorld(true); tank.exh.getWorldPosition(_kv2); const k=Math.min(1,sp/8);
+    SMOKE.spawn(_kv2.x,_kv2.y,_kv2.z,-TK.vx*0.35+(rnd()-0.5)*0.4,1.6+rnd()*1.2,-TK.vz*0.35+(rnd()-0.5)*0.4,0.22+k*0.2,1.6,0.8+k*0.6,0.38+k*0.14,0.06,0.06,0.07); } } }
+/* ---- motor pool list ---- */
+function renderPark(){ $('#gScrap').textContent=Math.floor(ST.scrap); const pk=CHASSIS[GAR.pick]||CHASSIS.base, own=!!UP.tanks[GAR.pick];
+  const gp=$('#gPick'); gp.hidden=false; gp.innerHTML=`<span>${pk.cls} · на подиуме</span><b>${pk.name}</b><em>${UP.tank===GAR.pick?'● в строю':own?'куплен · можно выехать':'цена '+pk.cost+' лома'}</em>`;
+  let h='<p class="pkintro">Нажми на танк, чтобы поставить его на подиум. Покупка — только за лом. У каждого танка свои улучшения в гараже.</p>';
+  const bar=(l,v)=>`<div class="pkb"><span>${l}</span><i style="--v:${Math.min(1,v/1.8).toFixed(2)}"></i></div>`;
+  CH_ORDER.forEach((id,n)=>{ const c=CHASSIS[id], ow=!!UP.tanks[id], cur=UP.tank===id, can=ST.scrap>=c.cost, look=GAR.pick===id;
+    h+=`<section class="gcard pk${look?' focus':''}${cur?' cur':''}" data-pick="${id}"><div class="ghead"><h3><i class="pkn">${n+1}</i>${c.name}</h3><span>${cur?'<em class="pktag cur">В строю</em>':look?'<em class="pktag look">На подиуме</em>':c.cls}</span></div>
+      ${look?`<div class="pkst">${bar('Скорость',c.spd)}${bar('Броня',c.hp)}${bar('Огонь',c.cn)}</div><p>${c.desc}</p><p class="pkab"><b>Оружие</b> — ${c.arms}</p><p class="pkab"><b>${c.abN}</b> — ${c.abI}</p>`:`<p class="pkshort">${c.cls} · ${c.arms}</p>`}
+      ${cur?'':ow?`<button class="btn solid" data-tk="${id}">Выехать на нём</button>`:`<button class="btn${look?' solid':''}" data-tkbuy="${id}" ${can?'':'disabled'}>${can?'Купить':'Не хватает'} · ${nutI} ${c.cost}</button>`}</section>`; });
+  $('#gUps').innerHTML=h; }
+
 /* ---- HUD chip + hub ---- */
 function abilHud(){ const el=$('#abil'), c=chs(); if(!c.abil||LOC.safe){ el.hidden=true; $('#kAbil').hidden=true; return; } el.hidden=false; $('#kAbil').hidden=c.abil!=='shield';
-  let s=''; if(c.abil==='stealth') s=STL.on?'<b>Невидим</b> · первый выстрел ×2':`Маскировка через ${Math.max(0,2-STL.t).toFixed(1)} с`;
+  let s=''; if(c.abil==='stealth') s=STL.on?'<b>Невидим</b> · первый выстрел ×2':`Маскировка через ${Math.max(0,STL_DELAY[UP.abl|0]-STL.t).toFixed(1)} с`;
   else if(c.abil==='shield') s=SHD.cd>0?`Щит · перезарядка ${Math.ceil(SHD.cd)} с`:`<b>Щит ${Math.round(SHD.hp/SHD.max*100)}%</b>${SHD.on?' · стоит':' · E — поднять'}`;
-  else if(c.abil==='rail') s='<b>Рельсотрон</b> · прошивает насквозь'; else if(c.abil==='drones') s=`<b>Рой ${BEE.list.length}/3</b>${BEE.list.length<3?' · пополнение':''}`;
+  else if(c.abil==='rail') s='<b>Рельсотрон</b> · прошивает насквозь'; else if(c.abil==='drones') { const mx=1+(UP.abl|0); s=`<b>Рой ${BEE.list.length}/${mx}</b>${BEE.list.length<mx?' · новый дрон готовится':' · камикадзе'}`; }
   if(el.innerHTML!==s) el.innerHTML=s; el.classList.toggle('on',(c.abil==='stealth'&&STL.on)||(c.abil==='shield'&&SHD.on)); }
 let abT=0;
-function v12Update(dt,t){ if(chs().abil==='stealth'&&!TK.dead&&!transit){ STL.t+=dt; setStealth(STL.t>2&&!LOC.safe); } else setStealth(false); STL.bonus=Math.max(0,STL.bonus-dt);
-  shieldUpdate(dt,t); railsUpdate(dt); beesUpdate(dt,t); abT-=dt; if(abT<=0){ abT=0.15; abilHud(); } }
+function v12Update(dt,t){ if(chs().abil==='stealth'&&!TK.dead&&!transit){ STL.t+=dt; setStealth(STL.t>STL_DELAY[UP.abl|0]&&!LOC.safe); } else setStealth(false); STL.bonus=Math.max(0,STL.bonus-dt);
+  shieldUpdate(dt,t); railsUpdate(dt); beesUpdate(dt,t); krepUpdate(dt); abT-=dt; if(abT<=0){ abT=0.15; abilHud(); } }
 
 /* ================= MAIN LOOP ================= */
 let last=performance.now(), fpsS=60, lampT=0, saveT=0, tankSh=null;
