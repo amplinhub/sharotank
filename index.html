@@ -181,6 +181,10 @@ body.crit #critV{animation:cv .9s ease-in-out infinite alternate}
 #mcName{margin:0;color:#3dffb5;font-size:10.5px;letter-spacing:.08em}
 #mcInfo{margin:0;color:var(--dim);font-size:11px;letter-spacing:.04em}
 #mcObj{margin:0;font-size:12px;color:var(--ink)}
+.abil{font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);padding:3px 0 0 4px;width:230px;max-width:44vw}.abil b{color:var(--ink);font-weight:600}.abil.on b{color:#7fe8ff;text-shadow:0 0 8px rgba(127,232,255,.6)}
+.pkintro{font-size:11px;color:var(--dim);margin:0 0 4px;line-height:1.4}.pk{cursor:pointer}.pkst{display:grid;gap:5px;margin:6px 0 8px}
+.pkb{display:grid;grid-template-columns:92px 1fr;align-items:center;gap:8px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
+.pkb i{height:6px;background:linear-gradient(90deg,var(--acc) calc(var(--v)*100%),rgba(255,255,255,.08) 0)}.pkab b{color:var(--acc)}
 #win{position:fixed;inset:0;z-index:12;display:grid;place-items:center;pointer-events:none;background:radial-gradient(circle,rgba(255,201,74,.2),rgba(6,12,26,0) 60%);overflow:hidden}
 #win::before{content:"";position:absolute;width:140vmax;height:140vmax;left:50%;top:50%;margin:-70vmax 0 0 -70vmax;background:repeating-conic-gradient(rgba(255,201,74,.11) 0 7deg,transparent 7deg 18deg);animation:wspin 16s linear infinite;-webkit-mask:radial-gradient(circle,#000 8%,transparent 50%);mask:radial-gradient(circle,#000 8%,transparent 50%)}
 #win::after{content:"";position:absolute;inset:0;background:#fff3c4;opacity:0}
@@ -353,6 +357,7 @@ kbd{font-family:var(--f-mono);border:1px solid var(--line);padding:0 4px;font-si
   <div class="obj" id="obj" hidden></div>
   <div class="wbox"><div class="wdrum" id="wdrum" title="Сменить оружие (Q)"><div class="wd" id="wdIn"></div></div>
   <div class="wstate"><span class="chm" id="wchm"></span><div class="bar"><i id="wbar"></i></div><span id="wst">Готов</span></div></div>
+  <div class="abil" id="abil" hidden></div>
 </div>
 
 <div class="tr">
@@ -373,7 +378,7 @@ kbd{font-family:var(--f-mono);border:1px solid var(--line);padding:0 4px;font-si
   </div>
 </div>
 
-<div class="kits" id="kits"><button class="kit" id="kRep" title="Экстренный ремонт (R)" aria-label="Экстренный ремонт"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="3"/><circle cx="12" cy="12" r="10" stroke-width="1.4"/></svg><b hidden></b></button><button class="kit" id="kAmmo" title="Сброс боеприпасов (T)" aria-label="Сброс боеприпасов"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="1" stroke-width="1.6"/><path d="M3 13h18M8 9V5h2v4M12 9V4h2v5M16 9V5h2v4" stroke-width="1.4"/></svg><b hidden></b></button><button class="kit" id="kArt" title="Артудар (G)" aria-label="Артиллерийский удар"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" stroke-width="1.6"/><circle cx="12" cy="12" r="2.6" stroke-width="1.6"/><path d="M12 1.5v5M12 17.5v5M1.5 12h5M17.5 12h5" stroke-width="1.6"/></svg><b hidden></b></button></div>
+<div class="kits" id="kits"><button class="kit" id="kRep" title="Экстренный ремонт (R)" aria-label="Экстренный ремонт"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke-width="3"/><circle cx="12" cy="12" r="10" stroke-width="1.4"/></svg><b hidden></b></button><button class="kit" id="kAmmo" title="Сброс боеприпасов (T)" aria-label="Сброс боеприпасов"><svg viewBox="0 0 24 24"><rect x="3" y="9" width="18" height="11" rx="1" stroke-width="1.6"/><path d="M3 13h18M8 9V5h2v4M12 9V4h2v5M16 9V5h2v4" stroke-width="1.4"/></svg><b hidden></b></button><button class="kit" id="kArt" title="Артудар (G)" aria-label="Артиллерийский удар"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5" stroke-width="1.6"/><circle cx="12" cy="12" r="2.6" stroke-width="1.6"/><path d="M12 1.5v5M12 17.5v5M1.5 12h5M17.5 12h5" stroke-width="1.6"/></svg><b hidden></b></button><button class="kit" id="kAbil" title="Щит (E)" aria-label="Поднять щит" hidden><svg viewBox="0 0 24 24"><path d="M12 2.5l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6z" stroke-width="1.6"/><path d="M8 12l3 3 5-6" stroke-width="1.6"/></svg></button></div>
 
 <div class="bc">
   <div class="gauge"><div class="big" id="spd">0</div><div class="lbl">км/ч</div></div>
@@ -411,10 +416,10 @@ kbd{font-family:var(--f-mono);border:1px solid var(--line);padding:0 4px;font-si
 <div id="banner"><div class="bx"><div class="bcn" id="bnCn"></div><div class="bru" id="bnRu"></div><div class="bsub" id="bnSub"></div></div></div>
 
 <div id="garage" hidden>
-  <div class="gtop"><div class="gtitle">ГАРАЖ <span class="cjk">车库</span></div><div class="ghint">тяни по экрану, чтобы покрутить танк</div></div>
+  <div class="gtop"><div class="gtitle" id="gTitle">ГАРАЖ <span class="cjk">车库</span></div><div class="ghint">тяни по экрану, чтобы покрутить танк</div></div>
   <aside class="gpanel" id="gpanel">
     <div class="gscrap"><i class="nut" aria-hidden="true"></i><b id="gScrap">0</b><span>лома</span></div>
-    <section class="gcard">
+    <section class="gcard" id="gHull">
       <div class="ghead"><h3>Корпус</h3><span id="gHpTxt"></span></div>
       <div class="hpbar"><i id="gHpFill"></i></div>
       <div class="sides" id="gSides"></div>
@@ -1317,15 +1322,15 @@ const MGS={gau:{name:'Миниган',code:'GAU-6M',speed:95,g:0,spread:0.011,ra
   twin:{name:'Спарка',code:'GAU-6M×2',speed:95,g:0,spread:0.014,rate:28,radius:0.33,power:0.55,spin:true,heat:0.019,cost:450,info:'2 блока стволов, 28 выстр/с'},
   kpv:{name:'Крупняк',code:'КПВ-14.5',speed:115,g:0,spread:0.005,rate:6.5,radius:0.62,power:0.8,spin:false,heat:0.055,cost:600,info:'1 тяжёлый ствол, грызёт стены'}};
 const AMMO_CAP={mg:[600,900,1300,1800],cn:[30,45,65,90],rk:[24,36,48,64]};
-const ST={scrap:600,ammo:{mg:600,cn:30,rk:24},kits:{rep:0,ammo:0,art:0}}; const UP={engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},rdr:0};
+const ST={scrap:600,ammo:{mg:600,cn:30,rk:24},kits:{rep:0,ammo:0,art:0}}; const UP={engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},rdr:0,tank:'base',tanks:{base:1}};
 const MS={i:0,active:false,prog:0,rank:0};
 function ammoCap(id){ return AMMO_CAP[id][UP.ammo]; }
 function refillAmmo(){ for(const id of ['mg','cn','rk']) ST.ammo[id]=ammoCap(id); }
 const SAVE_KEY='sharotank-5tl-v3';
 function save(){ try{ localStorage.setItem(SAVE_KEY,JSON.stringify({scrap:Math.floor(ST.scrap),hp:TK.hp,dmg:TK.dmgS,up:UP,ammo:ST.ammo,ms:MS,kits:ST.kits,seen:SEEN})); }catch(e){} }
 function loadSave(){ try{ const d=JSON.parse(localStorage.getItem(SAVE_KEY)||'null'); if(!d) return false; ST.scrap=d.scrap|0;
-  const u=d.up||{}; for(const k of ['engine','armor','cal','load','stab','rk','ammo','rdr']) if(typeof u[k]==='number') UP[k]=u[k]; if(MGS[u.mg]) UP.mg=u.mg; UP.own=Object.assign({gau:1},u.own||{});
-  TK.hp=clamp(+d.hp||ARM_HP[UP.armor],1,ARM_HP[UP.armor]); if(Array.isArray(d.dmg)) for(let i=0;i<5;i++) TK.dmgS[i]=clamp(+d.dmg[i]||0,0,1);
+  const u=d.up||{}; for(const k of ['engine','armor','cal','load','stab','rk','ammo','rdr']) if(typeof u[k]==='number') UP[k]=u[k]; if(MGS[u.mg]) UP.mg=u.mg; UP.own=Object.assign({gau:1},u.own||{}); UP.tanks=Object.assign({base:1},u.tanks||{}); UP.tank=(CHASSIS[u.tank]&&UP.tanks[u.tank])?u.tank:'base';
+  TK.hp=clamp(+d.hp||maxHP(),1,maxHP()); if(Array.isArray(d.dmg)) for(let i=0;i<5;i++) TK.dmgS[i]=clamp(+d.dmg[i]||0,0,1);
   refillAmmo(); if(d.ammo) for(const id of ['mg','cn','rk']) if(typeof d.ammo[id]==='number') ST.ammo[id]=clamp(d.ammo[id],0,ammoCap(id));
   if(d.kits){ ST.kits.rep=clamp(d.kits.rep|0,0,2); ST.kits.ammo=clamp(d.kits.ammo|0,0,2); ST.kits.art=clamp(d.kits.art|0,0,2); }
   if(d.ms){ MS.i=Math.max(0,d.ms.i|0); MS.active=!!d.ms.active; MS.prog=+d.ms.prog||0; MS.rank=clamp(d.ms.rank|0,0,12); MS.flag=!!d.ms.flag; if(d.seen) Object.assign(SEEN,d.seen); MS.fp=d.ms.fp==null?null:d.ms.fp|0; } return true; }catch(e){ return false; } }
@@ -1462,6 +1467,67 @@ const plateTex=(()=>{ const pc=document.createElement('canvas'); pc.width=160; p
 const plateMat=new THREE.MeshBasicMaterial({map:plateTex}); const plateGeo=new THREE.PlaneGeometry(0.9,0.32);
 const glowMats={}; function glowMat(cc){ return glowMats[cc]||(glowMats[cc]=new THREE.MeshBasicMaterial({color:cc})); }
 const TANK_SKIN={turret:0x6c9a80,chassis:0x2b363a,wheels:0x7a383d};
+/* ================= v12: tank chassis — stats, abilities and models (built from the references) ================= */
+const CHASSIS={
+ base:{name:'Шаротанк 5T-L',cls:'Универсал',cost:0,hp:1,spd:1,acc:1,turn:1,ram:1,cn:1,abil:null,abN:'Без особенностей',abI:'надёжная стартовая машина, хороша во всём понемногу',desc:'Колёсный танк со сферической башней. С него начинают все водители лагеря.'},
+ ten:{name:'ЛТ-7 «Тень»',cls:'Лёгкий',cost:1600,hp:0.7,spd:1.3,acc:1.35,turn:1.3,ram:0.6,cn:1,abil:'stealth',abN:'Маскировка',abI:'через 2 с без стрельбы враги не замечают танк дальше 15 м, а первый выстрел из маскировки наносит двойной урон',desc:'Разведчик на колёсах-роликах с длинными рычагами подвески. Быстрый, вёрткий и хрупкий.'},
+ krep:{name:'ТТ-14 «Крепость»',cls:'Тяжёлый',cost:2600,hp:1.75,spd:0.72,acc:0.7,turn:0.78,ram:2,cn:1.1,abil:'shield',abN:'Щит (E)',abI:'на стоянке раскрывает створки и поднимает купол: снаружи по танку не попасть, а сам он стреляет. Пока купол стоит, танк не двигается',desc:'Шестиколёсная бронированная махина с кабиной-аквариумом. Медленная, но выдерживает всё.'},
+ igla:{name:'ПТ-6 «Игла»',cls:'Дальнобойный',cost:2200,hp:0.9,spd:0.88,acc:0.85,turn:0.9,ram:0.8,cn:1.7,abil:'rail',abN:'Рельсотрон',abI:'вместо снаряда — мгновенный луч на 70 м: прошивает всех роботов на линии и бьёт за ними',desc:'Гусеничная машина с массивной башней и двумя светящимися ячейками рельсотрона.'},
+ pchela:{name:'ИТ-1 «Пчела»',cls:'Инженерный',cost:2000,hp:1.05,spd:0.95,acc:1,turn:1,ram:1,cn:0.85,abil:'drones',abN:'Рой',abI:'три боевых мини-дрона сами атакуют ближайших врагов, плюс один встроенный ремонтный дрон. Сбитые дроны возвращаются через 20 с',desc:'Бронеавтомобиль с ульем для дронов на корме. Сам стреляет слабее, зато никогда не воюет один.'}};
+const CH_ORDER=['base','ten','krep','igla','pchela'];
+function chs(){ return CHASSIS[UP.tank]||CHASSIS.base; }
+function chWheel(T,o,x,y0,z,r,w,tc,hc,opt){ const g=new THREE.Group(); g.position.set(x,y0,z); T.root.add(g); const sp=new THREE.Group(); g.add(sp);
+  o.add(o.xc(o.Cy(r,r,w,14*o.S)),tc,sp,0,0,0,o.hi?1.04:1.06); o.add(o.xc(o.Cy(r*0.56,r*0.56,w+0.02,10*o.S)),hc,sp,0,0,0); const sd=Math.sign(x)||1;
+  if(opt.rim) o.add(o.xc(o.Cy(r*0.4,r*0.4,0.05,12)),opt.rim,sp,sd*(w/2+0.01),0,0);
+  const nl=o.hi?14:8, lg=o.B(w+0.02,0.1,0.16); for(let k=0;k<nl;k++){ const a=k/nl*TAU; const l=o.add(lg,opt.lug||tc,sp,0,Math.cos(a)*r,Math.sin(a)*r); l.rotation.x=-a; }
+  g.userData={y0,wi:opt.wi,st:opt.st||0,rs:0.56/r}; T.wheels.push(g); T.spins.push(sp); return sp; }
+function chBeacon(T,par,x,y,z){ T.beacon=new THREE.Mesh(new THREE.SphereGeometry(0.07,8,6),new THREE.MeshBasicMaterial({color:0xffb53a})); T.beacon.userData.keep=true; T.beacon.position.set(x,y,z); par.add(T.beacon); }
+const CH_BUILD={
+ /* «Тень»: rover with omni-roller wheels on long arms, black glass canopy (ref: white rover, here in stealth graphite) */
+ ten(T,o){ const {add,B,Cy,xc}=o, Sp=T.susp, Tu=T.turret, C=0x30363b, D=0x15191c, G=0x0b1115, A=0x4a535b, GL=glowMat(0x5dff9a);
+  for(const [x,z,wi] of [[1.42,1.2,0],[-1.42,1.2,1],[1.42,-1.15,2],[-1.42,-1.15,3]]){ const sp=chWheel(T,o,x,0.5,z,0.5,0.44,0x101316,0x5b646c,{wi,st:z>0?1:0,lug:0x1d2226,rim:A}); add(xc(Cy(0.09,0.09,0.5,8)),GL,sp,0,0,0); }
+  for(const s of [-1,1]) for(const z of [1.2,-1.15]){ const a=add(B(0.95,0.13,0.16),A,Sp,s*0.95,0.66,z*0.93,true); a.rotation.z=s*-0.2; add(B(0.12,0.12,0.42),D,Sp,s*0.52,0.78,z*0.86); add(xc(Cy(0.13,0.13,0.18,10)),D,Sp,s*1.3,0.52,z); }
+  add(B(1.2,0.55,2.2),C,Sp,0,0.98,-0.2,true); const nose=add(xc(Cy(0.6,0.6,1.2,16*o.S)),C,Sp,0,0.98,0.9,true); nose.scale.set(1,0.48,1);
+  const cp=add(B(1.02,0.42,0.95),G,Sp,0,1.32,0.62,true); cp.rotation.x=0.2; add(B(1.08,0.07,1.05),A,Sp,0,1.56,0.55); add(B(0.08,0.4,0.08),A,Sp,0.5,1.36,1.02); add(B(0.08,0.4,0.08),A,Sp,-0.5,1.36,1.02);
+  add(B(0.86,0.03,0.02),GL,Sp,0,1.2,1.1); for(const s of [-1,1]){ add(B(0.02,0.05,1.8),GL,Sp,s*0.61,1.06,-0.25); add(xc(Cy(0.22,0.22,0.3,12)),D,Sp,s*0.42,1.0,-1.3,true); add(xc(Cy(0.12,0.12,0.32,10)),glowMat(0x1d6b46),Sp,s*0.42,1.0,-1.32); }
+  Sp.add(T.stab); T.stab.position.set(0,1.27,-0.45); T.stab.add(Tu);
+  add(B(0.86,0.32,1.0),A,Tu,0,0.18,0,true); add(B(0.6,0.12,0.62),D,Tu,0,0.4,-0.12); add(B(0.3,0.16,0.2),G,Tu,0.25,0.42,0.3);
+  add(Cy(0.022,0.012,1.7,6),D,Tu,-0.32,1.12,-0.38); chBeacon(T,Tu,-0.32,1.98,-0.38); T.gun.position.set(0,0.2,0.45); },
+ /* «Крепость»: six-wheeler armoured truck with a fishbowl cab, antennas and shield flaps (ref: orange 6x6) */
+ krep(T,o){ const {add,B,Cy,zc}=o, Sp=T.susp, Tu=T.turret, O=0xe0582a, O2=0xc84a22, D=0x2a2d31, Ti=0x2e2a27, Gl=0x14222a, M=0x5a5f64;
+  for(const [x,z,wi,st] of [[1.2,1.3,0,1],[-1.2,1.3,1,1],[1.2,0.02,-1,0],[-1.2,0.02,-1,0],[1.2,-1.26,2,0],[-1.2,-1.26,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,Ti,0xf0a030,{wi,st,lug:0x221f1d,rim:D});
+  add(B(1.7,0.45,3.7),D,Sp,0,0.88,0,true);
+  add(B(2.05,1.1,1.15),O,Sp,0,1.62,1.25,true); add(B(1.78,0.72,0.04),D,Sp,0,1.76,1.83); add(B(1.62,0.58,0.04),Gl,Sp,0,1.77,1.85); for(const s of [-1,1]){ add(B(0.04,0.48,0.62),Gl,Sp,s*1.03,1.8,1.28); add(zc(Cy(0.12,0.12,0.08,12)),glowMat(0xfff2d2),Sp,s*0.86,1.08,1.96); add(zc(Cy(0.07,0.07,0.06,10)),glowMat(0xfff2d2),Sp,s*0.5,2.1,1.84); }
+  add(B(2.15,0.26,0.28),D,Sp,0,0.98,1.92,true);
+  add(B(2.15,1.35,2.3),O,Sp,0,1.75,-0.6,true); for(const s of [-1,1]){ for(let k=0;k<2;k++) add(B(0.05,0.72,0.9),O2,Sp,s*1.1,1.78,-0.12-k*1.0); add(B(0.05,0.08,1.9),D,Sp,s*1.1,1.18,-0.6); add(zc(Cy(0.13,0.13,0.08,12)),glowMat(0xffd27a),Sp,s*0.8,1.95,-1.78); }
+  add(B(1.95,0.06,2.1),D,Sp,0,2.45,-0.6); add(B(0.5,0.3,0.4),M,Sp,0.55,2.6,-1.25,true);
+  for(const [x,z,h] of [[0.8,1.55,1.5],[-0.85,1.5,1.0],[0.88,-1.55,1.8],[0.62,-1.62,1.25],[-0.7,-1.6,1.4]]) add(Cy(0.022,0.014,h,6),D,Sp,x,2.3+h/2,z);
+  T.flaps=[]; for(const s of [-1,1]){ const f=new THREE.Group(); f.position.set(s*1.12,2.42,-0.6); Sp.add(f); add(B(0.08,0.95,2.0),O2,f,s*0.04,-0.48,0,true); add(B(0.03,0.06,1.8),glowMat(0x7fe8ff),f,s*0.1,-0.25,0); f.userData.s=s; T.flaps.push(f); }
+  const em=new THREE.Group(); em.position.set(-0.45,2.5,-1.2); Sp.add(em); add(Cy(0.07,0.07,0.32,8),M,em,0,0.16,0); const dish=add(new THREE.SphereGeometry(0.42,14,6,0,TAU,0,Math.PI/2.6),M,em,0,0.42,0,true); dish.rotation.x=Math.PI; add(new THREE.SphereGeometry(0.1,8,6),glowMat(0x7fe8ff),em,0,0.26,0); T.spinners.push(em);
+  Sp.add(T.stab); T.stab.position.set(0,2.2,0.7); T.stab.add(Tu); add(Cy(0.55,0.62,0.16,16),D,Tu,0,0.04,0,true); add(B(1.02,0.5,1.05),O,Tu,0,0.36,0,true); add(B(0.92,0.06,0.9),D,Tu,0,0.63,0); add(B(0.32,0.26,0.3),M,Tu,0.42,0.74,-0.22,true);
+  chBeacon(T,Tu,-0.38,0.75,-0.3); T.gun.position.set(0,0.38,0.52); },
+ /* «Игла»: tracked crimson hull, oversized turret, twin glowing rail cells (ref: red tracked tank) */
+ igla(T,o){ const {add,B,Cy,xc,zc}=o, Sp=T.susp, Tu=T.turret, R=0xb8323a, Rd=0x8c2630, D=0x2e1b20, Te=0x3fd0c0, BL=glowMat(0x7fe8ff);
+  for(const s of [-1,1]){ add(B(0.64,0.78,3.35),0x2a2224,Sp,s*1.06,0.46,0,true); for(let k=0;k<12;k++) add(B(0.66,0.06,0.12),0x17110f,Sp,s*1.06,0.86,-1.52+k*0.275); add(B(0.78,0.2,3.45),R,Sp,s*1.06,0.98,0,true); }
+  for(const [s,z] of [[1,1.25],[-1,1.25],[1,-1.25],[-1,-1.25]]){ const g=new THREE.Group(); g.position.set(s*1.4,0.46,z); T.root.add(g); const sp=new THREE.Group(); g.add(sp); add(xc(Cy(0.34,0.34,0.06,16)),z>0?Te:0x3a2a2e,sp,0,0,0,true); add(B(0.07,0.5,0.08),D,sp,s*0.03,0,0); g.userData={y0:0.46,wi:-1,st:0,rs:1.6}; T.wheels.push(g); T.spins.push(sp); }
+  add(B(1.5,0.68,2.9),R,Sp,0,1.12,-0.15,true); const sh=add(xc(Cy(0.74,0.74,1.5,16*o.S)),R,Sp,0,1.06,1.2,true); sh.scale.set(1,0.62,0.85);
+  for(const s of [-1,1]){ add(zc(Cy(0.1,0.1,0.06,10)),D,Sp,s*0.45,1.12,1.82); add(new THREE.SphereGeometry(0.05,8,6),BL,Sp,s*0.45,1.12,1.86); }
+  Sp.add(T.stab); T.stab.position.set(0,1.48,-0.35); T.stab.add(Tu);
+  add(Cy(0.72,0.82,0.18,16),D,Tu,0,0.05,0,true); add(B(1.5,0.78,2.1),R,Tu,0,0.52,0.05,true); add(B(1.32,0.16,1.85),Rd,Tu,0,0.98,-0.05); add(B(1.52,0.2,0.4),D,Tu,0,0.4,-1.05,true);
+  add(B(1.22,0.66,0.95),D,Tu,0,0.5,1.5,true); add(B(1.25,0.1,0.8),Te,Tu,0,0.88,1.48); for(const s of [-1,1]){ add(B(0.38,0.52,0.1),BL,Tu,s*0.28,0.5,1.99); for(let k=0;k<3;k++) add(B(0.42,0.06,0.04),D,Tu,s*0.28,0.3+k*0.2,2.03); add(B(0.05,0.24,0.24),D,Tu,s*0.77,0.6,0.6); }
+  chBeacon(T,Tu,0.5,1.2,-0.6); add(Cy(0.02,0.02,0.5,6),D,Tu,0.5,0.95,-0.6);
+  T.customCn=true; T.gun.position.set(0,0.5,1.6); T.cnMuz.position.set(0,0,0.5); T.cn.add(T.cnMuz); add(B(0.9,0.42,0.05),BL,T.cn,0,0,0.42); },
+ /* «Пчела»: angular armoured car, white with red panels, drone hive on the back (ref: white/red APC) */
+ pchela(T,o){ const {add,B,Cy}=o, Sp=T.susp, Tu=T.turret, W=0xe8e6df, Rr=0xd8322a, Or=0xf0a030, D=0x2a2e33, M=0x8a9096;
+  for(const [x,z,wi,st] of [[1.22,1.15,0,1],[-1.22,1.15,1,1],[1.22,-1.15,2,0],[-1.22,-1.15,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,0x2a2a2c,M,{wi,st,lug:0x1c1c1e,rim:0xd8d6cf});
+  add(B(1.78,0.78,3.0),W,Sp,0,1.15,-0.12,true); const n=add(B(1.72,0.12,1.05),W,Sp,0,1.36,1.42,true); n.rotation.x=0.42; add(B(1.0,0.03,0.62),Rr,n,0,0.07,0.02);
+  add(B(1.52,0.42,1.85),W,Sp,0,1.75,-0.5,true); add(B(1.24,0.18,0.05),0x1a2228,Sp,0,1.72,0.44); for(const s of [-1,1]){ add(B(0.02,0.26,1.65),Rr,Sp,s*0.9,1.0,-0.35); add(B(0.03,0.32,0.4),Or,Sp,s*0.9,1.18,0.9); }
+  add(B(0.95,0.24,0.12),Or,Sp,0,0.84,1.34); add(B(1.9,0.22,0.24),D,Sp,0,0.82,1.48,true); for(const s of [-1,1]) add(B(0.2,0.1,0.04),glowMat(0xfff2d2),Sp,s*0.62,1.0,1.62);
+  add(B(1.25,0.36,0.92),D,Sp,0,2.12,-1.0,true); for(let k=0;k<3;k++){ add(Cy(0.18,0.18,0.05,6),Or,Sp,-0.4+k*0.4,2.32,-1.0); add(Cy(0.1,0.1,0.06,6),D,Sp,-0.4+k*0.4,2.34,-1.0); }
+  for(const [x,z,h] of [[0.7,-1.5,1.4],[-0.72,-1.45,1.1]]) add(Cy(0.02,0.014,h,6),D,Sp,x,2.3+h/2,z);
+  Sp.add(T.stab); T.stab.position.set(0,1.98,0.2); T.stab.add(Tu); add(Cy(0.55,0.6,0.14,16),D,Tu,0,0.04,0,true); add(B(1.05,0.46,1.25),W,Tu,0,0.32,0,true); add(B(0.7,0.03,0.6),Rr,Tu,0,0.56,0.15); add(B(0.3,0.26,0.36),M,Tu,-0.45,0.62,-0.3,true);
+  chBeacon(T,Tu,0.42,0.72,-0.4); T.gun.position.set(0,0.32,0.6); } };
+
 function makeTank(hi,up){
   const U={rootInv:{value:new THREE.Matrix4()},dmg:{value:new THREE.Vector4()},top:{value:0}};
   const mats={}; const mt=cc=>mats[cc]||(mats[cc]=dmgMat(cc,U));
@@ -1473,6 +1539,7 @@ function makeTank(hi,up){
   const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d), Cy=(r1,r2,h,s)=>new THREE.CylinderGeometry(r1,r2,h,s);
   const SK=up.skin||TANK_SKIN, C_BODY=SK.turret, C_CH=SK.chassis, C_TIRE=SK.wheels, C_HUB=0x5d8a72, C_MET=0x3b424c, C_DK=0x222b2f, C_ARM=0x557a66, C_GUN=0x454d55, C_GUN2=0x30373e, C_RIM=0x2a3036;
   const Rt=T.root, Sp=T.susp; Rt.add(Sp);
+  const CHID=(up.tank&&CH_BUILD[up.tank])?up.tank:'base'; if(CHID!=='base') CH_BUILD[CHID](T,{add,B,Cy,zc,xc,hi,S,mt}); else {
   const tireG=xc(Cy(0.56,0.56,0.48,14*S)), hubG=xc(Cy(0.3,0.3,0.5,10*S)), lugG=B(0.5,0.12,0.18); const nl=hi?14:8;
   for(const [x,z] of WHL){ const w=new THREE.Group(); w.position.set(x,0.56,z); Rt.add(w); const sp=new THREE.Group(); w.add(sp);
     add(tireG,C_TIRE,sp,0,0,0,hi?1.04:1.06); add(hubG,C_HUB,sp,0,0,0);
@@ -1519,7 +1586,8 @@ function makeTank(hi,up){
     const pl=add(B(0.38,0.36,0.07),C_ARM,Tu,Math.sin(a)*1.0,0.9,Math.cos(a)*1.0,true); pl.rotation.y=a; if(hi) add(zc(Cy(0.03,0.03,0.04,8)),C_MET,pl,0,0.1,0.04); } }
   if(up.stab>=1){ add(new THREE.SphereGeometry(0.22,12*S,8*S,0,TAU,0,Math.PI/2),0x3d4a44,Tu,-0.32,1.78,-0.42,true); const tr=add(new THREE.TorusGeometry(0.22,0.03,6,16*S),C_MET,Tu,-0.32,1.78,-0.42); tr.rotation.x=Math.PI/2; }
   if(up.stab>=2){ add(Cy(0.035,0.035,0.7,8),C_MET,Tu,-0.55,2.12,0.1); const sp=new THREE.Group(); sp.position.set(-0.55,2.48,0.1); Tu.add(sp); add(B(0.55,0.05,0.1),C_MET,sp,0,0,0,true); add(B(0.08,0.12,0.12),glowMat(0xffc94a),sp,0.24,0,0); T.spinners.push(sp); }
-  T.gun.position.set(0,0.88,0.74); Tu.add(T.gun); T.gun.add(T.mg); T.gun.add(T.cn);
+  T.gun.position.set(0,0.88,0.74); }
+  T.turret.add(T.gun); T.gun.add(T.mg); T.gun.add(T.cn);
   const gatling=(par,x)=>{ add(zc(Cy(0.25,0.27,0.55,16*S)),C_GUN2,par,x,0,0.25,true); const br=new THREE.Group(); br.position.set(x,0,0.55); par.add(br);
     for(let k=0;k<6;k++){ const a=k/6*TAU; add(zc(Cy(0.052,0.052,1.3,8*S)),C_GUN,br,Math.cos(a)*0.13,Math.sin(a)*0.13,0.65); }
     add(zc(Cy(0.21,0.21,0.08,16*S)),C_RIM,br,0,0,0.5,true); add(zc(Cy(0.21,0.21,0.08,16*S)),C_RIM,br,0,0,1.22,true);
@@ -1531,7 +1599,7 @@ function makeTank(hi,up){
     add(zc(Cy(0.14,0.12,0.22,12*S)),C_RIM,T.mg,0,0.02,2.5,true); add(B(0.3,0.35,0.34),0x3a4248,T.mg,0.38,-0.05,0.25,true);
     const mz=new THREE.Object3D(); mz.position.set(0,0.02,2.64); T.mg.add(mz); T.mgMuz.push(mz); }
   else gatling(T.mg,0);
-  const L=1.9+0.2*up.cal, mb=1+0.15*up.cal;
+  if(!T.customCn){ const L=1.9+0.2*up.cal, mb=1+0.15*up.cal;
   add(B(0.62,0.5,0.42),C_GUN2,T.cn,0,0,0.18,true);
   add(zc(Cy(0.12+0.012*up.cal,0.14+0.012*up.cal,L,14*S)),C_GUN,T.cn,0,0,0.3+L/2,true);
   add(zc(Cy(0.19*mb,0.19*mb,0.32*mb,14*S)),C_RIM,T.cn,0,0,0.3+L+0.1,true);
@@ -1539,7 +1607,7 @@ function makeTank(hi,up){
   if(up.cal>=2) add(zc(Cy(0.21,0.21,0.36,14*S)),C_GUN2,T.cn,0,0,0.3+L*0.55,true);
   if(up.load>=1){ const s=1+0.18*(up.load-1); add(xc(Cy(0.22*s,0.22*s,0.52,16*S)),0x3a4248,T.cn,0,0.4,0.24,true); if(hi) for(const o of [-0.18,0.18]) add(xc(Cy(0.23*s,0.23*s,0.04,16)),C_MET,T.cn,o,0.4,0.24);
     if(up.load>=3) add(B(0.12,0.3,0.12),C_MET,T.cn,0.3,0.15,0.3,true); }
-  T.cnMuz.position.set(0,0,0.3+L+0.3); T.cn.add(T.cnMuz);
+  T.cnMuz.position.set(0,0,0.3+L+0.3); T.cn.add(T.cnMuz); }
   if(up.rk>=1){ const rows=up.rk>=2?3:2, pod=new THREE.Group(); pod.position.set(-1.25,0.15,-0.62); T.gun.add(pod); T.rk=pod;
     add(B(0.6,0.24*rows+0.14,0.95),C_ARM,pod,0,0,0,true); add(B(0.3,0.16,0.4),C_MET,pod,0.42,0,-0.1);
     for(let r=0;r<rows;r++) for(let cI=0;cI<2;cI++){ const x=(cI-0.5)*0.26, y=(r-(rows-1)/2)*0.24; add(zc(Cy(0.09,0.09,0.06,12)),0x0b0f16,pod,x,y,0.48);
@@ -1563,7 +1631,7 @@ function tankContacts(px,pz,out){ out.length=0; for(const s of SAMP){ const sx=p
     for(const hy of SH_Y){ const cx=Math.floor(sx/VS), cy=Math.floor(hy/VS), cz=Math.floor(sz/VS); const m=get(cx,cy,cz); if(m){ out.push(cx,cy,cz,m,s[0],s[1]); break; } } } return out.length/6; }
 const CT=[]; let ramCD=0, transit=false;
 const gate=v=>v>35.4&&v<44.6;
-function maxHP(){ return ARM_HP[UP.armor]; }
+function maxHP(){ return Math.round(ARM_HP[UP.armor]*chs().hp); }
 const WH4=[0,0,0,0];
 function tankUpdate(dt,inp){
   const fx=Math.sin(TK.h), fz=Math.cos(TK.h); let vF=TK.vx*fx+TK.vz*fz, vL=TK.vx*fz-TK.vz*fx; let th=inp.throttle, joyYaw=null;
@@ -1573,7 +1641,7 @@ function tankUpdate(dt,inp){
     const d=rev?dB:dF, al=Math.cos(d); joyYaw=clamp(d*3.4,-2.3,2.3);
     th=(rev?-1:1)*inp.joy.m*(al>0.8?1:al>0.3?(al-0.3)/0.5:0); }
   TK.load=Math.abs(th);
-  const wet=TK.wet, vmax=ENG_V[UP.engine]*(wet?0.42:1), A=ENG_A[UP.engine]*(wet?0.6:1);
+  const wet=TK.wet, CHc=chs(), vmax=ENG_V[UP.engine]*CHc.spd*(wet?0.42:1), A=ENG_A[UP.engine]*CHc.acc*(wet?0.6:1);
   let acc=0; if(th>0) acc=vF<-0.3?28:(vF<vmax*Math.max(th,0.3)?A*(1-vF/(vmax*1.16)):0); else if(th<0) acc=vF>0.3?-28:(vF>-8.5*Math.max(-th,0.3)*(wet?0.5:1)?-12:0);
   vF+=acc*dt; const dec=(1.6+0.035*vF*vF+(inp.hb?16:0)+(wet?3+0.3*vF*vF:0))*dt; vF=Math.abs(vF)<=dec?0:vF-Math.sign(vF)*dec;
   vL*=Math.exp(-(inp.hb?1.4:8.5)*dt);
@@ -1581,15 +1649,15 @@ function tankUpdate(dt,inp){
   if(joyYaw!==null){ TK.jyaw+=(joyYaw-TK.jyaw)*Math.min(1,dt*7); yaw=TK.jyaw; TK.steer+=(clamp(yaw*0.3*(vF<-0.3?-1:1),-0.55,0.55)-TK.steer)*Math.min(1,dt*8); }
   else { TK.jyaw*=Math.exp(-dt*10); TK.steer+=(inp.steer*maxS-TK.steer)*Math.min(1,dt*8); yaw=vF*Math.tan(TK.steer)/1.75*(inp.hb?1.4:1)+TK.jyaw; }
   if(TK.air) yaw*=0.4;
-  TK.h+=yaw*dt; TK.yaw=yaw;
+  yaw*=CHc.turn; TK.h+=yaw*dt; TK.yaw=yaw;
   const nfx=Math.sin(TK.h), nfz=Math.cos(TK.h); TK.vx=nfx*vF+nfz*vL; TK.vz=nfz*vF-nfx*vL;
   let nx=TK.x+TK.vx*dt, nz=TK.z+TK.vz*dt;
   nx=clamp(nx,1.6,WX-1.6); nz=clamp(nz,1.6,WZ-1.6);
   let n=tankContacts(nx,nz,CT); const speed=Math.hypot(TK.vx,TK.vz);
-  if(n&&speed>2.5&&!LOC.safe){ const pow=speed*0.6; let smashed=0, hardSum=0;
+  if(n&&speed>2.5&&!LOC.safe){ const pow=speed*0.6*CHc.ram; let smashed=0, hardSum=0;
     for(let k=0;k<CT.length;k+=6){ const m=CT[k+3]; if(MD[m].hard<=pow){ hardSum+=ram(CT[k],CT[k+1],CT[k+2],pow); smashed++; } }
     if(smashed){ n=tankContacts(nx,nz,CT); const slow=Math.pow(0.5,dt*smashed*0.8); TK.vx*=slow; TK.vz*=slow;
-      if(hardSum>0) damageTank(hardSum*0.012*(UP.armor>=2?0.5:1),TK.vx,TK.vz,0); } }
+      if(hardSum>0) damageTank(hardSum*0.012*(UP.armor>=2?0.5:1)/CHc.ram,TK.vx,TK.vz,0); } }
   if(n){ let sx=0,sz=0; for(let k=0;k<CT.length;k+=6){ sx-=CT[k+4]; sz-=CT[k+5]; } const l=Math.hypot(sx,sz)||1; sx/=l; sz/=l;
     const vn=TK.vx*sx+TK.vz*sz; if(vn<0){ TK.vx-=vn*sx*1.12; TK.vz-=vn*sz*1.12; const imp=-vn;
       if(imp>2.5){ const fw=-(sx*nfx+sz*nfz), sd=-(sx*nfz-sz*nfx); TK.pitchV+=imp*0.09*fw; TK.rollV+=imp*0.07*sd; shake=Math.min(1,shake+imp*0.025); sfxThud(Math.min(1,imp/10));
@@ -1640,7 +1708,7 @@ function ram(cx,cy,cz,pow){ const rr=Math.max(1,Math.round(0.55/VS)); const rem=
   const GL=P.glass; for(let k=0;k<glass*2;k++) spark((cx+0.5)*VS,(cy+0.5)*VS,(cz+0.5)*VS,(rnd()-0.5)*6+TK.vx*0.5,rnd()*5,(rnd()-0.5)*6+TK.vz*0.5,GL[0],GL[1],GL[2],0.5+0.5*rnd());
   if(glass) sfxGlass(0.5); else if(ramCD<=0){ sfxThud(0.6); ramCD=0.12; }
   structural(rem); return hs; }
-function damageTank(amount,dx,dz,top){ if(LOC.safe||transit||TK.dead||amount<=0.05) return; TK.hp-=amount;
+function damageTank(amount,dx,dz,top){ if(LOC.safe||transit||TK.dead||amount<=0.05) return; if(SHD.on){ shieldHit(amount*0.9); return; } TK.hp-=amount;
   const ch=Math.cos(TK.h), sh=Math.sin(TK.h), l=Math.hypot(dx,dz)||1, lx=(dx*ch-dz*sh)/l, lz=(dx*sh+dz*ch)/l; const a=amount/maxHP()*2.6, S=TK.dmgS;
   S[0]=Math.min(1,S[0]+Math.max(0,lz)*a); S[1]=Math.min(1,S[1]+Math.max(0,-lz)*a); S[2]=Math.min(1,S[2]+Math.max(0,lx)*a); S[3]=Math.min(1,S[3]+Math.max(0,-lx)*a); S[4]=Math.min(1,S[4]+(top||0)*a);
   if(amount>1.5) screenFlash(Math.min(0.55,amount/45),true);
@@ -1666,6 +1734,7 @@ const AIM={x:40,y:0,z:30, yawRel:Math.PI, dist:14, lockE:null, manual:null}; con
 const muz=new THREE.Vector3(), mdir=new THREE.Vector3(), piv=new THREE.Vector3();
 function solvePitch(gx_,gy,gz,tx,ty,tz,w){ const d=Math.hypot(tx-gx_,tz-gz), h=ty-gy; if(!w.g) return Math.atan2(h,d); const v2=w.speed*w.speed, disc=v2*v2-w.g*(w.g*d*d+2*h*v2); if(disc<0) return 0.6; return Math.atan((v2-Math.sqrt(disc))/(w.g*d)); }
 function fire(w){ const T=tank; const mz=w.id==='mg'?T.mgMuz[mgAlt++%T.mgMuz.length]:T.cnMuz; mz.getWorldPosition(muz); T.gun.getWorldDirection(mdir);
+  stealthShot(); if(w.id==='cn'&&chs().abil==='rail'){ railShot(w); return; }
   const sp=w.spread; mdir.x+=(rnd()-0.5)*sp*2; mdir.y+=(rnd()-0.5)*sp*2; mdir.z+=(rnd()-0.5)*sp*2; mdir.normalize();
   const p={x:muz.x,y:muz.y,z:muz.z,vx:mdir.x*w.speed,vy:mdir.y*w.speed,vz:mdir.z*w.speed,w,life:w.id==='mg'?1.2:3.5,mesh:null};
   if(w.id==='cn'){ p.mesh=getShell(); p.mesh.position.set(p.x,p.y,p.z); const rel=TK.tYaw-TK.h; TK.pitchV-=w.recoil*Math.cos(rel); TK.rollV-=w.recoil*Math.sin(rel)*0.8; TK.vx-=mdir.x*1.4; TK.vz-=mdir.z*1.4; TK.recoil=1; shake=Math.min(1,shake+0.18); sfxCannon(); camPunch=Math.max(camPunch,0.4); groundFlash(muz.x,muz.z,5,P.glow2,0.18);
@@ -1676,7 +1745,7 @@ function fire(w){ const T=tank; const mz=w.id==='mg'?T.mgMuz[mgAlt++%T.mgMuz.len
       if(big) for(let k=0;k<2;k++){ const v=5+rnd()*6; FIRE.spawn(muz.x+mdir.x*0.5,muz.y,muz.z+mdir.z*0.5,(mdir.x+(rnd()-0.5)*0.5)*v,(rnd()-0.3)*2,(mdir.z+(rnd()-0.5)*0.5)*v,0.28+rnd()*0.2,0.5,0.14,1,1,0.8,0.35); }
       if(big&&rnd()<0.5) SMOKE.spawn(muz.x+mdir.x*0.4,muz.y,muz.z+mdir.z*0.4,mdir.x*2,0.6,mdir.z*2,0.5,1.4,0.5,0.35,0.75,0.78,0.82); } TK.pitchV+=(rnd()-0.5)*(UP.mg==='kpv'?0.12:0.05); TK.rollV+=(rnd()-0.5)*0.05; sfxMg(); }
   proj.push(p); }
-function fireRocket(w){ const T=tank; if(!T.rkMuz.length) return; const mz=T.rkMuz[rkAlt++%T.rkMuz.length]; mz.getWorldPosition(muz); T.gun.getWorldDirection(mdir);
+function fireRocket(w){ const T=tank; if(!T.rkMuz.length) return; stealthShot(); const mz=T.rkMuz[rkAlt++%T.rkMuz.length]; mz.getWorldPosition(muz); T.gun.getWorldDirection(mdir);
   const tilt=Math.hypot(TK.pitch,TK.roll)*(1-STAB_K[UP.stab]); const rs=0.5+tilt*14, a=rnd()*TAU, rr=Math.sqrt(rnd())*rs;
   const p={x:muz.x,y:muz.y,z:muz.z,vx:mdir.x*w.speed,vy:mdir.y*w.speed+1.5,vz:mdir.z*w.speed,w,life:4,mesh:getShell(),tx:AIM.x+Math.cos(a)*rr,ty:AIM.y,tz:AIM.z+Math.sin(a)*rr,sp:w.speed,lock:AIM.lockE||null};
   p.mesh.scale.setScalar(0.7); p.mesh.position.set(p.x,p.y,p.z); proj.push(p); sfxRocket();
@@ -1708,7 +1777,7 @@ function projUpdate(dt){ for(let i=proj.length-1;i>=0;i--){ const p=proj[i]; p.l
     for(let j=rigids.length-1;j>=0;j--){ const r=rigids[j], rr=r.radius*0.7, cx=r.pos.x-ox, cy=r.pos.y-oy, cz=r.pos.z-oz, tc=cx*ux+cy*uy+cz*uz; if(tc<0||tc>len) continue;
       const q=cx*cx+cy*cy+cz*cz-tc*tc; if(q<rr*rr&&tc<hitT){ hitT=tc; hk={hit:3,ri:j,nx:-ux,ny:-uy,nz:-uz}; } }
     let eh=null, eT=Infinity, leg=-1;
-    if(p.enemy){ if(!TK.dead&&!transit){ const t=segSphere(ox,oy,oz,ux,uy,uz,len,TK.x,TK.y+1.25,TK.z,1.45); if(t>=0){ eT=t; eh=TK; } } for(const d of RDR.list){ const t=segSphere(ox,oy,oz,ux,uy,uz,len,d.p.x,d.p.y,d.p.z,0.6); if(t>=0&&t<eT){ eT=t; eh=d; } } }
+    if(p.enemy){ if(!TK.dead&&!transit){ const t=segSphere(ox,oy,oz,ux,uy,uz,len,TK.x,TK.y+1.25,TK.z,1.45); if(t>=0){ eT=t; eh=TK; } } for(const d of RDR.list.concat(BEE.list)){ const t=segSphere(ox,oy,oz,ux,uy,uz,len,d.p.x,d.p.y,d.p.z,0.6); if(t>=0&&t<eT){ eT=t; eh=d; } } { const t=shieldProj(ox,oy,oz,ux,uy,uz,len); if(t>=0&&t<eT){ eT=t; eh=SHD_HIT; } } }
     else { for(const e of ENEMIES){ if(e.dead||e.state==='fly') continue; const t=segSphere(ox,oy,oz,ux,uy,uz,len,e.x,e.y+e.hy,e.z,e.hr); if(t>=0&&t<eT){ eT=t; eh=e; leg=-1; }
         if(e.type==='lamp') for(let li=0;li<e.legs.length;li++){ const L=e.legs[li]; if(!L.alive||!L.knee) continue; for(const f of [0,0.5]){
           const t2=segSphere(ox,oy,oz,ux,uy,uz,len,L.knee.x+(L.foot.x-L.knee.x)*f,L.knee.y+(L.foot.y-L.knee.y)*f,L.knee.z+(L.foot.z-L.knee.z)*f,0.42); if(t2>=0&&t2<eT){ eT=t2; eh=e; leg=li; } } } }
@@ -1716,11 +1785,13 @@ function projUpdate(dt){ for(let i=proj.length-1;i>=0;i--){ const p=proj[i]; p.l
     if(!p.enemy){ const zp=zontProj(ox,oy,oz,ux,uy,uz,len); if(zp&&zp[1]<=hitT&&zp[1]<=eT){ const t=zp[1], hx=ox+ux*t, hy=oy+uy*t, hz=oz+uz*t; zontAbsorb(zp[0],w.id==='mg'?MG_DMG[UP.mg]:(w.id==='cn'?45*w.power:30),hx,hy,hz);
       if(w.id!=='mg'){ FIRE.spawn(hx,hy,hz,0,0,0,2.4,3,0.14,1,0.6,0.95,1); sfxCannonE(); } freeProj(p); proj.splice(i,1); continue; } }
     if(eh&&eT<=hitT){ const hx=ox+ux*eT, hy=oy+uy*eT, hz=oz+uz*eT;
-      if(eh.rd){ rdDie(eh,ux,uz); if(w.kind==='shell') explode(hx,hy,hz,w.radius*0.6,w.power*0.5,ux,uy,uz,'shell',null,0,null,0); }
+      if(eh.shd){ shieldHit(w.dmg*0.9,hx,hy,hz); }
+      else if(eh.bee){ beeDie(eh,ux,uz); }
+      else if(eh.rd){ rdDie(eh,ux,uz); if(w.kind==='shell') explode(hx,hy,hz,w.radius*0.6,w.power*0.5,ux,uy,uz,'shell',null,0,null,0); }
       else if(eh.civ){ civDie(eh,ux,uz,w.id==='mg'?1:4); if(w.id!=='mg') explode(hx,hy,hz,w.radius,w.power,ux,uy,uz,'shell',null,0,null,1); }
       else if(eh===TK){ damageTank(w.dmg,-ux,-uz,uy<-0.45?0.7:0); TK.vx+=ux*w.power*1.4; TK.vz+=uz*w.power*1.4; TK.pitchV+=(rnd()-0.5)*w.power*0.5; TK.rollV+=(rnd()-0.5)*w.power*0.5;
         if(w.kind==='shell') explode(hx,hy,hz,w.radius,w.power,ux,uy,uz,'shell',null,0,null,0); else { hitSpark(hx,hy,hz,ux,uz,3); sfxClang(); } }
-      else { const dmg=w.id==='mg'?MG_DMG[UP.mg]:(w.id==='cn'?45*w.power:30), kb=w.id==='mg'?0.6:(w.id==='cn'?7:4);
+      else { const dmg=(w.id==='mg'?MG_DMG[UP.mg]:(w.id==='cn'?45*w.power*chs().cn:30))*stealthMul(), kb=w.id==='mg'?0.6:(w.id==='cn'?7:4);
         if(eh.type===undefined){ eh.hp-=dmg; eh.flash=1; if(eh.hp<=0) droneDie(eh,ux,uz); }
         else if(leg>=0){ const L=eh.legs[leg]; L.hp-=dmg; eh.flash=1; if(L.hp<=0) lampLegBreak(eh,leg,hx-ux*3,hz-uz*3); }
         else enemyHit(eh,dmg,ux,uz,kb,'proj');
@@ -1845,15 +1916,15 @@ function garPalette(){ if(!GAR.scene) return; const s=PALETTES[PAL];
 function setGarView(){ const W=innerWidth,H=innerHeight, portrait=W<H&&W<=820; GAR.cam.aspect=W/H; GAR.cam.fov=portrait?50:32;
   if(portrait) GAR.cam.setViewOffset(W,H,0,H*0.27,W,H); else { const pw=Math.min(430,W*0.44); GAR.cam.setViewOffset(W,H,pw/2,0,W,H); }
   GAR.cam.updateProjectionMatrix(); }
-function garRebuildModel(){ if(GAR.model){ GAR.turn.remove(GAR.model.root); disposeTank(GAR.model); } GAR.model=makeTank(true,UP); GAR.model.root.position.y=0.16; GAR.turn.add(GAR.model.root); garApplyView(); }
+function garRebuildModel(){ if(GAR.model){ GAR.turn.remove(GAR.model.root); disposeTank(GAR.model); } GAR.model=makeTank(true,GAR.mode==='park'?Object.assign({},UP,{tank:GAR.pick}):UP); GAR.model.root.position.y=0.16; GAR.turn.add(GAR.model.root); garApplyView(); }
 function garApplyView(){ if(!GAR.model) return; GAR.model.mg.visible=GAR.view==='mg'; GAR.model.cn.visible=GAR.view==='cn'; }
-function openGarage(){ if(GAR.open||TK.dead) return; if(!GAR.scene) garInit(); GAR.open=true; document.body.classList.add('garage'); $('#garage').hidden=false;
+function openGarage(mode){ if(GAR.open||TK.dead) return; GAR.mode=mode||'gar'; GAR.pick=UP.tank||'base'; $('#gTitle').innerHTML=GAR.mode==='park'?'АВТОПАРК <span class="cjk">车队</span>':'ГАРАЖ <span class="cjk">车库</span>'; $('#gHull').hidden=GAR.mode==='park'; if(!GAR.scene) garInit(); GAR.open=true; document.body.classList.add('garage'); $('#garage').hidden=false;
   TK.vx=TK.vz=TK.vF=0; mouse.down=false; GAR.view=(wcur<2?wcur:lastMain)===1?'cn':'mg'; GAR.ang=0.75; GAR.idle=0; garRebuildModel(); setGarView(); renderGarage(); sfxWrench(); }
 function closeGarage(){ if(!GAR.open) return; GAR.open=false; document.body.classList.remove('garage'); $('#garage').hidden=true;
-  buildGameTank(); updateWeaponUI(); Object.assign(TK,{x:CAMP_DOOR.x,z:CAMP_DOOR.z,h:CAMP_DOOR.h,tYaw:CAMP_DOOR.h,vx:0,vz:0,vF:0,prevVF:0,aL:0}); save(); canvas.focus(); }
+  const DR=GAR.mode==='park'?{x:27.5,z:63.3,h:Math.PI/2}:CAMP_DOOR; STL.on=false; buildGameTank(); updateWeaponUI(); Object.assign(TK,{x:DR.x,z:DR.z,h:DR.h,tYaw:DR.h,vx:0,vz:0,vF:0,prevVF:0,aL:0}); save(); canvas.focus(); }
 const UPDEF=[
  {k:'engine',t:'Двигатель',max:3,cost:[250,500,900],cur:l=>`${Math.round(ENG_V[l]*3.6)} км/ч · разгон ${ENG_A[l]}`,info:'Быстрее и резвее. На корме появляются второй выхлоп, турбина и радиатор.'},
- {k:'armor',t:'Броня',max:3,cost:[300,600,1000],cur:l=>`${ARM_HP[l]} ед. прочности`,info:'Крылья над колёсами, таранный щит (удары о стены вдвое слабее), пояс плит на башне.'},
+ {k:'armor',t:'Броня',max:3,cost:[300,600,1000],cur:l=>`${Math.round(ARM_HP[l]*chs().hp)} ед. прочности`,info:'Крылья над колёсами, таранный щит (удары о стены вдвое слабее), пояс плит на башне.'},
  {k:'cal',t:'Калибр пушки',max:3,cost:[300,650,1100],v:'cn',cur:l=>`${CAL_NAME[l]} · взрыв ${CAL_R[l]} м`,info:'Мощнее взрыв, шире воронка. Ствол длиннее, дульный тормоз крупнее.'},
  {k:'load',t:'Автомат заряжания',max:3,cost:[250,550,950],v:'cn',cur:l=>`перезарядка ${LOAD_T[l]} с`,info:'Пушка стреляет чаще. Над казёнником встаёт барабан.'},
  {k:'stab',t:'Стабилизатор',max:2,cost:[400,800],cur:l=>`гасит ${Math.round(STAB_K[l]*100)}% крена`,info:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков.'},
@@ -1862,7 +1933,7 @@ const UPDEF=[
  {k:'rk',t:'Ракетный блок',max:2,cost:[700,1000],cur:l=>l?`${RK_N[l]} ракет в залпе`:'не установлен',info:'Третье оружие: самонаводящийся залп в точку прицела. Блок на левом боку башни.'},
 ];
 const nutI='<i class="nut" aria-hidden="true"></i>';
-function renderGarage(){ const mh=maxHP(), hp=Math.round(TK.hp), miss=mh-hp, rc=Math.ceil(miss*0.6);
+function renderGarage(){ if(GAR.mode==='park'){ renderPark(); return; } const mh=maxHP(), hp=Math.round(TK.hp), miss=mh-hp, rc=Math.ceil(miss*0.6);
   $('#gScrap').textContent=Math.floor(ST.scrap); $('#gHpTxt').textContent=`${hp} / ${mh}`; const f=$('#gHpFill'); f.style.width=(hp/mh*100)+'%'; f.classList.toggle('bad',hp/mh<0.3);
   const names=['Нос','Корма','Лево','Право','Верх']; $('#gSides').innerHTML=TK.dmgS.map((v,i)=>`<div class="${v>0.15?'hurt':''}">${names[i]}<b>${Math.round(v*100)}%</b></div>`).join('');
   const rb=$('#gRepair'); if(miss<=0&&TK.dmgS.every(v=>v<0.01)){ rb.disabled=true; rb.innerHTML='Корпус цел'; } else if(ST.scrap<1){ rb.disabled=true; rb.innerHTML='Нет лома на ремонт'; }
@@ -1882,7 +1953,7 @@ $('#gpanel').addEventListener('click',e=>{ const b=e.target.closest('button'); i
   if(b.id==='gRepair'){ const mh=maxHP(), miss=Math.max(0,mh-TK.hp); const amt=Math.min(miss,ST.scrap/0.6); const frac=miss>0?amt/miss:1; ST.scrap=Math.max(0,ST.scrap-Math.ceil(amt*0.6-1e-6)); TK.hp+=amt; if(TK.hp>mh-0.5) TK.hp=mh;
     for(let i=0;i<5;i++) TK.dmgS[i]*=(1-frac); if(frac>=0.999) TK.dmgS.fill(0); sfxWrench(); renderGarage(); save(); return; }
   if(b.dataset.buy){ const u=UPDEF.find(x=>x.k===b.dataset.buy), l=UP[u.k]; if(l>=u.max) return; const cost=u.cost[l]; if(ST.scrap<cost) return; ST.scrap-=cost; UP[u.k]=l+1;
-    if(u.k==='armor') TK.hp+=ARM_HP[l+1]-ARM_HP[l]; if(u.k==='ammo') refillAmmo(); if(u.v) GAR.view=u.v; sfxBuy(); garRebuildModel(); renderGarage(); save(); return; }
+    if(u.k==='armor') TK.hp+=(ARM_HP[l+1]-ARM_HP[l])*chs().hp; if(u.k==='ammo') refillAmmo(); if(u.v) GAR.view=u.v; sfxBuy(); garRebuildModel(); renderGarage(); save(); return; }
   if(b.dataset.mg){ const k=b.dataset.mg, m=MGS[k]; if(!UP.own[k]){ if(ST.scrap<m.cost) return; ST.scrap-=m.cost; UP.own[k]=1; sfxBuy(); } else sfxClick(); UP.mg=k; GAR.view='mg'; garRebuildModel(); renderGarage(); save(); } });
 $('#gpanel').addEventListener('pointerover',e=>{ const c_=e.target.closest('[data-view]'); if(!c_||!c_.dataset.view||c_.dataset.view===GAR.view) return; GAR.view=c_.dataset.view; garApplyView(); document.querySelectorAll('#gpanel .gcard').forEach(x=>x.classList.toggle('focus',x.dataset.view===GAR.view)); });
 function garUpdate(dt,t){ GAR.idle+=dt; if(GAR.idle>2.5&&!GAR.drag) GAR.ang+=dt*0.22; const r=GAR.dist*(innerWidth<innerHeight?1.25:1);
@@ -1899,7 +1970,7 @@ addEventListener('keydown',e=>{ sInit(); if(helpOpen){ closeHelp(); }
   if(e.repeat) return; keys[e.code]=true;
   if(GAR.open){ if(e.code==='Escape') closeGarage(); return; }
   if(mcOpen&&(e.code==='Enter'||e.code==='KeyE')){ acceptMC(); return; }
-  if(e.code==='KeyR'){ useRepair(); return; } if(e.code==='KeyT'){ useAmmo(); return; } if(e.code==='KeyG'){ useArt(); return; } if(mcOpen&&e.code==='Escape'){ closeMC(); return; }
+  if(e.code==='KeyR'){ useRepair(); return; } if(e.code==='KeyT'){ useAmmo(); return; } if(e.code==='KeyG'){ useArt(); return; } if(e.code==='KeyE'&&!mcOpen&&!GAR.open){ shieldToggle(); return; } if(mcOpen&&e.code==='Escape'){ closeMC(); return; }
   if(e.code==='Digit1') switchWeapon(0); else if(e.code==='Digit2') switchWeapon(1); else if(e.code==='Digit3'&&WEAP.length>2) switchWeapon(2); else if(e.code==='KeyQ') switchWeapon(wcur+1); else if(e.code==='KeyP') applyPalette((PAL+1)%PALETTES.length); });
 addEventListener('keyup',e=>{ keys[e.code]=false; });
 addEventListener('blur',()=>{ for(const k in keys) keys[k]=false; mouse.down=false; TCH.mActive=false; TCH.active=false; });
@@ -2023,9 +2094,10 @@ $('#bHelp').addEventListener('click',()=>{ helpOpen=true; $('#help').hidden=fals
 $('#kRep').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useRepair(); });
 $('#kAmmo').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useAmmo(); });
 $('#kArt').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useArt(); });
+$('#kAbil').addEventListener('click',e=>{ e.stopPropagation(); sInit(); shieldToggle(); });
 let menuOpen=false; $('#bMenu').addEventListener('click',e=>{ e.stopPropagation(); menuOpen=!menuOpen; $('#trMenu').hidden=!menuOpen; document.body.classList.toggle('menu',menuOpen); $('#bMenu').setAttribute('aria-expanded',String(menuOpen)); sfxClick(); });
 $('#bGo').addEventListener('click',e=>{ e.stopPropagation(); closeHelp(); });
-$('#bReset').addEventListener('click',e=>{ e.stopPropagation(); try{ localStorage.removeItem(SAVE_KEY); }catch(_){} ST.scrap=600; Object.assign(UP,{engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1}}); TK.hp=ARM_HP[0]; TK.dmgS.fill(0);
+$('#bReset').addEventListener('click',e=>{ e.stopPropagation(); try{ localStorage.removeItem(SAVE_KEY); }catch(_){} ST.scrap=600; Object.assign(UP,{engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},tank:'base',tanks:{base:1}}); TK.hp=ARM_HP[0]; TK.dmgS.fill(0);
   refillAmmo(); ST.kits.rep=ST.kits.ammo=0; Object.assign(MS,{i:0,active:false,prog:0,rank:0}); rankUI(); objUI(); for(const k in LOC_STATE) delete LOC_STATE[k];
   wcur=0; buildGameTank(); updateWeaponUI(); closeHelp(); if(LOC_ID!=='camp') goLocation('camp',null,{x:40,z:44,h:Math.PI}); toast('Прогресс сброшен'); });
 $('#help').addEventListener('pointerdown',e=>{ if(e.target.id==='help') closeHelp(); });
@@ -2260,7 +2332,7 @@ function lampLOS(ax,ay,az,bx,by,bz){ // thin walls pass, thick block
   for(let i=1;i<n;i++){ const t=i/n, x=ax+dx*t, y=ay+dy*t, z=az+dz*t; if(y<0) return {clear:false,t}; const s=get(Math.floor(x/VS),Math.floor(y/VS),Math.floor(z/VS)); if(s) return {clear:false,t}; }
   return {clear:true,t:1}; }
 function updLamp(e,dt){ const dx=TK.x-e.x, dz=TK.z-e.z, d=Math.max(1e-3,Math.hypot(dx,dz)); e.t+=dt; e.g.updateMatrixWorld(true); e.lampPos.getWorldPosition(_lp);
-  const tY=TK.y+1.3; let see=false; if(d<34&&!TK.dead){ e.losT=(e.losT||0)-dt; if(e.losT<=0){ e.losT=0.25; e.seeC=lampLOS(_lp.x,_lp.y,_lp.z,TK.x,tY,TK.z).clear; } see=e.seeC; }
+  const tY=TK.y+1.3; let see=false; if(d<(STL.on?15:34)&&!TK.dead){ e.losT=(e.losT||0)-dt; if(e.losT<=0){ e.losT=0.25; e.seeC=lampLOS(_lp.x,_lp.y,_lp.z,TK.x,tY,TK.z).clear; } see=e.seeC; }
   let heatT=0;
   switch(e.state){
   case 'disguise': eBrake(e,dt,4); e.idleT=(e.idleT||0)+dt; if(!see&&e.idleT>20){ e.idleT=0; const p=pickNear(e.x+(rnd()-0.5)*24,e.z+(rnd()-0.5)*24,1.2); if(p){ e.state='move'; e.t=0; e.mv={x:p[0],z:p[1]}; } break; } if(see){ e.idleT=0; e.state='charge'; e.t=0; e.aggro=true; e.bx=TK.x; e.by=tY; e.bz=TK.z; sfxCharge(1); } break;
@@ -2648,19 +2720,19 @@ const RANKS=['Рядовой','Ефрейтор','Мл. сержант','Сер�
 /* ---- story: 16 missions, two per district, never the same district twice in a row ---- */
 const STORY=[
  {k:'jian',n:4,loc:'south',r:150,title:'Рисовые чеки',brief:'Водитель, слушай внимательно. После аварии на подстанции городская сеть «Нефрит» перестала нас слушать, а её стройроботы взбесились. Крестьяне в Деревне жалуются: железные кузнечики топчут рассаду. Съезди, разгони четыре штуки. Похоже на обычную поломку.'},
- {k:'hold',loc:'nw',x:38,z:36,rad:6.5,t:40,r:180,name:'перрон',title:'Последний состав',brief:'С Вокзала уходит эвакуационный поезд с людьми из пригорода. Встань у перрона и не подпускай роботов, пока состав не уйдёт. Сорок секунд, водитель. Держись.'},
+ {k:'hold',loc:'nw',x:38,z:36,rad:6.5,t:40,r:180,name:'перрон',hint:{t:'krep',s:'Перрон открытый, укрыться негде. Тут бы пригодилась броня покрепче — а лучше собственный щит.'},title:'Последний состав',brief:'С Вокзала уходит эвакуационный поезд с людьми из пригорода. Встань у перрона и не подпускай роботов, пока состав не уйдёт. Сорок секунд, водитель. Держись.'},
  {k:'scrap',n:200,loc:'north',r:200,title:'Запчасти для гаража',brief:'Механики жалуются — нечем латать твою машину. На складах Промзоны полно железа. Набей трюм ломом: двести единиц, и ни гайкой меньше.'},
  {k:'hive',n:1,loc:'east',r:220,title:'Минный мост',brief:'В Речном квартале кто-то минирует мосты через каналы. Это бывший укладчик плитки, теперь он кладёт мины. Найди установку и уничтожь, пока квартал не отрезало от лагеря.'},
- {k:'lamp',n:2,loc:'west',r:260,title:'Снайперы на крышах',brief:'Патрули в Деловом центре обстреливают с высоты. Разведка говорит — это фонарные роботы. Они прикидываются столбами. Смотри внимательно: если фонарь повернулся к тебе — стреляй.'},
- {k:'flag',n:1,loc:'ne',r:300,obj:'журнал диспетчерской',title:'Журнал диспетчерской',brief:'В Морском порту лежит журнал, куда «Нефрит» писал команды кранам. Он помечен флажком на причале. Забери его и привези в штаб — его будут охранять.'},
- {k:'evac',n:5,loc:'se',r:320,title:'Сборщики чая',brief:'На плантациях Чайных холмов застряли сборщики чая и монахи. Зачисти склон до последнего робота, потом люди сами побегут к дороге на лагерь. Не задень никого.'},
+ {k:'lamp',n:2,loc:'west',r:260,hint:{t:'igla',s:'Они бьют издалека. Кто бьёт ещё дальше и точнее — тот и прав.'},title:'Снайперы на крышах',brief:'Патрули в Деловом центре обстреливают с высоты. Разведка говорит — это фонарные роботы. Они прикидываются столбами. Смотри внимательно: если фонарь повернулся к тебе — стреляй.'},
+ {k:'flag',n:1,loc:'ne',r:300,obj:'журнал диспетчерской',hint:{t:'ten',s:'Охрана у журнала плотная. Тихий заход сработал бы лучше громкого.'},title:'Журнал диспетчерской',brief:'В Морском порту лежит журнал, куда «Нефрит» писал команды кранам. Он помечен флажком на причале. Забери его и привези в штаб — его будут охранять.'},
+ {k:'evac',n:5,loc:'se',r:320,hint:{t:'pchela',s:'Людей придётся прикрывать со всех сторон — лишние глаза в небе не помешают.'},title:'Сборщики чая',brief:'На плантациях Чайных холмов застряли сборщики чая и монахи. Зачисти склон до последнего робота, потом люди сами побегут к дороге на лагерь. Не задень никого.'},
  {k:'bull',n:3,loc:'sw',r:340,title:'Башенный кран',brief:'На Новостройках тяжёлые шагоходы охраняют башенный кран — через него сеть держит связь. Уничтожь охрану. В лоб «Бизона» не возьмёшь, заходи с борта.'},
  {k:'factory',n:1,loc:'north',r:400,title:'Сердце завода',brief:'Журнал из порта показал главное: роботов собирают прямо в Промзоне. Там работает передвижной цех «Кузница». Найди её и уничтожь — иначе мы воюем с бесконечным конвейером.'},
- {k:'hold',loc:'south',x:24,z:40,rad:7,t:55,r:420,name:'брод у мельницы',title:'Брод у мельницы',brief:'Через брод у старой мельницы в Деревне идёт колонна беженцев. Роботы полезут волнами. Держи переправу пятьдесят пять секунд — колонна должна пройти целиком.'},
- {k:'flag',n:1,loc:'nw',r:450,obj:'схему путей',title:'Карта путей',brief:'В депо Вокзала осталась схема железнодорожных путей с пометками. По ней сеть возит детали между районами. Флажок на схеме, найди и привези её в штаб.'},
+ {k:'hold',loc:'south',x:24,z:40,rad:7,t:55,r:420,name:'брод у мельницы',hint:{t:'krep',s:'Долго стоять под огнём на одном месте… Слышал, в автопарке есть машина, которая это умеет.'},title:'Брод у мельницы',brief:'Через брод у старой мельницы в Деревне идёт колонна беженцев. Роботы полезут волнами. Держи переправу пятьдесят пять секунд — колонна должна пройти целиком.'},
+ {k:'flag',n:1,loc:'nw',r:450,obj:'схему путей',hint:{t:'ten',s:'В депо тесно и полно охраны. Иногда лучше, чтобы тебя вообще не заметили.'},title:'Карта путей',brief:'В депо Вокзала осталась схема железнодорожных путей с пометками. По ней сеть возит детали между районами. Флажок на схеме, найди и привези её в штаб.'},
  {k:'factory',n:1,loc:'ne',r:500,title:'Плавучий цех',brief:'По схеме путей нашли вторую Кузницу. Она встала у причала в Морском порту и штампует роботов прямо из контейнеров. Сноси её.'},
- {k:'evac',n:7,loc:'east',r:550,title:'Каналы',brief:'Сеть отрезала жителей Речного квартала. Зачисти улицы у каналов и выведи людей к выезду на лагерь. Их семеро. Каждый на счету, водитель.'},
- {k:'lamp',n:4,loc:'sw',r:600,title:'Ретрансляторы',brief:'Маяки на Новостройках передают сигнал «Нефрита» на холмы. Погаси все четыре — тогда резервная станция останется без глаз.'},
+ {k:'evac',n:7,loc:'east',r:550,hint:{t:'pchela',s:'На улицах у каналов много углов — пара помощников с воздуха была бы кстати.'},title:'Каналы',brief:'Сеть отрезала жителей Речного квартала. Зачисти улицы у каналов и выведи людей к выезду на лагерь. Их семеро. Каждый на счету, водитель.'},
+ {k:'lamp',n:4,loc:'sw',r:600,hint:{t:'igla',s:'Четыре маяка на высотках — тут нужен длинный ствол, который прошивает насквозь.'},title:'Ретрансляторы',brief:'Маяки на Новостройках передают сигнал «Нефрита» на холмы. Погаси все четыре — тогда резервная станция останется без глаз.'},
  {k:'hold',loc:'west',x:11,z:51,rad:7,t:70,r:650,name:'площадь у башни',title:'Площадь у башни',brief:'Наши сапёры минируют башню в Деловом центре — через неё сеть выходит в город. Держи площадь, пока они работают. Семьдесят секунд. Будет жарко.'},
  {k:'clear',loc:'se',r:800,final:true,extra:[['katok',36,30],['katok',46,30],['zont',41,27],['zont',40,36]],title:'Колокол тишины',brief:'Это последний рубеж. Резервная станция «Нефрита» — под монастырём на Чайных холмах. Там ждут два «Катка» под куполами. Уничтожь всё, что движется на холмах, и мы отключим станцию навсегда. Удачи, водитель.'}];
 const UNLOCK={jian:0,bomb:0,hive:1,lamp:2,bull:3,zont:4,factory:5,katok:6};
@@ -2724,7 +2796,7 @@ function openMC(){ const m=missionAt(MS.i); mcOpen=true; const story=MS.i<STORY.
   else { $('#mcInfo').textContent=`Награда: ${m.r} лома${MS.rank<RANKS.length-1?' и звание «'+RANKS[MS.rank+1]+'»':''}`; $('#mcOk').textContent='Принять'; $('#mcLater').hidden=false; }
   const nm=$('#mcName'); nm.textContent=nt?`Новый противник: ${ENAME[nt]}`:`${ENAME[m.k]||''} · ${EDESC[m.k]||''}`; nm.classList.toggle('new',!!nt);
   $('#mcard').hidden=false; sfxClick(); pvSet(nt||(m.k==='clear'?'katok':m.k));
-  radioType($('#mcBrief'),(MS.active?'Задание в силе. ':'')+(m.brief||autoBrief(m))+(nt?' '+ENEMY_INTRO[nt]:''),$('#mcRav'),null); }
+  radioType($('#mcBrief'),(MS.active?'Задание в силе. ':'')+(m.brief||autoBrief(m))+(m.hint&&UP.tank!==m.hint.t?' '+m.hint.s:'')+(nt?' '+ENEMY_INTRO[nt]:''),$('#mcRav'),null); }
 function closeMC(){ mcOpen=false; $('#mcard').hidden=true; radioStop(false); }
 $('#mcBrief').addEventListener('click',e=>{ e.stopPropagation(); if(VOICE.timer) radioStop(true); });
 function acceptMC(){ if(!MS.active){ MS.active=true; MS.prog=0; objUI(); toast('Задание принято · следуй за стрелкой'); sfxAccept(); save(); } closeMC(); canvas.focus(); }
@@ -2772,7 +2844,7 @@ function navMove(e,tx,tz,spd,dt){ e.pathT=(e.pathT||0)-dt; const r=e.navR||Math.
   eMove(e,tx,tz,spd,dt); return 0; }
 /* perception: sees the tank (range + line of sight), remembers where, loses interest after a while */
 function ePerceive(e,dt,range,eyeY){ e.seeT=(e.seeT||0)-dt; const d=Math.hypot(TK.x-e.x,TK.z-e.z);
-  if(e.seeT<=0){ e.seeT=0.25+rnd()*0.1; e.sees=!TK.dead&&d<range&&losClear(e.x,e.y+(eyeY||0.5),e.z,TK.x,TK.y+1.4,TK.z); }
+  if(e.seeT<=0){ e.seeT=0.25+rnd()*0.1; e.sees=!TK.dead&&d<(STL.on?Math.min(range,15):range)&&losClear(e.x,e.y+(eyeY||0.5),e.z,TK.x,TK.y+1.4,TK.z); }
   if(e.sees||(e.hurtT>2.6)){ e.aggro=true; e.lostT=0; e.last={x:TK.x,z:TK.z}; } else if(e.aggro){ e.lostT=(e.lostT||0)+dt; if(e.lostT>6){ e.aggro=false; e.wp=null; } }
   return e.sees; }
 function ePatrol(e,dt,spd){ e.wpT=(e.wpT||0)-dt;
@@ -3068,7 +3140,7 @@ function touchAim(e){ if(LOC.safe||TK.dead||transit) return; aimMode='stick'; ai
   if(t){ AIM.manual=t; tapFx(e.clientX,e.clientY,true); sfxClick(); } else { if(AIM.manual) toast('Наводка сброшена · ближайшая цель'); AIM.manual=null; tapFx(e.clientX,e.clientY,false); } }
 
 /* ================= CAMP: interaction pads, signs, routes ================= */
-const CAMP_PADS=[{x0:10.2,z0:24.6,x1:19.8,z1:29.6,t:'ГАРАЖ',s:'ремонт · апгрейды',dir:'N'},{x0:60.6,z0:31.6,x1:70.4,z1:35.0,t:'ШТАБ',s:'задания',dir:'N'},{x0:12,z0:60.6,x1:24,z1:66,t:'АВТОПАРК',s:'смена танка · скоро',dir:'W'}];
+const CAMP_PADS=[{x0:10.2,z0:24.6,x1:19.8,z1:29.6,t:'ГАРАЖ',s:'ремонт · апгрейды',dir:'N'},{x0:60.6,z0:31.6,x1:70.4,z1:35.0,t:'ШТАБ',s:'задания',dir:'N'},{x0:12,z0:60.6,x1:24,z1:66,t:'АВТОПАРК',s:'смена танка',dir:'W'}];
 const CAMP_PARK={x0:12,z0:60.6,x1:24,z1:66,in:false};
 const SIGNS=[];
 function campDecor(){ for(const o of SIGNS){ scene.remove(o.m); o.m.material.map.dispose(); o.m.material.dispose(); } SIGNS.length=0; if(LOC_ID!=='camp') return;
@@ -3077,14 +3149,14 @@ function campDecor(){ for(const o of SIGNS){ scene.remove(o.m); o.m.material.map
     c.globalAlpha=0.55; for(let k=0;k<3;k++){ const y=H*0.22+k*H*0.12; c.beginPath(); c.moveTo(W*0.08,y+H*0.1); c.lineTo(W*0.14,y); c.lineTo(W*0.2,y+H*0.1); c.lineWidth=8; c.strokeStyle=acc; c.stroke(); c.beginPath(); c.moveTo(W*0.8,y+H*0.1); c.lineTo(W*0.86,y); c.lineTo(W*0.92,y+H*0.1); c.stroke(); } c.globalAlpha=1;
     c.textAlign='center'; c.textBaseline='middle'; c.font=`800 ${Math.round(H*0.32)}px Unbounded, 'Arial Black', sans-serif`; c.fillText(p.t,W/2,H*0.42); c.font=`600 ${Math.round(H*0.14)}px 'IBM Plex Mono', monospace`; c.fillText(p.s.toUpperCase(),W/2,H*0.74);
     const tex=new THREE.CanvasTexture(cv), m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2})); m.rotation.x=-Math.PI/2; m.position.set((p.x0+p.x1)/2,0.07,(p.z0+p.z1)/2); m.renderOrder=3; scene.add(m); SIGNS.push({m,kind:'pad'}); }
-  for(const [t,s,x,y,z] of [['ГАРАЖ','ремонт и апгрейды',15,8.6,25.2],['ШТАБ','задания',65.5,6.4,31.4],['АВТОПАРК','скоро',18,4.6,61.5]]){
+  for(const [t,s,x,y,z] of [['ГАРАЖ','ремонт и апгрейды',15,8.6,25.2],['ШТАБ','задания',65.5,6.4,31.4],['АВТОПАРК','танки за лом',18,4.6,61.5]]){
     const cv=document.createElement('canvas'); cv.width=512; cv.height=150; const c=cv.getContext('2d'), acc=css(PALETTES[PAL].glow);
     c.fillStyle='rgba(6,12,26,0.82)'; c.fillRect(4,4,504,112); c.strokeStyle=acc; c.lineWidth=5; c.strokeRect(4,4,504,112); c.beginPath(); c.moveTo(236,116); c.lineTo(256,146); c.lineTo(276,116); c.fillStyle=acc; c.fill();
     c.fillStyle=acc; c.textAlign='center'; c.textBaseline='middle'; c.font="800 46px Unbounded, 'Arial Black', sans-serif"; c.fillText(t,256,50); c.font="600 22px 'IBM Plex Mono', monospace"; c.fillStyle='#eaf2ff'; c.fillText(s.toUpperCase(),256,92);
     const sp=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv),transparent:true,depthWrite:false})); sp.scale.set(6.4,1.88,1); sp.position.set(x,y,z); sp.renderOrder=6; scene.add(sp); SIGNS.push({m:sp,kind:'sign',y}); } }
 function campDecorUpdate(t){ for(const o of SIGNS){ if(o.kind==='pad') o.m.material.opacity=0.6+0.4*Math.sin(t*3.2); else o.m.position.y=o.y+Math.sin(t*2)*0.18; }
   if(LOC_ID!=='camp'||GAR.open||transit){ CAMP_PARK.in=false; return; } const z=CAMP_PARK, ins=TK.x>z.x0&&TK.x<z.x1&&TK.z>z.z0&&TK.z<z.z1;
-  if(ins&&!z.in){ z.in=true; toast('Автопарк · другие танки и покраска появятся позже'); sfxClick(); } else if(!ins) z.in=false; }
+  if(ins&&!z.in){ z.in=true; openGarage('park'); } else if(!ins) z.in=false; }
 function paintCampRoutes(s){ const acc=css(s.glow); gx.save(); gx.strokeStyle=acc; gx.globalAlpha=0.55; gx.lineWidth=0.32*GS; gx.setLineDash([1.2*GS,0.9*GS]); gx.lineCap='round';
   for(const pts of [[[37,39],[15,39],[15,30.4]],[[43,37],[65.5,37],[65.5,35.6]],[[39,43],[39,63.3],[24.6,63.3]]]){ gx.beginPath(); pts.forEach((p,i)=>i?gx.lineTo(p[0]*GS,p[1]*GS):gx.moveTo(p[0]*GS,p[1]*GS)); gx.stroke();
     const a=pts[pts.length-2], b=pts[pts.length-1], ang=Math.atan2(b[1]-a[1],b[0]-a[0]); gx.setLineDash([]); gx.fillStyle=acc; gx.beginPath(); gx.moveTo(b[0]*GS,b[1]*GS); gx.lineTo((b[0]-Math.cos(ang-0.5)*1.4)*GS,(b[1]-Math.sin(ang-0.5)*1.4)*GS); gx.lineTo((b[0]-Math.cos(ang+0.5)*1.4)*GS,(b[1]-Math.sin(ang+0.5)*1.4)*GS); gx.fill(); gx.setLineDash([1.2*GS,0.9*GS]); }
@@ -3215,8 +3287,8 @@ function rdMake(){ const g=new THREE.Group(), add=(geo,mat,x,y,z,sx,sy,sz,par)=>
   scene.add(g); return {g,hang,rotors,tip,p:new THREE.Vector3(TK.x,TK.y+3.5,TK.z),v:new THREE.Vector3(),st:'follow',cool:1+rnd(),part:0,wt:0,loc:LOC_ID,dead:false,rd:true,snd:0}; }
 function rdLocal(lx,ly,lz,out){ const ch=Math.cos(TK.h), sh=Math.sin(TK.h); out.set(TK.x+lx*ch+lz*sh,TK.y+ly,TK.z-lx*sh+lz*ch); return out; }
 const _rt=new THREE.Vector3(), _rp=new THREE.Vector3();
-function rdUpdate(dt,t){ const want=Math.max(0,Math.min(2,UP.rdr|0)); while(RDR.list.length<want) RDR.list.push(rdMake()); while(RDR.list.length>want){ const d=RDR.list.pop(); scene.remove(d.g); }
-  const need=!TK.dead&&(TK.hp<maxHP()-0.3||TK.dmgS.some(v=>v>0.01))&&Math.hypot(TK.vx,TK.vz)<ENG_V[UP.engine]*0.7, still=Math.hypot(TK.vx,TK.vz)<0.6, rate=still?1.8:1;
+function rdUpdate(dt,t){ const want=Math.min(3,Math.max(0,Math.min(2,UP.rdr|0))+(chs().abil==='drones'&&BEE.freeCD<=0?1:0)); while(RDR.list.length<want) RDR.list.push(rdMake()); while(RDR.list.length>want){ const d=RDR.list.pop(); scene.remove(d.g); }
+  const need=!TK.dead&&(TK.hp<maxHP()-0.3||TK.dmgS.some(v=>v>0.01))&&Math.hypot(TK.vx,TK.vz)<ENG_V[UP.engine]*chs().spd*0.7, still=Math.hypot(TK.vx,TK.vz)<0.6, rate=still?1.8:1;
   RDR.list.forEach((d,i)=>{ d.g.visible=!transit; if(d.loc!==LOC_ID){ d.loc=LOC_ID; rdLocal(i?-2.4:2.4,3.4,-1.8,d.p); d.v.set(0,0,0); d.st='follow'; }
     d.cool-=dt; d.snd-=dt;
     if(d.st==='follow'&&need&&d.cool<=0){ let best=-1, bv=-1; TK.dmgS.forEach((v,k)=>{ const s=v+rnd()*0.08; if(s>bv&&!RDR.list.some(o=>o!==d&&o.st!=='follow'&&o.part===k)){ bv=s; best=k; } }); d.part=best<0?(rnd()*5)|0:best; d.st='go'; d.goT=0; }
@@ -3239,7 +3311,7 @@ function rdUpdate(dt,t){ const want=Math.max(0,Math.min(2,UP.rdr|0)); while(RDR.
     d.hang.rotation.x+=((d.st==='weld'?0:-d.g.rotation.x*1.6-lvz*0.02)-d.hang.rotation.x)*Math.min(1,dt*4); d.hang.rotation.z+=((d.st==='weld'?0:-d.g.rotation.z*1.6+lvx*0.02)-d.hang.rotation.z)*Math.min(1,dt*4);
     for(const r of d.rotors) r.rotation.y+=dt*40;
     if(!LOC.safe) shadowAdd(d.p.x,d.p.z,0.9,d.p.y-groundH(d.p.x,d.p.z),0.35); }); }
-function rdDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=RDR.list.indexOf(d); if(i>=0) RDR.list.splice(i,1); UP.rdr=Math.max(0,(UP.rdr|0)-1); save();
+function rdDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=RDR.list.indexOf(d); if(i>=0) RDR.list.splice(i,1); if(chs().abil==='drones'&&RDR.list.length+1>(UP.rdr|0)) BEE.freeCD=30; else UP.rdr=Math.max(0,(UP.rdr|0)-1); save();
   const p=d.p; for(let k=0;k<6;k++) FIRE.spawn(p.x,p.y,p.z,(rnd()-0.5)*4,rnd()*3,(rnd()-0.5)*4,0.8+rnd()*0.5,2,0.25,1,1,0.7,0.3); sparkBurst(p.x,p.y,p.z,18); sfxGlass(0.6); sfxThud(0.5);
   for(const c of d.g.children.slice(0,6)){ const m=new THREE.Mesh(c.geometry||rdGeo.box,c.material||rdMat.dark); c.getWorldPosition(m.position); m.scale.copy(c.scale); scene.add(m); EXTRAS.push(m); GIBS.push(gibOf(m,ux*4+(rnd()-0.5)*5,2+rnd()*4,uz*4+(rnd()-0.5)*5,14)); }
   scene.remove(d.g); toast('Ремонтный дрон сбит · новый — в гараже'); }
@@ -3485,7 +3557,8 @@ function dieZont(e,dx,dz,src){ deathFx(e.x,e.y+0.8,e.z,1.1); legGibs(e,dx,dz,nul
   dropScrap(e.x,e.z,14,e.y); eRemove(e); }
 
 ETYPE.katok={build:buildKatok,update:updKatok,die:dieKatok}; ETYPE.zont={build:buildZont,update:updZont,die:dieZont}; ER.katok=2.15; ER.zont=0.95;
-function autoBrief(m){ return `Сеть ещё огрызается, водитель. ${missionText(m)}. Действуй.`; }
+const AUTO_HINT={hold:['krep','Стоять придётся долго. Подумай, на чём ехать.'],lamp:['igla','Снайперов лучше снимать издалека.'],flag:['ten','Пробраться тихо было бы идеально.'],evac:['pchela','Людям пригодится прикрытие с воздуха.']};
+function autoBrief(m){ const h=AUTO_HINT[m.k]; return `Сеть ещё огрызается, водитель. ${missionText(m)}. Действуй.`+(h&&UP.tank!==h[0]&&MS.i%2===0?' '+h[1]:''); }
 let sightT=0, clearT=0;
 function v10Update(dt){ radioUpdate(dt); sightT-=dt; if(sightT<=0){ sightT=0.5; if(!LOC.safe&&!transit) sightUpdate(); }
   if(MS.active){ const m=missionAt(MS.i); if(m.k==='clear'&&m.loc===LOC_ID&&!transit&&!LOC.safe){ clearT-=dt; if(clearT<=0){ clearT=0.5; objUI(); if(enemiesLeft()===0&&MXTRA[MS.i]) completeMission(); } } } }
@@ -3536,20 +3609,97 @@ function showWin(m,up,final){ const w=$('#win'); $('#winK').textContent=final?'�
 function winUpdate(dt){ if(winT>0){ winT-=dt; if(winT<=0){ $('#win').hidden=true; } } }
 $('#win').addEventListener('click',e=>{ e.stopPropagation(); winT=0; $('#win').hidden=true; });
 /* ---- defeat: sad jingle, desaturated screen, the general on the radio ---- */
-function onTankLost(){ sfxLose(); canvas.classList.add('lost'); setTimeout(()=>radioSay(['Водитель, ты подбит! Тягач уже выехал, эвакуируем тебя в лагерь.','Машина горит! Держись, водитель, вытащим тебя в лагерь.','Подбит, но жив — это главное. Механики в лагере тебя подлатают.'][(rnd()*3)|0]),900); }
+function onTankLost(){ SHD.on=false; sfxLose(); canvas.classList.add('lost'); setTimeout(()=>radioSay(['Водитель, ты подбит! Тягач уже выехал, эвакуируем тебя в лагерь.','Машина горит! Держись, водитель, вытащим тебя в лагерь.','Подбит, но жив — это главное. Механики в лагере тебя подлатают.'][(rnd()*3)|0]),900); }
 function v11Update(dt){ mgMotorUpdate(); winUpdate(dt); if(!TK.dead&&canvas.classList.contains('lost')) canvas.classList.remove('lost'); }
+
+/* ================= v12: tank abilities · motor pool (автопарк) ================= */
+/* ---- «Тень»: stealth ---- */
+const STL={t:0,on:false,bonus:0};
+function setStealth(v){ if(v===STL.on||!tank) return; STL.on=v; for(const k in tank.mats){ const m=tank.mats[k]; m.transparent=v; m.opacity=v?0.32:1; m.needsUpdate=true; }
+  if(v){ sO(1400,500,0.35,0.05,'sine'); toast('Маскировка · враги дальше 15 м тебя не видят'); } }
+function stealthShot(){ if(chs().abil!=='stealth') return; if(STL.on) STL.bonus=0.7; STL.t=0; setStealth(false); }
+function stealthMul(){ return STL.bonus>0?2:1; }
+/* ---- «Крепость»: deployable shield dome ---- */
+const SHD={on:false,hp:260,max:260,cd:0,g:null,rip:0,grow:0,R:4.3};
+function shieldMake(){ const g=new THREE.Group(); g.add(new THREE.Mesh(domeGeo,new THREE.MeshBasicMaterial({color:0xffd27a,transparent:true,opacity:0.08,depthWrite:false,side:THREE.DoubleSide,blending:THREE.AdditiveBlending})));
+  g.add(new THREE.LineSegments(domeEdges,new THREE.LineBasicMaterial({color:0xffd27a,transparent:true,opacity:0.4,depthWrite:false,blending:THREE.AdditiveBlending}))); g.renderOrder=6; g.visible=false; scene.add(g); SHD.g=g; }
+function shieldToggle(){ if(chs().abil!=='shield'||TK.dead||transit) return; if(LOC.safe){ toast('В лагере щит не нужен'); return; }
+  if(SHD.on){ SHD.on=false; sO(800,200,0.35,0.06,'sawtooth'); return; }
+  if(SHD.cd>0||SHD.hp<SHD.max*0.25){ toast('Щит перезаряжается'); sfxClick(); return; } SHD.on=true; SHD.grow=0; TK.vx*=0.3; TK.vz*=0.3; sO(220,880,0.5,0.08,'sine'); sNz(0.4,'bandpass',1800,1,0.08); }
+function shieldHit(a,hx,hy,hz){ SHD.hp-=a; SHD.rip=1; if(hx!=null){ for(let k=0;k<6;k++) spark(hx,hy,hz,(rnd()-0.5)*6,(rnd()-0.5)*6,(rnd()-0.5)*6,1,0.85,0.45,0.3); FIRE.spawn(hx,hy,hz,0,0,0,1.4,2,0.12,1,1,0.85,0.45); } sNz(0.12,'bandpass',2200,2,0.1);
+  if(SHD.hp<=0){ SHD.hp=0; SHD.on=false; SHD.cd=8; toast('Щит пробит · перезарядка 8 с'); sO(900,110,0.6,0.12,'sawtooth'); shake=Math.min(1,shake+0.2); } }
+function shieldUpdate(dt,t){ if(!SHD.g) shieldMake(); const on=SHD.on&&chs().abil==='shield'&&!TK.dead&&!LOC.safe&&!transit; if(!on) SHD.on=false;
+  SHD.cd=Math.max(0,SHD.cd-dt); if(!on&&SHD.cd<=0) SHD.hp=Math.min(SHD.max*chs().hp/1.75,SHD.hp+20*dt); SHD.rip=Math.max(0,SHD.rip-dt*3); SHD.grow=Math.min(1,SHD.grow+dt*1.6);
+  const g=SHD.g; g.visible=on; if(on){ const k=1-Math.pow(1-SHD.grow,3); g.position.set(TK.x,TK.y+0.3,TK.z); g.scale.setScalar(SHD.R*(0.15+0.85*k)*(1+SHD.rip*0.03)); g.rotation.y+=dt*0.2;
+    const low=SHD.hp<SHD.max*0.3, fl=low?0.5+0.5*Math.sin(t*24):1; g.children[0].material.opacity=(0.07+SHD.rip*0.25)*fl; g.children[1].material.opacity=(0.32+SHD.rip*0.5)*fl; }
+  if(tank&&tank.flaps) for(const f of tank.flaps) f.rotation.z+=((on?f.userData.s*-1.25:0)-f.rotation.z)*Math.min(1,dt*5); }
+function shieldProj(ox,oy,oz,ux,uy,uz,len){ if(!SHD.on) return -1; const cy=TK.y+0.3; if(Math.hypot(ox-TK.x,oy-cy,oz-TK.z)<SHD.R) return -1; return segSphere(ox,oy,oz,ux,uy,uz,len,TK.x,cy,TK.z,SHD.R); }
+const SHD_HIT={shd:true};
+/* ---- «Игла»: piercing rail beam ---- */
+const RAILS=[];
+function railShot(w){ mdir.y=clamp(mdir.y,-0.12,0.3); mdir.normalize(); const L0=70, wall=raycast(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L0); let L=wall?RH.t:L0, zHit=null; const zp=zontProj(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L); if(zp){ L=zp[1]; zHit=zp[0]; }
+  const dmg=95*w.power*stealthMul(), hits=[];
+  for(const e of ENEMIES){ if(e.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,e.x,e.y+e.hy,e.z,e.hr); if(t>=0) hits.push([t,e]); }
+  for(const d of DRONES){ if(d.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,d.x,d.y,d.z,0.9); if(t>=0) hits.push([t,d]); }
+  for(const c of CIV.list){ if(c.st==='dead'||c.st==='saved') continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,c.x,groundH(c.x,c.z)+0.95,c.z,0.5); if(t>=0) hits.push([t,c]); }
+  hits.sort((a,b)=>a[0]-b[0]); for(const [t,e] of hits){ const hx=muz.x+mdir.x*t, hy=muz.y+mdir.y*t, hz=muz.z+mdir.z*t;
+    if(e.civ) civDie(e,mdir.x,mdir.z,4); else if(e.type===undefined){ e.hp-=dmg; e.flash=1; if(e.hp<=0) droneDie(e,mdir.x,mdir.z); } else enemyHit(e,dmg,mdir.x,mdir.z,8,'rail'); hitSpark(hx,hy,hz,mdir.x,mdir.z,12); FIRE.spawn(hx,hy,hz,0,0,0,1.6,2,0.15,1,0.5,0.9,1); }
+  const ex=muz.x+mdir.x*L, ey=muz.y+mdir.y*L, ez=muz.z+mdir.z*L; if(zHit) zontAbsorb(zHit,dmg*0.8,ex,ey,ez); else if(L<L0) explode(ex,ey,ez,w.radius*0.8,w.power,mdir.x,mdir.y,mdir.z,'shell',null,0,null,1);
+  RAILS.push({a:[muz.x,muz.y,muz.z],b:[ex,ey,ez],t:0}); for(let s=1.2;s<L;s+=1.6) FIRE.spawn(muz.x+mdir.x*s,muz.y+mdir.y*s,muz.z+mdir.z*s,0,0,0,0.5,1.5,0.18,1,0.45,0.85,1);
+  const rel=TK.tYaw-TK.h; TK.pitchV-=w.recoil*1.3*Math.cos(rel); TK.rollV-=w.recoil*Math.sin(rel); TK.recoil=1; shake=Math.min(1,shake+0.25); camPunch=Math.max(camPunch,0.6); groundFlash(muz.x,muz.z,6,[0.45,0.85,1],0.22);
+  sNz(0.5,'highpass',1800,0.7,0.3); sO(2400,160,0.45,0.18,'sawtooth'); sfxCannon(); }
+function railsUpdate(dt){ for(let i=RAILS.length-1;i>=0;i--){ const r=RAILS[i]; r.t+=dt; const k=1-r.t/0.35; if(k<=0){ RAILS.splice(i,1); continue; } LINES.push(r.a[0],r.a[1],r.a[2],r.b[0],r.b[1],r.b[2],0.55*k+0.3,0.9*k+0.1,1*k,0); } }
+/* ---- «Пчела»: combat drone swarm + built-in repair drone ---- */
+const BEE={list:[],cd:[0,0,0],freeCD:0};
+function beeMake(i){ const d=rdMake(); d.hang.visible=false; d.g.scale.setScalar(0.72); d.bee=true; d.i=i; d.fcd=rnd(); d.tgt=null; d.tT=0; const s=new THREE.Mesh(rdGeo.box,new THREE.MeshBasicMaterial({color:0xff4a30})); s.scale.set(0.5,0.06,0.5); s.position.y=-0.12; d.g.add(s); return d; }
+function beeDie(d,ux,uz){ if(d.dead) return; d.dead=true; const i=BEE.list.indexOf(d); if(i>=0) BEE.list.splice(i,1); BEE.cd[d.i]=20; const p=d.p;
+  for(let k=0;k<4;k++) FIRE.spawn(p.x,p.y,p.z,(rnd()-0.5)*3,rnd()*2,(rnd()-0.5)*3,0.6,2,0.2,1,1,0.7,0.3); sparkBurst(p.x,p.y,p.z,10); sfxGlass(0.4); scene.remove(d.g); }
+function beesClear(){ for(const d of BEE.list) scene.remove(d.g); BEE.list.length=0; }
+const _bv=new THREE.Vector3();
+function beesUpdate(dt,t){ if(chs().abil!=='drones'||TK.dead){ if(BEE.list.length) beesClear(); return; } BEE.freeCD=Math.max(0,BEE.freeCD-dt);
+  for(let i=0;i<3;i++){ BEE.cd[i]=Math.max(0,BEE.cd[i]-dt); if(BEE.cd[i]<=0&&!BEE.list.some(d=>d.i===i)){ const d=beeMake(i); rdLocal(0,3,-1,d.p); BEE.list.push(d); } }
+  for(const d of BEE.list){ d.g.visible=!transit; if(d.loc!==LOC_ID){ d.loc=LOC_ID; rdLocal(0,3,-1,d.p); }
+    d.tT-=dt; if(d.tT<=0){ d.tT=0.4; d.tgt=null; let bd=22; if(!LOC.safe) for(const e of ENEMIES){ if(e.dead||e.state==='fly') continue; const dd=Math.hypot(e.x-d.p.x,e.z-d.p.z); if(dd<bd&&losClear(d.p.x,d.p.y,d.p.z,e.x,e.y+e.hy,e.z)){ bd=dd; d.tgt=e; } } }
+    const a=t*0.9+d.i*TAU/3; let tx=TK.x+Math.cos(a)*3.4, tz=TK.z+Math.sin(a)*3.4, ty=TK.y+3.2+Math.sin(t*2+d.i)*0.25;
+    if(d.tgt){ const e=d.tgt, dx=e.x-TK.x, dz=e.z-TK.z, l=Math.hypot(dx,dz)||1; tx=TK.x+dx/l*Math.min(6,l*0.4)+Math.cos(a)*1.5; tz=TK.z+dz/l*Math.min(6,l*0.4)+Math.sin(a)*1.5; }
+    d.v.x+=((tx-d.p.x)*3-d.v.x)*Math.min(1,dt*4); d.v.y+=((ty-d.p.y)*3-d.v.y)*Math.min(1,dt*4); d.v.z+=((tz-d.p.z)*3-d.v.z)*Math.min(1,dt*4); d.p.addScaledVector(d.v,dt); d.g.position.copy(d.p);
+    const look=d.tgt?Math.atan2(d.tgt.x-d.p.x,d.tgt.z-d.p.z):TK.h; d.g.rotation.y=turnTo(d.g.rotation.y,look,dt*6); d.g.rotation.x=clamp(d.v.z*0.03,-0.35,0.35); d.g.rotation.z=clamp(-d.v.x*0.03,-0.35,0.35); for(const r of d.rotors) r.rotation.y+=dt*45;
+    d.fcd-=dt; if(d.tgt&&!d.tgt.dead&&d.fcd<=0){ d.fcd=0.32+rnd()*0.12; const e=d.tgt, ey=e.y+e.hy; LINES.push(d.p.x,d.p.y-0.1,d.p.z,e.x,ey,e.z,1,0.8,0.35,0); const ux=e.x-d.p.x, uz=e.z-d.p.z, ul=Math.hypot(ux,uz)||1;
+      if(e.type===undefined){ e.hp-=6; e.flash=1; if(e.hp<=0) droneDie(e,ux/ul,uz/ul); } else if(!zontCovered(e,d.p.x,d.p.y,d.p.z)) enemyHit(e,6*stealthMul(),ux/ul,uz/ul,0.3,'proj'); hitSpark(e.x,ey,e.z,ux/ul,uz/ul,2); if(rnd()<0.5) sO(1300,900,0.03,0.025,'square'); }
+    if(!LOC.safe) shadowAdd(d.p.x,d.p.z,0.7,d.p.y-groundH(d.p.x,d.p.z),0.3); } }
+/* ---- motor pool: buy and switch tanks ---- */
+function selectTank(id){ const f=TK.hp/maxHP(); UP.tank=id; TK.hp=Math.max(1,f*maxHP()); SHD.on=false; SHD.hp=SHD.max; STL.on=false; STL.t=0; save(); }
+function renderPark(){ $('#gScrap').textContent=Math.floor(ST.scrap); let h='<p class="pkintro">Танки покупаются только за лом. Улучшения из гаража работают на любом танке.</p>';
+  const bar=(l,v)=>`<div class="pkb"><span>${l}</span><i style="--v:${Math.min(1,v/1.8).toFixed(2)}"></i></div>`;
+  for(const id of CH_ORDER){ const c=CHASSIS[id], own=!!UP.tanks[id], cur=UP.tank===id, can=ST.scrap>=c.cost;
+    h+=`<section class="gcard pk${GAR.pick===id?' focus':''}" data-pick="${id}"><div class="ghead"><h3>${c.name}</h3><span>${c.cls}</span></div><div class="pkst">${bar('Скорость',c.spd)}${bar('Броня',c.hp)}${bar('Огонь',c.cn)}</div>
+      <p>${c.desc}</p><p class="pkab"><b>${c.abN}</b> — ${c.abI}</p>${cur?'<button class="btn" disabled>В строю</button>':own?`<button class="btn solid" data-tk="${id}">Выехать на нём</button>`:`<button class="btn solid" data-tkbuy="${id}" ${can?'':'disabled'}>${can?'Купить':'Не хватает'} · ${nutI} ${c.cost}</button>`}</section>`; }
+  $('#gUps').innerHTML=h; }
+$('#gpanel').addEventListener('click',e=>{ if(GAR.mode!=='park') return; const b=e.target.closest('button');
+  if(b&&!b.disabled&&b.dataset.tkbuy){ const id=b.dataset.tkbuy, c=CHASSIS[id]; if(ST.scrap<c.cost) return; ST.scrap-=c.cost; UP.tanks[id]=1; selectTank(id); GAR.pick=id; sfxBuy(); later(0.3,sfxAccept); toast(`${c.name} теперь твой`); garRebuildModel(); renderPark(); return; }
+  if(b&&!b.disabled&&b.dataset.tk){ selectTank(b.dataset.tk); GAR.pick=b.dataset.tk; sfxWrench(); garRebuildModel(); renderPark(); return; }
+  const s=e.target.closest('[data-pick]'); if(s&&!b&&GAR.pick!==s.dataset.pick){ GAR.pick=s.dataset.pick; sfxClick(); garRebuildModel(); renderPark(); } });
+/* ---- HUD chip + hub ---- */
+function abilHud(){ const el=$('#abil'), c=chs(); if(!c.abil||LOC.safe){ el.hidden=true; $('#kAbil').hidden=true; return; } el.hidden=false; $('#kAbil').hidden=c.abil!=='shield';
+  let s=''; if(c.abil==='stealth') s=STL.on?'<b>Невидим</b> · первый выстрел ×2':`Маскировка через ${Math.max(0,2-STL.t).toFixed(1)} с`;
+  else if(c.abil==='shield') s=SHD.cd>0?`Щит · перезарядка ${Math.ceil(SHD.cd)} с`:`<b>Щит ${Math.round(SHD.hp/SHD.max*100)}%</b>${SHD.on?' · стоит':' · E — поднять'}`;
+  else if(c.abil==='rail') s='<b>Рельсотрон</b> · прошивает насквозь'; else if(c.abil==='drones') s=`<b>Рой ${BEE.list.length}/3</b>${BEE.list.length<3?' · пополнение':''}`;
+  if(el.innerHTML!==s) el.innerHTML=s; el.classList.toggle('on',(c.abil==='stealth'&&STL.on)||(c.abil==='shield'&&SHD.on)); }
+let abT=0;
+function v12Update(dt,t){ if(chs().abil==='stealth'&&!TK.dead&&!transit){ STL.t+=dt; setStealth(STL.t>2&&!LOC.safe); } else setStealth(false); STL.bonus=Math.max(0,STL.bonus-dt);
+  shieldUpdate(dt,t); railsUpdate(dt); beesUpdate(dt,t); abT-=dt; if(abT<=0){ abT=0.15; abilHud(); } }
 
 /* ================= MAIN LOOP ================= */
 let last=performance.now(), fpsS=60, lampT=0, saveT=0, tankSh=null;
 function frame(now){ requestAnimationFrame(frame); let dt=(now-last)/1000; last=now; if(!ready) return; const rdt=dt; dt=Math.min(dt,1/30); if(hitStop>0){ hitStop-=rdt; dt*=0.12; }
   fpsS+=((1/Math.max(rdt,1e-3))-fpsS)*0.05;
   if(GAR.open){ garUpdate(dt,now); if(SND.ctx&&!SND.muted) engineUpdate(dt,false); renderer.render(GAR.scene,GAR.cam); fpsEl.textContent=Math.round(fpsS)+' FPS'; return; }
-  const inp=readInput(); if(helpOpen||transit||TK.dead){ inp.throttle=0; inp.steer=0; inp.fire=false; inp.joy=null; }
+  const inp=readInput(); if(helpOpen||transit||TK.dead){ inp.throttle=0; inp.steer=0; inp.fire=false; inp.joy=null; } if(SHD.on){ inp.throttle=0; inp.steer=0; inp.joy=null; }
   tankUpdate(dt,inp); if(!transit) gatesUpdate(dt);
   if(transit) { renderer.render(scene,camera); return; }
   const T=tank; T.root.position.set(TK.x,TK.y,TK.z); T.root.rotation.y=TK.h; T.susp.rotation.set(TK.pitch,0,TK.roll);
   const sk=STAB_K[UP.stab]; T.stab.rotation.set(-TK.pitch*sk,0,-TK.roll*sk);
-  for(let i=0;i<4;i++){ T.spins[i].rotation.x=TK.wheel; if(i<2) T.wheels[i].rotation.y=clamp(TK.steer,-0.3,0.3); T.wheels[i].position.y=0.56+clamp(WH4[i]-TK.y,-0.14,0.14); }
+  for(let i=0;i<T.wheels.length;i++){ const w=T.wheels[i], u=w.userData, st=u.st!=null?u.st:(i<2?1:0), wi=u.wi!=null?u.wi:i; T.spins[i].rotation.x=TK.wheel*(u.rs||1); if(st) w.rotation.y=clamp(TK.steer,-0.3,0.3); w.position.y=(u.y0!=null?u.y0:0.56)+(wi>=0?clamp(WH4[wi]-TK.y,-0.14,0.14):0); }
   for(const sp of T.spinners) sp.rotation.y+=dt*2.5;
   const gh=groundH(TK.x,TK.z); shadowM.visible=false; shadowsBegin(); shadowAdd(TK.x,TK.z,3.9,TK.y-gh,0.55); tankTracks(dt);
   T.root.updateMatrixWorld(true);
@@ -3562,7 +3712,7 @@ function frame(now){ requestAnimationFrame(frame); let dt=(now-last)/1000; last=
   T.root.updateMatrixWorld(true); tankDamageUniforms(T);
   LINES.begin();
   weaponsUpdate(dt,inp.fire&&!LOC.safe&&!TK.dead); projUpdate(dt); predictImpact();
-  navUpdate(dt); enemiesUpdate(dt); dronesUpdate(dt); gibsUpdate(dt); pickupsUpdate(dt); fallersUpdate(dt); delaysUpdate(dt); holdUpdate(dt,now/1000); v9Update(dt,now/1000); v10Update(dt); v11Update(dt);
+  navUpdate(dt); enemiesUpdate(dt); dronesUpdate(dt); gibsUpdate(dt); pickupsUpdate(dt); fallersUpdate(dt); delaysUpdate(dt); holdUpdate(dt,now/1000); v9Update(dt,now/1000); v10Update(dt); v11Update(dt); v12Update(dt,now/1000);
   enemyShadows(); shadowsEnd(); cratesUpdate(dt,now); sfxLUpdate(dt); campDecorUpdate(now/1000); tracksUpdate(dt); shockUpdate(dt); lightsT-=dt; if(lightsT<=0){ lightsT=0.5; lightsRefresh(); } lodUpdate(dt);
   carsUpdate(dt); debUpdate(dt); rigidUpdate(dt); spkUpdate(dt); SMOKE.update(dt); FIRE.update(dt); flashUpdate(dt); LINES.end();
   soldiersUpdate(dt,now/1000); zonesUpdate(); hqUpdate();
@@ -3588,7 +3738,7 @@ buildGameTank(); updateWeaponUI(); setQualityUI(); rankUI(); objUI(); if(touchDe
 $('#loadq').textContent=touchDev?'старт на низком, дальше по FPS':'старт на среднем, дальше по FPS';
 requestAnimationFrame(()=>setTimeout(()=>{ try{ Q=touchDev?'low':'med'; rebuild(Q); }catch(err){ $('#loadq').textContent='Ошибка: '+err.message; throw err; }
   $('#load').hidden=true; helpOpen=true; $('#help').hidden=false; last=performance.now(); requestAnimationFrame(frame); },30));
-window.__dbg={forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
+window.__dbg={CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
   crater:(x,z)=>craterAt(x,z,1.6,0.3),sim:(n)=>{const o=[];for(let i=0;i<n;i++){tankUpdate(1/60,{throttle:1,steer:0,hb:false,joy:null,fire:false});if(i%4===0)o.push([+TK.z.toFixed(1),+TK.y.toFixed(3),+TK.pitch.toFixed(3),TK.air?1:0]);}return o;},damage:(a,dx,dz)=>damageTank(a,dx,dz,0),groundH,GATES,HOLD,NAV,navPath,VEHS,pvSet,pvRender,renderer,scene,CRATES,get hitStop(){return hitStop},ENEMIES,PICKUPS,DRONES,MS,AIM,spawnEnemy,killEnemy,eRemove,LOC_STATE,toScreen,craterAt,get xr(){return XR.r.value},get wcur(){return wcur},switchWeapon};
 })();
 </script>
