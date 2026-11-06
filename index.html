@@ -1578,6 +1578,48 @@ const CH_BUILD={
   chRivets(o,Tu,M,[[0.53,0.45,0.4,'x'],[-0.53,0.45,0.4,'x'],[0.53,0.45,-0.4,'x'],[-0.53,0.45,-0.4,'x']]); chBeacon(T,Tu,0.42,0.72,-0.4);
   T.customCn=true; T.gun.position.set(0,0.32,0.62); } };
 
+/* ================= v14: visible engine / armour / stabiliser upgrades for every chassis ================= */
+function upGyro(T,o,par,x,y,z,col){ const {add,B,Cy}=o, l=o.up.stab; if(l>=1){ add(new THREE.SphereGeometry(0.2,12*o.S,8*o.S,0,TAU,0,Math.PI/2),col||0x3d4a44,par,x,y,z,true); const r=add(new THREE.TorusGeometry(0.2,0.028,6,16*o.S),0x5a5f64,par,x,y,z); r.rotation.x=Math.PI/2; }
+  if(l>=2){ add(Cy(0.03,0.03,0.6,8),0x5a5f64,par,-x,y+0.3,z); const sp=new THREE.Group(); sp.position.set(-x,y+0.62,z); par.add(sp); add(B(0.55,0.05,0.1),0x5a5f64,sp,0,0,0,true); add(B(0.08,0.12,0.12),glowMat(0xffc94a),sp,0.24,0,0); T.spinners.push(sp); } }
+const CH_UPG={
+ ten(T,o){ const {add,B,Cy,zc,up}=o, Sp=T.susp, Tu=T.turret, D=0x15191c, A=0x4a535b, GL=glowMat(0x5dff9a), e=up.engine, a=up.armor;
+  if(e>=1){ add(zc(Cy(0.15,0.17,0.32,12)),D,Sp,0,1.02,-1.42,true); add(zc(Cy(0.1,0.1,0.04,12)),GL,Sp,0,1.02,-1.6); }
+  if(e>=2){ add(Cy(0.3,0.3,0.1,16),D,Sp,0,1.3,-0.95,true); const f=new THREE.Group(); f.position.set(0,1.37,-0.95); Sp.add(f); for(let k=0;k<6;k++){ const bl=add(B(0.26,0.02,0.07),A,f,Math.cos(k/6*TAU)*0.13,0,Math.sin(k/6*TAU)*0.13); bl.rotation.y=-k/6*TAU; bl.rotation.x=0.4; } T.spinners.push(f); }
+  if(e>=3){ for(const s of [-1,1]){ add(B(0.06,0.3,0.06),D,Sp,s*0.5,1.42,-1.35); add(zc(Cy(0.14,0.14,0.04,12)),GL,Sp,s*0.42,1.0,-1.47); } add(B(1.3,0.05,0.32),A,Sp,0,1.58,-1.38,true); add(B(1.3,0.02,0.04),GL,Sp,0,1.6,-1.52); }
+  if(a>=1) for(const s of [-1,1]) for(const z of [1.22,-1.18]){ add(B(0.56,0.06,0.72),A,Sp,s*1.45,1.04,z,true); add(B(0.05,0.2,0.05),D,Sp,s*1.2,0.94,z); }
+  if(a>=2){ add(B(1.1,0.1,0.1),D,Sp,0,0.88,1.56,true); add(B(0.9,0.1,0.1),D,Sp,0,1.08,1.5,true); for(const x of [-0.45,0,0.45]) add(B(0.08,0.3,0.08),D,Sp,x,0.98,1.55); }
+  if(a>=3){ for(const s of [-1,1]){ add(B(0.06,0.32,1.9),A,Sp,s*0.66,0.88,-0.25,true); add(B(0.06,0.24,0.8),A,Tu,s*0.47,0.2,0.05,true); } }
+  upGyro(T,o,Tu,0.2,0.36,-0.35,0x262b30); },
+ krep(T,o){ const {add,B,Cy,zc,up}=o, Sp=T.susp, Tu=T.turret, O2=0xc84a22, D=0x2a2d31, M=0x5a5f64, Y=0xf0a030, e=up.engine, a=up.armor;
+  if(e>=1){ add(Cy(0.11,0.12,1.5,12),M,Sp,0.9,2.6,0.55,true); add(Cy(0.14,0.14,0.12,12),D,Sp,0.9,3.38,0.55); add(B(0.3,0.06,0.3),D,Sp,0.9,3.46,0.55); T.exh2=new THREE.Object3D(); T.exh2.position.set(0.9,3.5,0.55); Sp.add(T.exh2); }
+  if(e>=2) for(const s of [-1,1]){ add(Cy(0.17,0.2,0.36,14),M,Sp,s*0.72,2.34,1.0,true); add(Cy(0.12,0.12,0.05,12),D,Sp,s*0.72,2.53,1.0); for(let k=0;k<3;k++) add(B(0.3,0.02,0.04),D,Sp,s*0.72,2.56,0.92+k*0.08); }
+  if(e>=3) for(const s of [-1,1]){ add(B(0.03,0.16,1.0),glowMat(0xff9b1a),Sp,s*1.14,2.22,-0.6); for(let k=0;k<5;k++) add(B(0.04,0.2,0.04),D,Sp,s*1.15,2.22,-1.0+k*0.2); }
+  if(a>=1){ for(let k=0;k<6;k++) add(B(0.05,0.62,0.05),D,Sp,-0.7+k*0.28,1.77,1.9); add(B(1.7,0.05,0.05),D,Sp,0,2.06,1.9); add(B(1.7,0.05,0.05),D,Sp,0,1.48,1.9); }
+  if(a>=2){ const pl=add(B(2.25,0.62,0.12),O2,Sp,0,0.92,2.16,true); pl.rotation.x=-0.3; for(let k=0;k<5;k++) add(B(0.22,0.04,0.02),Y,pl,-0.8+k*0.4,0.12,0.07); }
+  if(a>=3) for(const s of [-1,1]){ for(let k=0;k<4;k++) add(B(0.05,0.05,2.3),M,Sp,s*1.2,1.3+k*0.27,-0.6); for(let k=0;k<4;k++) add(B(0.05,1.0,0.05),M,Sp,s*1.2,1.7,-1.6+k*0.66); add(B(0.08,0.4,0.5),O2,Tu,s*0.62,0.35,0.35,true); }
+  upGyro(T,o,Tu,0.3,0.62,-0.4,0x3d4a44); },
+ igla(T,o){ const {add,B,Cy,zc,up}=o, Sp=T.susp, Tu=T.turret, R=0xb8323a, Rd=0x8c2630, D=0x2e1b20, M=0x5a5f64, BL=glowMat(0x7fe8ff), e=up.engine, a=up.armor;
+  if(e>=1) for(let k=0;k<3;k++) add(B(1.0,0.02,0.05),BL,Sp,0,1.39,-1.6+k*0.18);
+  if(e>=2) for(const s of [-1,1]){ add(Cy(0.22,0.22,0.16,14),D,Sp,s*0.45,1.42,-1.72,true); add(Cy(0.14,0.14,0.04,12),BL,Sp,s*0.45,1.51,-1.72); }
+  if(e>=3){ for(const s of [-1,1]){ add(zc(Cy(0.16,0.2,0.3,14)),M,Sp,s*0.5,1.0,-2.05,true); add(zc(Cy(0.12,0.12,0.04,12)),BL,Sp,s*0.5,1.0,-2.21); } add(B(1.4,0.3,0.08),D,Sp,0,1.05,-1.98,true); }
+  if(a>=1) for(const s of [-1,1]){ add(B(0.08,0.36,3.5),Rd,Sp,s*1.52,0.82,0.05,true); for(let k=0;k<4;k++) add(B(0.09,0.05,0.4),D,Sp,s*1.53,0.82,-1.3+k*0.85); }
+  if(a>=2){ const w=add(B(1.75,0.14,0.7),R,Sp,0,0.98,2.45,true); w.rotation.x=0.55; add(B(1.3,0.03,0.4),D,w,0,0.08,0); }
+  if(a>=3) for(const s of [-1,1]){ add(B(0.08,0.42,1.7),Rd,Tu,s*0.66,0.36,0.7,true); for(let k=0;k<3;k++) add(B(0.09,0.04,0.3),D,Tu,s*0.67,0.36,0.1+k*0.55); }
+  upGyro(T,o,Tu,0.3,0.66,-0.9,D); },
+ pchela(T,o){ const {add,B,Cy,zc,up}=o, Sp=T.susp, Tu=T.turret, W2=0xcfccc4, Rr=0xd8322a, Or=0xf0a030, D=0x2a2e33, M=0x8a9096, e=up.engine, a=up.armor;
+  if(e>=1){ add(Cy(0.08,0.08,1.0,10),D,Sp,-0.98,1.95,0.35,true); add(B(0.2,0.12,0.24),D,Sp,-0.98,2.48,0.4); add(B(0.12,0.3,0.12),D,Sp,-0.92,1.4,0.35); }
+  if(e>=2){ add(B(1.2,0.44,0.06),D,Sp,0,1.2,-1.67,true); for(let k=0;k<6;k++) add(B(1.1,0.03,0.04),M,Sp,0,1.02+k*0.07,-1.7); }
+  if(e>=3) for(const s of [-1,1]){ add(zc(Cy(0.13,0.15,0.22,12)),M,Sp,s*0.55,0.92,-1.72,true); add(zc(Cy(0.09,0.09,0.03,10)),glowMat(0xff9b1a),Sp,s*0.55,0.92,-1.84); }
+  if(a>=1){ for(let k=0;k<6;k++) add(B(0.04,0.22,0.04),D,Sp,-0.55+k*0.22,1.72,0.49); add(B(1.3,0.04,0.04),D,Sp,0,1.83,0.49); }
+  if(a>=2){ for(const s of [-1,1]) add(B(0.08,0.4,0.08),D,Sp,s*0.6,0.95,1.75); add(B(1.4,0.08,0.08),D,Sp,0,1.15,1.76,true); add(B(1.3,0.08,0.08),D,Sp,0,0.8,1.78,true); add(B(0.5,0.06,0.03),Or,Sp,0,1.15,1.81); }
+  if(a>=3) for(const s of [-1,1]){ add(B(0.08,0.5,1.4),W2,Sp,s*0.98,1.15,-0.2,true); add(B(0.09,0.06,1.2),Rr,Sp,s*0.99,1.3,-0.2); add(B(0.08,0.36,0.7),W2,Tu,s*0.58,0.3,0.25,true); }
+  upGyro(T,o,Tu,0.2,0.56,-0.45,0x3d4a44); } };
+const UPINFO={
+ engine:{ten:'Быстрее и резвее. Третье сопло, турбина на корме, задний спойлер с зелёной подсветкой.',krep:'Быстрее и резвее. Вторая выхлопная труба, турбины на крыше кабины, раскалённые жалюзи на кузове.',igla:'Быстрее и резвее. Светящиеся жалюзи, турбины на корме, форсажные сопла.',pchela:'Быстрее и резвее. Шноркель, радиатор на корме, турбины с оранжевым свечением.'},
+ armor:{ten:'Больше прочности. Щитки над колёсами, кенгурятник, боковые экраны и броня башни.',krep:'Больше прочности. Решётка на лобовое стекло, отвал-таран, клетка из прутьев на кузове и щиты башни.',igla:'Больше прочности. Экраны над колёсами, клиновидный нос, бортовые плиты башни.',pchela:'Больше прочности. Решётка на смотровую щель, кенгурятник, бортовые бронепанели.'},
+ stab:{ten:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков на башне.',krep:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков на башне.',igla:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков на корме башни.',pchela:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков на башне.'}};
+function upInfo(u){ return (UPINFO[u.k]&&UPINFO[u.k][UP.tank])||u.info; }
+
 function makeTank(hi,up){
   const U={rootInv:{value:new THREE.Matrix4()},dmg:{value:new THREE.Vector4()},top:{value:0}};
   const mats={}; const mt=cc=>mats[cc]||(mats[cc]=dmgMat(cc,U));
@@ -1589,7 +1631,7 @@ function makeTank(hi,up){
   const B=(w,h,d)=>new THREE.BoxGeometry(w,h,d), Cy=(r1,r2,h,s)=>new THREE.CylinderGeometry(r1,r2,h,s);
   const SK=up.skin||TANK_SKIN, C_BODY=SK.turret, C_CH=SK.chassis, C_TIRE=SK.wheels, C_HUB=0x5d8a72, C_MET=0x3b424c, C_DK=0x222b2f, C_ARM=0x557a66, C_GUN=0x454d55, C_GUN2=0x30373e, C_RIM=0x2a3036;
   const Rt=T.root, Sp=T.susp; Rt.add(Sp);
-  const CHID=(up.tank&&CH_BUILD[up.tank])?up.tank:'base'; T.chid=CHID; if(CHID!=='base') CH_BUILD[CHID](T,{add,B,Cy,zc,xc,hi,S,mt}); else {
+  const CHID=(up.tank&&CH_BUILD[up.tank])?up.tank:'base'; T.chid=CHID; if(CHID!=='base'){ const o2={add,B,Cy,zc,xc,hi,S,mt,up}; CH_BUILD[CHID](T,o2); CH_UPG[CHID](T,o2); } else {
   const tireG=xc(Cy(0.56,0.56,0.48,14*S)), hubG=xc(Cy(0.3,0.3,0.5,10*S)), lugG=B(0.5,0.12,0.18); const nl=hi?14:8;
   for(const [x,z] of WHL){ const w=new THREE.Group(); w.position.set(x,0.56,z); Rt.add(w); const sp=new THREE.Group(); w.add(sp);
     add(tireG,C_TIRE,sp,0,0,0,hi?1.04:1.06); add(hubG,C_HUB,sp,0,0,0);
@@ -1994,7 +2036,7 @@ function renderGarage(){ if(GAR.mode==='park'){ renderPark(); return; } const mh
   let h='';
   for(const u of UPDEF){ if(!upShown(u.k)) continue; const l=UP[u.k], mx=l>=u.max, cost=mx?0:u.cost[l], can=ST.scrap>=cost;
     h+=`<section class="gcard${GAR.view===u.v?' focus':''}" data-view="${u.v||''}"><div class="ghead"><h3>${u.t}</h3><div class="pips">${Array.from({length:u.max},(_,i)=>`<i class="${i<l?'on':''}"></i>`).join('')}</div></div>
-      <div class="now">${u.cur(l)}${mx?'':` → <em>${u.cur(l+1)}</em>`}</div><p>${u.info}</p>
+      <div class="now">${u.cur(l)}${mx?'':` → <em>${u.cur(l+1)}</em>`}</div><p>${upInfo(u)}</p>
       <button class="btn${mx?'':' solid'}" data-buy="${u.k}" ${mx||!can?'disabled':''}>${mx?'Максимум':can?`Улучшить · ${nutI} ${cost}`:`Не хватает · ${nutI} ${cost}`}</button></section>`; }
   if(chs().mgs.length) h+=`<section class="gcard${GAR.view==='mg'?' focus':''}" data-view="mg"><div class="ghead"><h3>Пулемёт</h3><span>${MGS[UP.mg].code}</span></div><div class="mgopts">`+
     Object.entries(MGS).filter(([k])=>chs().mgs.includes(k)).map(([k,m])=>{ const own=!!UP.own[k], cur=UP.mg===k; const btn=cur?`<button class="btn" disabled>Стоит</button>`:own?`<button class="btn" data-mg="${k}">Поставить</button>`:`<button class="btn solid" data-mg="${k}" ${ST.scrap>=m.cost?'':'disabled'}>${nutI} ${m.cost}</button>`;
@@ -3752,8 +3794,8 @@ function selectTank(id){ if(id===UP.tank) return; if(!UP.per) UP.per={}; const f
 /* ---- «Крепость»: rotary cannon spin-down + black exhaust while driving ---- */
 let exT=0;
 function krepUpdate(dt){ if(!tank) return; if(tank.cnSpin) tank.cnSpin.rotation.z+=((tank.cnSpinT||0)-tank.cnSpin.rotation.z)*Math.min(1,dt*6);
-  if(tank.exh&&!transit&&!TK.dead){ exT-=dt; const sp=Math.hypot(TK.vx,TK.vz); if(exT<=0){ exT=sp>0.6?0.07:0.35; tank.root.updateMatrixWorld(true); tank.exh.getWorldPosition(_kv2); const k=Math.min(1,sp/8);
-    SMOKE.spawn(_kv2.x,_kv2.y,_kv2.z,-TK.vx*0.35+(rnd()-0.5)*0.4,1.6+rnd()*1.2,-TK.vz*0.35+(rnd()-0.5)*0.4,0.22+k*0.2,1.6,0.8+k*0.6,0.38+k*0.14,0.06,0.06,0.07); } } }
+  if(tank.exh&&!transit&&!TK.dead){ exT-=dt; const sp=Math.hypot(TK.vx,TK.vz); if(exT<=0){ exT=sp>0.6?0.07:0.35; tank.root.updateMatrixWorld(true); const k=Math.min(1,sp/8); for(const ex of [tank.exh,tank.exh2]){ if(!ex) continue; ex.getWorldPosition(_kv2);
+    SMOKE.spawn(_kv2.x,_kv2.y,_kv2.z,-TK.vx*0.35+(rnd()-0.5)*0.4,1.6+rnd()*1.2,-TK.vz*0.35+(rnd()-0.5)*0.4,0.22+k*0.2,1.6,0.8+k*0.6,0.38+k*0.14,0.06,0.06,0.07); } } } }
 /* ---- motor pool list ---- */
 function renderPark(){ $('#gScrap').textContent=Math.floor(ST.scrap); const pk=CHASSIS[GAR.pick]||CHASSIS.base, own=!!UP.tanks[GAR.pick];
   const gp=$('#gPick'); gp.hidden=false; gp.innerHTML=`<span>${pk.cls} · на подиуме</span><b>${pk.name}</b><em>${UP.tank===GAR.pick?'● в строю':own?'куплен · можно выехать':'цена '+pk.cost+' лома'}</em>`;
@@ -3824,7 +3866,7 @@ buildGameTank(); updateWeaponUI(); setQualityUI(); rankUI(); objUI(); if(touchDe
 $('#loadq').textContent=touchDev?'старт на низком, дальше по FPS':'старт на среднем, дальше по FPS';
 requestAnimationFrame(()=>setTimeout(()=>{ try{ Q=touchDev?'low':'med'; rebuild(Q); }catch(err){ $('#loadq').textContent='Ошибка: '+err.message; throw err; }
   $('#load').hidden=true; helpOpen=true; $('#help').hidden=false; last=performance.now(); requestAnimationFrame(frame); },30));
-window.__dbg={CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
+window.__dbg={GAR,CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
   crater:(x,z)=>craterAt(x,z,1.6,0.3),sim:(n)=>{const o=[];for(let i=0;i<n;i++){tankUpdate(1/60,{throttle:1,steer:0,hb:false,joy:null,fire:false});if(i%4===0)o.push([+TK.z.toFixed(1),+TK.y.toFixed(3),+TK.pitch.toFixed(3),TK.air?1:0]);}return o;},damage:(a,dx,dz)=>damageTank(a,dx,dz,0),groundH,GATES,HOLD,NAV,navPath,VEHS,pvSet,pvRender,renderer,scene,CRATES,get hitStop(){return hitStop},ENEMIES,PICKUPS,DRONES,MS,AIM,spawnEnemy,killEnemy,eRemove,LOC_STATE,toScreen,craterAt,get xr(){return XR.r.value},get wcur(){return wcur},switchWeapon};
 })();
 </script>
