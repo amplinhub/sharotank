@@ -1482,7 +1482,7 @@ const CHASSIS={
  base:{name:'Шаротанк 5T-L',cls:'Универсал',cost:0,hp:1,spd:1,acc:1,turn:1,ram:1,cn:1,abil:null,w:[0,1,2],mgs:['gau','twin','kpv'],arms:'пулемёт, пушка, ракеты',abN:'Без особенностей',abI:'надёжная стартовая машина, хороша во всём понемногу',desc:'Колёсный танк со сферической башней. С него начинают все водители лагеря.'},
  ten:{name:'ЛТ-7 «Тень»',cls:'Лёгкий',cost:1600,hp:0.7,spd:1.3,acc:1.35,turn:1.3,ram:0.6,cn:1,abil:'stealth',w:[0,1],mgs:['gau'],arms:'миниган и пушка',abN:'Маскировка',abI:'после паузы в стрельбе враги перестают замечать танк издалека, а первый выстрел из маскировки наносит двойной урон',desc:'Разведчик на колёсах-роликах с длинными рычагами подвески. Быстрый, вёрткий и хрупкий.'},
  krep:{name:'ТТ-14 «Крепость»',cls:'Тяжёлый',cost:2600,hp:1.75,spd:0.72,acc:0.7,turn:0.78,ram:2,cn:1.1,abil:'shield',w:[0,1],mgs:['twin'],arms:'спаренный пулемёт и трёхствольная пушка',abN:'Щит (E)',abI:'на стоянке раскрывает створки и поднимает купол: снаружи по танку не попасть, а сам он стреляет. Пока купол стоит, танк не двигается',desc:'Шестиколёсная бронированная махина с кабиной-аквариумом и дымящей трубой. Медленная, но выдерживает всё.'},
- igla:{name:'ПТ-6 «Игла»',cls:'Дальнобойный',cost:2200,hp:0.9,spd:0.95,acc:0.9,turn:0.9,ram:0.8,cn:1.7,abil:'rail',w:[1,2],mgs:[],arms:'сдвоенный рельсотрон и ракеты',abN:'Рельсотрон',abI:'вместо снаряда — сдвоенный мгновенный луч на 70 м: прошивает всех роботов на линии и бьёт за ними',desc:'Длинный шестиколёсный истребитель с вытянутой башней и двумя энергетическими стволами.'},
+ igla:{name:'ПТ-6 «Игла»',cls:'Дальнобойный',cost:2200,hp:0.9,spd:0.95,acc:0.9,turn:0.9,ram:0.8,cn:1.7,abil:'rail',w:[1,2],mgs:[],arms:'сдвоенный рельсотрон и ракеты',abN:'Рельсотрон',abI:'вместо снаряда — сдвоенный мгновенный луч от 70 м (длиннее с улучшением рельсов): прошивает всех роботов на линии и бьёт за ними',desc:'Длинный шестиколёсный истребитель с вытянутой башней и двумя энергетическими стволами.'},
  pchela:{name:'ИТ-1 «Пчела»',cls:'Инженерный',cost:2000,hp:1.05,spd:0.95,acc:1,turn:1,ram:1,cn:0.85,abil:'drones',w:[0],mgs:['gau','twin','kpv'],arms:'только пулемёт',abN:'Рой камикадзе',abI:'дроны-камикадзе кружат над танком и таранят ближайшего врага со взрывом, новые вылетают из люка в корме. Сначала один, улучшается до трёх',desc:'Бронеавтомобиль с ульем для дронов на корме. Сам стреляет только из пулемёта, зато не воюет один.'}};
 const CH_ORDER=['base','ten','krep','igla','pchela'];
 function chs(){ return CHASSIS[UP.tank]||CHASSIS.base; }
@@ -1559,7 +1559,11 @@ const CH_BUILD={
   T.noMg=true; T.customCn=true; T.gun.position.set(0,0.36,1.95);
   add(B(0.92,0.42,0.6),D,T.cn,0,0,0.15,true); for(const s of [-1,1]){ add(zc(Cy(0.11,0.12,2.6,12*o.S)),0x3a3f46,T.cn,s*0.26,0,1.6,true); for(let k=0;k<4;k++){ add(zc(Cy(0.17,0.17,0.12,12)),Te,T.cn,s*0.26,0,0.75+k*0.42); add(zc(Cy(0.175,0.175,0.03,12)),BL,T.cn,s*0.26,0,0.84+k*0.42); }
     add(zc(Cy(0.15,0.13,0.22,12)),D,T.cn,s*0.26,0,2.95,true); add(zc(Cy(0.07,0.07,0.04,10)),BL,T.cn,s*0.26,0,3.07); }
-  add(B(0.2,0.06,2.3),BL,T.cn,0,0,1.6); add(B(0.3,0.14,2.3),D,T.cn,0,-0.1,1.6); T.cnMuz.position.set(0,0,3.1); T.cn.add(T.cnMuz); T.rkPos=new THREE.Vector3(-0.95,0.1,-1.6); },
+  add(B(0.2,0.06,2.3),BL,T.cn,0,0,1.6); add(B(0.3,0.14,2.3),D,T.cn,0,-0.1,1.6);
+  for(let k=0;k<(o.up.cal|0);k++) for(const s of [-1,1]){ add(zc(Cy(0.21,0.21,0.1,12)),Te,T.cn,s*0.26,0,0.96+k*0.42); add(zc(Cy(0.215,0.215,0.025,12)),BL,T.cn,s*0.26,0,0.96+k*0.42); }
+  if((o.up.cal|0)>=2) for(const s of [-1,1]) add(zc(Cy(0.15,0.19,0.4,12)),M,T.cn,s*0.26,0,3.2,true);
+  for(let k=0;k<(o.up.load|0);k++){ add(B(0.26,0.26,0.5),D,Tu,(k-1)*0.34,0.66,-1.3,true); add(B(0.28,0.03,0.36),BL,Tu,(k-1)*0.34,0.8,-1.3); }
+  T.cnMuz.position.set(0,0,3.1); T.cn.add(T.cnMuz); T.rkPos=new THREE.Vector3(-0.95,0.1,-1.6); },
  /* «Пчела» — ref: white/red armoured car; drone hive with an opening hatch, machine gun only */
  pchela(T,o){ const {add,B,Cy,zc,xc,hi}=o, Sp=T.susp, Tu=T.turret, W=0xe8e6df, W2=0xcfccc4, Rr=0xd8322a, Or=0xf0a030, D=0x2a2e33, M=0x8a9096;
   for(const [x,z,wi,st] of [[1.22,1.15,0,1],[-1.22,1.15,1,1],[1.22,-1.15,2,0],[-1.22,-1.15,3,0]]) chWheel(T,o,x,0.62,z,0.62,0.56,0x2a2a2c,M,{wi,st,lug:0x1c1c1e,rim:0xd8d6cf});
@@ -2022,13 +2026,15 @@ function openGarage(mode){ if(GAR.open||TK.dead) return; GAR.mode=mode||'gar'; G
   TK.vx=TK.vz=TK.vF=0; mouse.down=false; GAR.view=(wcur<2?wcur:lastMain)===1?'cn':'mg'; GAR.ang=0.75; GAR.idle=0; garRebuildModel(); setGarView(); renderGarage(); sfxWrench(); }
 function closeGarage(){ if(!GAR.open) return; GAR.open=false; document.body.classList.remove('garage'); $('#garage').hidden=true;
   const DR=GAR.mode==='park'?{x:27.5,z:63.3,h:Math.PI/2}:CAMP_DOOR; STL.on=false; buildGameTank(); updateWeaponUI(); Object.assign(TK,{x:DR.x,z:DR.z,h:DR.h,tYaw:DR.h,vx:0,vz:0,vF:0,prevVF:0,aL:0}); save(); canvas.focus(); }
+const RAIL_L=[70,82,94,106], isRail=()=>chs().abil==='rail';
+function ammoCur(l){ const c=chs(), a=[]; if(c.mgs.length) a.push(`${AMMO_CAP.mg[l]} пат`); if(c.w.includes(1)) a.push(`${AMMO_CAP.cn[l]} ${isRail()?'зарядов':'сн'}`); if(c.w.includes(2)&&UP.rk) a.push(`${AMMO_CAP.rk[l]} рак`); return a.join(' · '); }
 const UPDEF=[
- {k:'engine',t:'Двигатель',max:3,cost:[250,500,900],cur:l=>`${Math.round(ENG_V[l]*3.6)} км/ч · разгон ${ENG_A[l]}`,info:'Быстрее и резвее. На корме появляются второй выхлоп, турбина и радиатор.'},
+ {k:'engine',t:'Двигатель',max:3,cost:[250,500,900],cur:l=>`${Math.round(ENG_V[l]*chs().spd*3.6)} км/ч · разгон ${(ENG_A[l]*chs().acc).toFixed(0)}`,info:'Быстрее и резвее. На корме появляются второй выхлоп, турбина и радиатор.'},
  {k:'armor',t:'Броня',max:3,cost:[300,600,1000],cur:l=>`${Math.round(ARM_HP[l]*chs().hp)} ед. прочности`,info:'Крылья над колёсами, таранный щит (удары о стены вдвое слабее), пояс плит на башне.'},
- {k:'cal',t:'Калибр пушки',max:3,cost:[300,650,1100],v:'cn',cur:l=>`${CAL_NAME[l]} · взрыв ${CAL_R[l]} м`,info:'Мощнее взрыв, шире воронка. Ствол длиннее, дульный тормоз крупнее.'},
- {k:'load',t:'Автомат заряжания',max:3,cost:[250,550,950],v:'cn',cur:l=>`перезарядка ${LOAD_T[l]} с`,info:'Пушка стреляет чаще. Над казёнником встаёт барабан.'},
+ {k:'cal',get t(){ return isRail()?'Длина рельсов':'Калибр пушки'; },max:3,cost:[300,650,1100],v:'cn',cur:l=>isRail()?`луч бьёт на ${RAIL_L[l]} м`:`${CAL_NAME[l]} · взрыв ${CAL_R[l]} м`,get info(){ return isRail()?'Рельсы длиннее — луч прошивает цель на большей дистанции. Добавляются катушки разгона.':'Мощнее взрыв, шире воронка. Ствол длиннее, дульный тормоз крупнее.'; }},
+ {k:'load',get t(){ return isRail()?'Конденсаторы':'Автомат заряжания'; },max:3,cost:[250,550,950],v:'cn',cur:l=>`${isRail()?'зарядка':'перезарядка'} ${LOAD_T[l]} с`,get info(){ return isRail()?'Рельсотрон заряжается быстрее. На башне встают блоки накопителей.':'Пушка стреляет чаще. Над казёнником встаёт барабан.'; }},
  {k:'stab',t:'Стабилизатор',max:2,cost:[400,800],cur:l=>`гасит ${Math.round(STAB_K[l]*100)}% крена`,info:'Башня держит линию огня, когда корпус кренится. Гироблок и мачта датчиков.'},
- {k:'ammo',t:'Боеукладка',max:3,cost:[300,600,1000],cur:l=>`${AMMO_CAP.mg[l]} пат · ${AMMO_CAP.cn[l]} сн · ${AMMO_CAP.rk[l]} рак`,info:'Больше патронов, снарядов и ракет с собой. Пополняется при каждом заезде в лагерь.'},
+ {k:'ammo',t:'Боеукладка',max:3,cost:[300,600,1000],cur:ammoCur,info:'Больше боезапаса с собой. Пополняется при каждом заезде в лагерь.'},
  {k:'abl',get t(){ return (ABL[UP.tank]||{}).t||''; },max:2,cost:[500,900],cur:l=>ABL[UP.tank]?ABL[UP.tank].cur(l):'',get info(){ return (ABL[UP.tank]||{}).info||''; }},
  {k:'rdr',t:'Ремонтный дрон',max:2,cost:[450,650],cur:l=>l?`${l} ${l===1?'дрон':'дрона'} в звене`:'дронов нет',info:'Квадрокоптер со сварочным аппаратом летает за танком и потихоньку заваривает повреждения. Стоишь на месте — чинит быстрее. Сбитый врагом дрон теряется.'},
  {k:'rk',t:'Ракетный блок',max:2,cost:[700,1000],cur:l=>l?`${RK_N[l]} ракет в залпе`:'не установлен',info:'Третье оружие: самонаводящийся залп в точку прицела. Блок на левом боку башни.'},
@@ -3739,8 +3745,8 @@ function shieldProj(ox,oy,oz,ux,uy,uz,len){ if(!SHD.on) return -1; const cy=TK.y
 const SHD_HIT={shd:true};
 /* ---- «Игла»: piercing rail beam ---- */
 const RAILS=[];
-function railShot(w){ mdir.y=clamp(mdir.y,-0.12,0.3); mdir.normalize(); const L0=70, wall=raycast(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L0); let L=wall?RH.t:L0, zHit=null; const zp=zontProj(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L); if(zp){ L=zp[1]; zHit=zp[0]; }
-  const dmg=95*w.power*stealthMul()*RAIL_K[UP.abl|0], hits=[];
+function railShot(w){ mdir.y=clamp(mdir.y,-0.12,0.3); mdir.normalize(); const L0=RAIL_L[UP.cal|0], wall=raycast(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L0); let L=wall?RH.t:L0, zHit=null; const zp=zontProj(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L); if(zp){ L=zp[1]; zHit=zp[0]; }
+  const dmg=95*stealthMul()*RAIL_K[UP.abl|0], hits=[];
   for(const e of ENEMIES){ if(e.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,e.x,e.y+e.hy,e.z,e.hr); if(t>=0) hits.push([t,e]); }
   for(const d of DRONES){ if(d.dead) continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,d.x,d.y,d.z,0.9); if(t>=0) hits.push([t,d]); }
   for(const c of CIV.list){ if(c.st==='dead'||c.st==='saved') continue; const t=segSphere(muz.x,muz.y,muz.z,mdir.x,mdir.y,mdir.z,L,c.x,groundH(c.x,c.z)+0.95,c.z,0.5); if(t>=0) hits.push([t,c]); }
@@ -3971,7 +3977,7 @@ buildGameTank(); updateWeaponUI(); setQualityUI(); rankUI(); objUI(); if(touchDe
 $('#loadq').textContent=touchDev?'старт на низком, дальше по FPS':'старт на среднем, дальше по FPS';
 requestAnimationFrame(()=>setTimeout(()=>{ try{ Q=touchDev?'low':'med'; rebuild(Q); }catch(err){ $('#loadq').textContent='Ошибка: '+err.message; throw err; }
   $('#load').hidden=true; helpOpen=true; $('#help').hidden=false; last=performance.now(); requestAnimationFrame(frame); },30));
-window.__dbg={ARM,civMake,gaitPose,makeSoldier,CIVL:CIV,get CIVS(){return typeof civs!=='undefined'?civs:null},GAR,losClear,navOk,CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
+window.__dbg={ARM,civMake,gaitPose,makeSoldier,CIVL:CIV,GAR,losClear,navOk,CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
   crater:(x,z)=>craterAt(x,z,1.6,0.3),sim:(n)=>{const o=[];for(let i=0;i<n;i++){tankUpdate(1/60,{throttle:1,steer:0,hb:false,joy:null,fire:false});if(i%4===0)o.push([+TK.z.toFixed(1),+TK.y.toFixed(3),+TK.pitch.toFixed(3),TK.air?1:0]);}return o;},damage:(a,dx,dz)=>damageTank(a,dx,dz,0),groundH,GATES,HOLD,NAV,navPath,VEHS,pvSet,pvRender,renderer,scene,CRATES,get hitStop(){return hitStop},ENEMIES,PICKUPS,DRONES,MS,AIM,spawnEnemy,killEnemy,eRemove,LOC_STATE,toScreen,craterAt,get xr(){return XR.r.value},get wcur(){return wcur},switchWeapon};
 })();
 </script>
