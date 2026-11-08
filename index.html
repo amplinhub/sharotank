@@ -254,6 +254,12 @@ body.kbm #padL,body.kbm #padR{display:none!important}
 .tb.fire.on{background:var(--acc);color:#0a1322;box-shadow:0 0 24px var(--acc)}
 .tb.fire.safe{border-color:var(--line);color:var(--dim)}
 #bSwap small{font-size:8.5px;letter-spacing:.14em;color:var(--dim)}
+#bShield{width:56px;height:56px;margin-right:39px;margin-bottom:-14px;color:var(--dim)}
+#bShield svg{width:24px;height:24px}
+#bShield.rdy{color:var(--acc);border-color:var(--acc)}
+#bShield.on{background:var(--acc);color:#0a1322;box-shadow:0 0 18px var(--acc)}
+#bShield:disabled{opacity:.4}
+body:not(.kbm) #kAbil{display:none!important}
 .stick{width:140px;height:140px;border-radius:50%;border:1px solid var(--line);background:radial-gradient(circle,rgba(255,255,255,.05),var(--panel) 70%);position:relative;touch-action:none;cursor:pointer}
 .stick::before,.stick::after{content:"";position:absolute;background:var(--line)}
 .stick::before{left:50%;top:14px;bottom:14px;width:1px}
@@ -419,6 +425,7 @@ kbd{font-family:var(--f-mono);border:1px solid var(--line);padding:0 4px;font-si
   <div class="stick" id="moveStick" aria-label="Джойстик движения"><span class="stl">ДВИЖЕНИЕ</span><span class="knob">ХОД</span></div>
 </div>
 <div class="pad" id="padR">
+  <button class="tb" id="bShield" aria-label="Поднять щит" hidden><svg viewBox="0 0 24 24"><path d="M12 2.5l8 3v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10v-6z"/><path d="M8 12l3 3 5-6"/></svg></button>
   <div class="frow"><button class="tb" id="bSwap" aria-label="Сменить оружие"><svg viewBox="0 0 24 24"><path d="M4 8h13l-3-3M20 16H7l3 3"/></svg><small>СМЕНА</small></button><button class="tb fire" id="bFire" aria-label="Огонь">ОГОНЬ</button></div>
   <div class="stick" id="aimStick" aria-label="Джойстик прицела"><span class="stl">ПРИЦЕЛ</span><span class="knob">ЦЕЛЬ</span></div>
 </div>
@@ -833,12 +840,16 @@ function pagoda(cx,cz,tiers){ tiers=tiers||6; box(cx-5.6,0,cz-5.6,cx+5.6,0.35,cz
     hw-=0.45; y+=0.35; }
   cyl(cx,cz,0.22,y,y+3,M.METAL); for(let k=0;k<3;k++) sphere(cx,y+0.6+k*0.7,cz,0.42-k*0.07,M.LANT);
   LAMPS.push({x:cx,y:y+1.2,z:cz,r:3,col:'neon',size:4,pool:false}); }
-function archBridge(x,z0,z1){ const mid=(z0+z1)/2, L=(z1-z0)/2+1.6, a=c(x-1.5),b=c(x+1.5),f=c(mid-L),g=c(mid+L);
-  for(let z=f;z<g;z++){ const t=((z+0.5)*VS-mid)/L, top=2.3*(1-t*t)+0.25, bot=Math.max(0,top-0.6);
-    for(let xx=a;xx<b;xx++){ const edge=(xx===a||xx===b-1); const yt=c(top+(edge?0.55:0)); for(let y=c(bot);y<=yt;y++) put(xx,y,z,(edge&&y*VS>top)?M.WALL:M.MID); } } }
-function archBridgeX(x0,x1,z){ const mid=(x0+x1)/2, L=(x1-x0)/2+1.6, a=c(mid-L),b=c(mid+L),f=c(z-1.5),g=c(z+1.5);
-  for(let xx=a;xx<b;xx++){ const t=((xx+0.5)*VS-mid)/L, top=2.3*(1-t*t)+0.25, bot=Math.max(0,top-0.6);
-    for(let zz=f;zz<g;zz++){ const edge=(zz===f||zz===g-1); const yt=c(top+(edge?0.55:0)); for(let y=c(bot);y<=yt;y++) put(xx,y,zz,(edge&&y*VS>top)?M.WALL:M.MID); } } }
+/* v20: high bridges — deck underside >= 3.2 m so any tank drives under; solid piers on the banks */
+const BR_H=3.9;
+function bridgeCore(ax,mid,L,w0,w1,w2){ /* ax: 0 = deck runs along Z (bridge at x=w0..), 1 = along X; w0 centre of cross axis */
+  const a=c(w0-1.5), b=c(w0+1.5), f=c(mid-L), g=c(mid+L), pw=Math.max(2,Math.round(0.9/VS));
+  for(let u=f;u<g;u++){ const t=((u+0.5)*VS-mid)/L, top=BR_H+0.8*(1-t*t), bot=top-0.6, pier=(u<f+pw||u>=g-pw);
+    for(let v=a;v<b;v++){ const edge=(v===a||v===b-1); const yt=c(top+(edge?0.55:0));
+      for(let y=pier?0:c(bot);y<=yt;y++){ const wall=(edge&&y*VS>top)||(pier&&y*VS<top-0.6&&(v===a||v===b-1)); const X=ax?u:v, Z=ax?v:u; put(X,y,Z,wall?M.WALL:M.MID); } } }
+  for(const e of [-1,1]) for(const sd of [-1,1]){ const u=mid+e*(L-0.45), v=w0+sd*1.35, X=ax?u:v, Z=ax?v:u; lantern(X,BR_H+0.55+0.65,Z,false,true); } }
+function archBridge(x,z0,z1){ const mid=(z0+z1)/2; bridgeCore(0,mid,(z1-z0)/2+1.6,x); }
+function archBridgeX(x0,x1,z){ const mid=(x0+x1)/2; bridgeCore(1,mid,(x1-x0)/2+1.6,z); }
 function boat(x,z,ax){ lbox(x,z,ax,-2.6,2.6,-0.75,0.75,0,0.35,M.WOOD); lbox(x,z,ax,-2.6,2.6,-0.85,-0.65,0.35,0.7,M.WOOD); lbox(x,z,ax,-2.6,2.6,0.65,0.85,0.35,0.7,M.WOOD);
   lbox(x,z,ax,2.4,3.0,-0.35,0.35,0.2,0.8,M.WOOD); lbox(x,z,ax,-3.0,-2.4,-0.35,0.35,0.2,0.8,M.WOOD);
   lbox(x,z,ax,-1.3,0.9,-0.85,0.85,1.45,1.65,M.TILE); for(const a of [-1.2,0.8]) for(const s of [-0.75,0.75]) lbox(x,z,ax,a-0.06,a+0.06,s-0.06,s+0.06,0.35,1.45,M.WOOD);
@@ -906,6 +917,10 @@ function hqBuilding(x0,z0){ const w=13, d=7, h=3.6; FLOORS.push([x0,z0,x0+w,z0+d
   for(const k of [0,1,2]) cyl(x0+0.9+k*0.95,z0+5.9,0.38,h+0.4,h+1.5,M.ROOF);
   box(x0+w/2-0.3,h-0.35,z0+d+1.3,x0+w/2+0.3,h-0.1,z0+d+1.6,M.LAMP); LAMPS.push({x:x0+w/2,y:h-0.3,z:z0+d+1.5,r:3.4,col:'lamp',size:2});
   box(x0+3,0,z0+2.4,x0+w-3,0.85,z0+3.4,M.FURN); box(x0+5,0.85,z0+2.6,x0+8,1.3,z0+3.2,M.NEON); }
+/* v20: parked fleet near the motor pool — five real tank models (meshes), voxel hulls only for collision */
+const FLEET=[['base',18,55,0],['ten',22.5,55,0],['pchela',27,55,0],['igla',16.5,71.5,Math.PI],['krep',22,71.5,Math.PI]];
+const FLEET_AT=FLEET.map(f=>[f[1],f[2]]);
+function fleetHull(x,z){ box(x-0.8,0.3,z-1.3,x+0.8,1.15,z+1.3,M.DARK); }
 function genCamp(R){
   const wall=(x0,z0,x1,z1)=>{ box(x0,0,z0,x1,1.3,z1,M.MID); box(x0,1.3,z0,x1,1.6,z1,(x,y,z)=>((x+z)%3===0)?M.METAL:-1); };
   wall(0.2,0.2,34,1.0); wall(46,0.2,79.8,1.0); wall(0.2,79,34,79.8); wall(46,79,79.8,79.8);
@@ -918,8 +933,8 @@ function genCamp(R){
   for(const tx of [50,58,66]){ tent(tx,4,6,8); tent(tx,16,6,8); }
   hqBuilding(59,25);
   watchtower(75,5); watchtower(5,75); flagpole(47.5,30.5);
-  truck(6,54,false); truck(12,54,false); apc(20,55,false); parkedTank(28.5,55);
-  truck(8,70,true); parkedTank(21,71); cyl(28,72,1.1,0,2.4,M.ARMY); cyl(30.6,72,1.1,0,2.4,M.ARMY);
+  truck(6,54,false); truck(12,54,false); for(const [x,z] of FLEET_AT) fleetHull(x,z);
+  truck(8,70,true); cyl(29.5,73,1.1,0,2.4,M.ARMY); cyl(32.1,73,1.1,0,2.4,M.ARMY);
   sandbags(48,68,56,69,1.1); sandbags(66,49,77,50,1.1); sandbags(76,50,77,58,1.1);
   crates(52,74); crates(56,75); crates(73,72);
   for(let k=0;k<8;k++){ const a=k/8*TAU; box(62+Math.cos(a)*6.4-0.15,0,62+Math.sin(a)*6.4-0.15,62+Math.cos(a)*6.4+0.15,0.25,62+Math.sin(a)*6.4+0.15,M.LAMP); }
@@ -2336,6 +2351,7 @@ $('#kRep').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useRepair
 $('#kAmmo').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useAmmo(); });
 $('#kArt').addEventListener('click',e=>{ e.stopPropagation(); sInit(); useArt(); });
 $('#kAbil').addEventListener('click',e=>{ e.stopPropagation(); sInit(); shieldToggle(); });
+$('#bShield').addEventListener('pointerdown',e=>{ e.preventDefault(); sInit(); if(helpOpen) closeHelp(); shieldToggle(); });
 let menuOpen=false; $('#bMenu').addEventListener('click',e=>{ e.stopPropagation(); menuOpen=!menuOpen; $('#trMenu').hidden=!menuOpen; document.body.classList.toggle('menu',menuOpen); $('#bMenu').setAttribute('aria-expanded',String(menuOpen)); sfxClick(); });
 $('#bGo').addEventListener('click',e=>{ e.stopPropagation(); closeHelp(); });
 $('#bReset').addEventListener('click',e=>{ e.stopPropagation(); try{ localStorage.removeItem(SAVE_KEY); }catch(_){} ST.scrap=1000; Object.assign(UP,{engine:0,armor:0,cal:0,load:0,stab:0,rk:0,ammo:0,mg:'gau',own:{gau:1},tank:'base',tanks:{base:1},per:{},abl:0,rdr:0}); TK.hp=ARM_HP[0]; TK.dmgS.fill(0);
@@ -3410,10 +3426,12 @@ function cdMat(k,c,glow){ return CDM[k]||(CDM[k]=glow?new THREE.MeshBasicMateria
 const CDG={box:new THREE.BoxGeometry(1,1,1),cyl:new THREE.CylinderGeometry(0.5,0.5,1,14),cyl6:new THREE.CylinderGeometry(0.5,0.5,1,8),sph:new THREE.SphereGeometry(0.5,20,14),dish:new THREE.SphereGeometry(0.5,16,8,0,TAU,0,1.0),tor:new THREE.TorusGeometry(0.5,0.06,6,24)};
 function cdP(par,geo,mat,x,y,z,sx,sy,sz,ol,rx,ry,rz){ const m=new THREE.Mesh(geo,mat); m.position.set(x,y,z); m.scale.set(sx,sy==null?sx:sy,sz==null?sx:sz); if(rx||ry||rz) m.rotation.set(rx||0,ry||0,rz||0); par.add(m);
   if(ol){ const o=new THREE.Mesh(geo,outlineMat); o.scale.setScalar(1.06); m.add(o); } return m; }
-function campDecoClear(){ if(CDK.g){ scene.remove(CDK.g); CDK.g.traverse(o=>{ if(o.isMesh&&o.userData.own) o.geometry.dispose(); }); } CDK.g=null; CDK.aa=null; CDK.beacons.length=0; }
+function campDecoClear(){ if(CDK.fleet){ for(const T of CDK.fleet) disposeTank(T); CDK.fleet=null; } if(CDK.g){ scene.remove(CDK.g); CDK.g.traverse(o=>{ if(o.isMesh&&o.userData.own) o.geometry.dispose(); }); } CDK.g=null; CDK.aa=null; CDK.beacons.length=0; }
 function campDecoBuild(){ campDecoClear(); if(LOC_ID!=='camp') return; const tier=Q==='low'?0:Q==='med'?1:2, G=new THREE.Group(); CDK.g=G; scene.add(G);
   const W=cdMat('w',0xd9d6cc), Gy=cdMat('g',0x5c656e), D=cdMat('d',0x22282e), A=cdMat('a',0x4f6b58), Y=cdMat('y',0xffb53a), R=cdMat('r',0xff3b30,true), Bl=cdMat('b',0x6fd0ff,true), Cu=cdMat('cu',0xb87a3a);
   const x0=59, z0=25, h=3.6, top=h+5+1.9;
+  /* --- parked fleet: one of every tank --- */
+  CDK.fleet=[]; for(const [id,fx,fz,fh] of FLEET){ const T=makeTank(tier>=2,Object.assign({},UP,perDefault(id),{tank:id,skin:TANK_SKIN})); const w=CHASSIS[id].w; T.cn.visible=w.includes(1); T.mg.visible=!w.includes(1)&&w.includes(0); T.root.position.set(fx,0,fz); T.root.rotation.y=fh; mergeStatic(T.root); G.add(T.root); T.root.updateMatrixWorld(true); T.U.rootInv.value.copy(T.root.matrixWorld).invert(); CDK.fleet.push(T); }
   /* --- AA turret on the control deck (always) --- */
   const aa=new THREE.Group(); aa.position.set(x0+9.5,top,z0+3.2); G.add(aa);
   cdP(aa,CDG.cyl,Gy,0,0.16,0,2.5,0.32,2.5,true); cdP(aa,CDG.cyl,D,0,0.36,0,2.1,0.1,2.1);
@@ -3465,7 +3483,7 @@ function campDecorUpdate(t){ const cdt=Math.min(0.1,Math.max(0,t-(CDK.t||t))); C
   if(LOC_ID!=='camp'||GAR.open||transit){ CAMP_PARK.in=false; return; } const z=CAMP_PARK, ins=TK.x>z.x0&&TK.x<z.x1&&TK.z>z.z0&&TK.z<z.z1;
   if(ins&&!z.in){ z.in=true; openGarage('park'); } else if(!ins) z.in=false; }
 function paintCampRoutes(s){ const acc=css(s.glow); gx.save(); gx.strokeStyle=acc; gx.globalAlpha=0.55; gx.lineWidth=0.32*GS; gx.setLineDash([1.2*GS,0.9*GS]); gx.lineCap='round';
-  for(const pts of [[[37,39],[15,39],[15,30.4]],[[43,37],[65.5,37],[65.5,35.6]],[[39,43],[39,63.3],[24.6,63.3]]]){ gx.beginPath(); pts.forEach((p,i)=>i?gx.lineTo(p[0]*GS,p[1]*GS):gx.moveTo(p[0]*GS,p[1]*GS)); gx.stroke();
+  for(const pts of [[[37.2,40],[15,40],[15,30.4]],[[42.8,40],[65.5,40],[65.5,35.6]],[[40,42.8],[40,63.3],[24.6,63.3]]]){ gx.beginPath(); pts.forEach((p,i)=>i?gx.lineTo(p[0]*GS,p[1]*GS):gx.moveTo(p[0]*GS,p[1]*GS)); gx.stroke();
     const a=pts[pts.length-2], b=pts[pts.length-1], ang=Math.atan2(b[1]-a[1],b[0]-a[0]); gx.setLineDash([]); gx.fillStyle=acc; gx.beginPath(); gx.moveTo(b[0]*GS,b[1]*GS); gx.lineTo((b[0]-Math.cos(ang-0.5)*1.4)*GS,(b[1]-Math.sin(ang-0.5)*1.4)*GS); gx.lineTo((b[0]-Math.cos(ang+0.5)*1.4)*GS,(b[1]-Math.sin(ang+0.5)*1.4)*GS); gx.fill(); gx.setLineDash([1.2*GS,0.9*GS]); }
   gx.restore(); gx.fillStyle=cssA(P.line,0.5); for(let x=3;x<34;x+=6.5){ R_(x,59.6,6.5,0.15); R_(x,66.2,6.5,0.15); }
   gtext('P',30.5,63.3,2.6,acc,0.55); }
@@ -4108,7 +4126,7 @@ addEventListener('pointerdown',e=>{ if(e.pointerType==='touch') setKbm(false); }
 addEventListener('click',e=>{ const b=e.target.closest&&e.target.closest('button,.gcard,[data-pick]'); if(!b||!SND.ctx) return; const n=performance.now(); if(n-SFX19.ui<70) return; SFX19.ui=n; sO(b.disabled?300:1400,b.disabled?220:1100,0.035,0.05,'triangle'); sNz(0.03,'highpass',5000,1,0.03); },true);
 $('#bMenu').addEventListener('click',()=>setKbm(false));
 /* ---- HUD chip + hub ---- */
-function abilHud(){ const el=$('#abil'), c=chs(); if(!c.abil||LOC.safe){ el.hidden=true; $('#kAbil').hidden=true; return; } el.hidden=false; $('#kAbil').hidden=c.abil!=='shield';
+function abilHud(){ const el=$('#abil'), c=chs(); const bS=$('#bShield'); if(!c.abil||LOC.safe){ el.hidden=true; $('#kAbil').hidden=true; bS.hidden=true; return; } el.hidden=false; $('#kAbil').hidden=c.abil!=='shield'; bS.hidden=c.abil!=='shield'; if(c.abil==='shield'){ bS.disabled=!SHD.on&&(SHD.cd>0||SHD.hp<SHD.max*0.25); bS.classList.toggle('on',!!SHD.on); bS.classList.toggle('rdy',!SHD.on&&!bS.disabled); }
   let s=''; if(c.abil==='stealth') s=STL.on?'<b>Невидим</b> · первый выстрел ×2':`Маскировка через ${Math.max(0,STL_DELAY[UP.abl|0]-STL.t).toFixed(1)} с`;
   else if(c.abil==='shield') s=SHD.cd>0?`Щит · перезарядка ${Math.ceil(SHD.cd)} с`:`<b>Щит ${Math.round(SHD.hp/SHD.max*100)}%</b>${SHD.on?' · стоит':' · E — поднять'}`;
   else if(c.abil==='rail') s='<b>Рельсотрон</b> · прошивает насквозь'; else if(c.abil==='drones') { const mx=1+(UP.abl|0); s=`<b>Рой ${BEE.list.length}/${mx}</b>${BEE.list.length<mx?' · новый дрон готовится':' · камикадзе'}`; }
