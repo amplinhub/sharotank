@@ -3923,7 +3923,7 @@ function xrayEnemies(dt){ XRE.t-=dt; XRE.clock+=dt; const cp=camera.position;
       if(occ&&losClear(TK.x,TK.y+1.4,TK.z,e.x,ey,e.z)) e.xrL=XRE.clock; if(!(e.xrL!=null&&XRE.clock-e.xrL<=1.0)) continue; c.push([d,e]); } c.sort((a,b)=>a[0]-b[0]); XRE.list=c.slice(0,4).map(v=>v[1]); }
   const pr=renderer.getPixelRatio();
   for(let i=0;i<4;i++){ const e=XRE.list[i], q=XR.e.value[i]; const on=!!e&&!e.dead; XRE.k[i]+=((on?1:0)-XRE.k[i])*Math.min(1,dt*(on?8:5)); if(!on&&XRE.k[i]<0.03){ q.set(0,0,0,0); continue; } if(!e){ q.z*=0.8; continue; }
-    const ey=(e.y||groundH(e.x,e.z))+(e.hy||0.8), a=toScreen(e.x,ey,e.z), b=toScreen(e.x+3.6,ey,e.z); _xv.set(e.x,ey,e.z).applyMatrix4(camera.matrixWorldInverse);
+    const ey=(e.y||groundH(e.x,e.z))+(e.hy||0.8), a=toScreen(e.x,ey,e.z), b=toScreen(e.x+(e.xrR||3.6),ey,e.z); _xv.set(e.x,ey,e.z).applyMatrix4(camera.matrixWorldInverse);
     q.set(a[0]*pr,(innerHeight-a[1])*pr,Math.abs(b[0]-a[0])*pr*XRE.k[i],-_xv.z); } }
 
 /* ================= NAV GRID · A* · PERCEPTION · PATROL ================= */
@@ -4889,7 +4889,7 @@ function bossDeath(e,o){ o=o||{}; const k=o.k||3.4; e.dead=true; e.dying=true; e
 /* «КРОТ» — drilling rig on WWI rhomboid tracks, MLRS on the roof, side MGs, burrows   */
 /* =================================================================================== */
 const KR_TRACK=[[-4.8,1.05],[-3.3,3.25],[3.5,3.25],[5.5,1.0],[3.7,0.0],[-3.0,0.0]];
-function buildKrot(e){ Object.assign(e,{r:3.4,hy:1.8,hr:3.1,mass:30,turn:0.8,acc:2.4,speedW:3.4,navR:3.6,st:'roam',stT:0,out:0,lift:0,drill:0,dig:0,salvoN:0,rkCD:4,mgCD:[0,0],trkS:0,spawned:[],noCol:false});
+function buildKrot(e){ Object.assign(e,{r:3.4,hy:1.8,hr:3.1,mass:30,turn:0.8,acc:2.4,speedW:3.4,navR:3.6,xrR:7.2,st:'roam',stT:0,out:0,lift:0,drill:0,dig:0,salvoN:0,rkCD:4,mgCD:[0,0],trkS:0,spawned:[],noCol:false});
   const Y=emat(e,0xd49524), D=emat(e,0x23252a), R=emat(e,0x6a3a22), Mt=emat(e,0x8d96a1), St=emat(e,0x5d6570), Hz=emapMat(e,TEXS.haz); e.eyeM=eglow(e,0xff6a1e); const B=e.body;
   /* hull between the tracks */
   ep(e,EGEO.box,Y,B,0,2.0,-0.2,3.6,2.2,7.8,true); ep(e,EGEO.box,D,B,0,3.16,-0.4,3.3,0.12,7.0); ep(e,EGEO.box,Hz,B,0,1.2,3.75,3.62,0.4,0.04);
@@ -4982,10 +4982,10 @@ function updKrot(e,dt){ const dx=TK.x-e.x, dz=TK.z-e.z, d=Math.max(1e-3,Math.hyp
     if(e.stT>13.4&&!e.emerge){ e.emerge=krotEmergePt(e); e.rumble=0; }
     if(e.emerge){ const p=e.emerge; e.rumble+=dt; if(rnd()<dt*14){ const a=rnd()*TAU, r=rnd()*3; debSpawn(p.x+Math.cos(a)*r,0.2,p.z+Math.sin(a)*r,(rnd()-0.5)*3,3+rnd()*4,(rnd()-0.5)*3,0.42,0.32,0.22,0.15+rnd()*0.15); }
       e.digSnd=(e.digSnd||0)-dt; if(e.digSnd<=0){ e.digSnd=0.12; const ps=sndAt(p.x,p.z); sO(85+rnd()*25,60,0.12,0.11,'square'); sNz(0.12,'bandpass',900+rnd()*600,2,0.1); sndOff(ps); }
-      if(e.rumble>1.6){ e.h=Math.atan2(TK.x-p.x,TK.z-p.z); e.rp={x:p.x,z:p.z}; e.rd=7.5; e.x=p.x-Math.sin(e.h)*e.rd; e.z=p.z-Math.cos(e.h)*e.rd; e.vx=e.vz=0; e.st='rise'; e.stT=0; e.g.visible=true; e.brk=0; e.fresh=7; sO(60,30,1.0,0.16,'sawtooth'); shake=Math.min(1,shake+0.3); } } break; }
+      if(e.rumble>1.6){ e.h=Math.atan2(TK.x-p.x,TK.z-p.z); e.rp={x:p.x,z:p.z}; e.riseD=7.5; e.x=p.x-Math.sin(e.h)*e.riseD; e.z=p.z-Math.cos(e.h)*e.riseD; e.vx=e.vz=0; e.st='rise'; e.stT=0; e.g.visible=true; e.brk=0; e.fresh=7; sO(60,30,1.0,0.16,'sawtooth'); shake=Math.min(1,shake+0.3); } } break; }
   case 'rise': { /* v27: drill first — it tunnels up at an angle and breaks the surface nose-first */
     const T=2.3, k=Math.min(1,e.stT/T), q=1-Math.pow(1-k,1.6), fx=Math.sin(e.h), fz=Math.cos(e.h); e.dig=1-q; e.drill=Math.max(0,1-e.stT/2.6);
-    e.x=e.rp.x-fx*e.rd*(1-q); e.z=e.rp.z-fz*e.rd*(1-q); const tx=e.x+fx*7.6, tz=e.z+fz*7.6;
+    e.x=e.rp.x-fx*e.riseD*(1-q); e.z=e.rp.z-fz*e.riseD*(1-q); const tx=e.x+fx*7.6, tz=e.z+fz*7.6;
     if(!e.brk&&k>0.2){ e.brk=1; craterAt(tx,tz,3.4,0.6); explode(tx,0.6,tz,2.6,1.4,fx,0.6,fz,'shell',null,0,e,0.8); shake=Math.min(1,shake+0.55); sfxBoom(1); groundFlash(tx,tz,7,P.glow2,0.3);
       for(let n=0;n<26;n++){ const a=rnd()*TAU, sp=2+rnd()*7; debSpawn(tx,0.4,tz,Math.cos(a)*sp+fx*3,5+rnd()*8,Math.sin(a)*sp+fz*3,0.42,0.32,0.22,0.2+rnd()*0.25); } }
     if(k>0.2&&rnd()<dt*40) debSpawn(tx+(rnd()-0.5)*2.4,0.3,tz+(rnd()-0.5)*2.4,fx*6+(rnd()-0.5)*6,4+rnd()*6,fz*6+(rnd()-0.5)*6,0.42,0.32,0.22,0.15+rnd()*0.2);
@@ -5017,7 +5017,7 @@ function dieKrot(e,dx,dz,src){ e.drill=0; bossDeath(e,{k:3.8,y:e.y+2.4,scrap:600
 /* =================================================================================== */
 let _ionTex=null;
 function ionGlowTex(){ if(_ionTex) return _ionTex; const cv=document.createElement('canvas'); cv.width=cv.height=64; const g=cv.getContext('2d'), gr=g.createRadialGradient(32,32,0,32,32,32); gr.addColorStop(0,'rgba(255,255,255,1)'); gr.addColorStop(0.25,'rgba(150,215,255,0.65)'); gr.addColorStop(1,'rgba(40,120,255,0)'); g.fillStyle=gr; g.fillRect(0,0,64,64); return _ionTex=new THREE.CanvasTexture(cv); }
-function buildHornet(e){ Object.assign(e,{r:3.2,hy:0,hr:3.0,mass:20,alt:8,vy:0,st:'run',stT:0,run:null,cnCD:3,rkCD:6,flCD:0,bombCD:9,yawV:0,tp:0,tr:0,crash:0,rot:0,lockable:true,noCol:true,static:true});
+function buildHornet(e){ e.onHit=hornetHit; Object.assign(e,{r:3.2,hy:0,hr:3.0,mass:20,alt:8,vy:0,st:'run',stT:0,run:null,cnCD:3,rkCD:6,flCD:0,bombCD:9,yawV:0,tp:0,tr:0,crash:0,rot:0,lockable:true,noCol:true,static:true});
   const C=emat(e,0x3f5a4a), C2=emat(e,0x2c3f35), D=emat(e,0x1c2024), Mt=emat(e,0x8d96a1), Gl=new THREE.MeshPhongMaterial({color:0x8fd8ff,transparent:true,opacity:0.55,shininess:90}), Y=emat(e,0xf2a81e), Hz=emapMat(e,TEXS.haz);
   e.eyeM=eglow(e,0xff3a2a); const B=e.body; const F=new THREE.Group(); F.position.y=0; B.add(F); e.fus=F;
   /* fuselage */
@@ -5114,11 +5114,11 @@ function updHornet(e,dt){ const dx=TK.x-e.x, dz=TK.z-e.z, d=Math.max(1e-3,Math.h
   const sp=Math.hypot(e.vx,e.vz), want=(e.mode==='away'||e.lost)?Math.atan2(e.vx,e.vz):(e.ph===1&&sp>4?Math.atan2(e.vx,e.vz):Math.atan2(dx,dz)); e.yawCmd=clamp(wrapA(want-e.h)*1.6,-0.7,0.7); e.h=turnTo(e.h,want,dt*(e.mode==='strafe'?2.2:(e.ph===1?0.9:1.3)));
   hornetPose(e,dt,ax*k,az*k);
   /* chin cannon */
-  const ang=Math.abs(wrapA(Math.atan2(dx,dz)-e.h)); e.g.updateMatrixWorld(true); e.tur.lookAt(TK.x,TK.y+1,TK.z); e.brl.rotation.z+=dt*(e.firing?40:4);
+  const ang=Math.abs(wrapA(Math.atan2(dx,dz)-e.h)); e.jamT=Math.max(0,(e.jamT||0)-dt); const jam=e.jamT, jx=jam>0?(rnd()-0.5)*10*jam:0, jz=jam>0?(rnd()-0.5)*10*jam:0; e.g.updateMatrixWorld(true); e.tur.lookAt(TK.x+jx,TK.y+1,TK.z+jz); e.brl.rotation.z+=dt*(e.firing?40:4);
   if(e.cnCD<=0&&e.sees&&d<(e.mode==='strafe'?56:36)&&ang<0.6&&e.mode!=='away'){ e.firing=true; e.burst=(e.burst||0)+1; e.cnCD=e.burst%(e.ph===3?22:16)===0?(e.ph===1?2.2:1.6):0.075; e.cmz.getWorldPosition(_bw);
-    if(losTank(_bw.x,_bw.y,_bw.z)){ eShoot(_bw.x,_bw.y,_bw.z,TK.x+TK.vx*0.2,TK.y+1,TK.z+TK.vz*0.2,HNW); FIRE.spawn(_bw.x,_bw.y,_bw.z,0,0,0,0.7,1.6,0.05,1,1,0.85,0.4); sfxMgE(); } } else if(e.cnCD>0.5) e.firing=false;
+    if(losTank(_bw.x,_bw.y,_bw.z)){ eShoot(_bw.x,_bw.y,_bw.z,TK.x+TK.vx*0.2+jx*1.4,TK.y+1+jam*(rnd()-0.5)*3,TK.z+TK.vz*0.2+jz*1.4,HNW); FIRE.spawn(_bw.x,_bw.y,_bw.z,0,0,0,0.7,1.6,0.05,1,1,0.85,0.4); sfxMgE(); } } else if(e.cnCD>0.5) e.firing=false;
   /* rockets */
-  if(e.rkCD<=0&&e.sees&&d<(e.mode==='strafe'?60:40)&&d>9&&ang<0.9&&e.mode!=='away'){ e.rkCD=e.ph===1?7:4.5; for(let n=0;n<6;n++) later(n*0.12,()=>{ if(e.dead) return; const o=e.pods[n%2]; e.g.updateMatrixWorld(true); o.getWorldPosition(_bw); eShoot(_bw.x,_bw.y,_bw.z,TK.x+(rnd()-0.5)*5,TK.y,TK.z+(rnd()-0.5)*5,HNR); FIRE.spawn(_bw.x,_bw.y,_bw.z,0,0,0,1,2,0.12,1,1,0.75,0.35); sfxRocket(); }); }
+  if(e.rkCD<=0&&e.sees&&d<(e.mode==='strafe'?60:40)&&d>9&&ang<0.9&&e.mode!=='away'){ e.rkCD=e.ph===1?7:4.5; for(let n=0;n<6;n++) later(n*0.12,()=>{ if(e.dead) return; const o=e.pods[n%2]; e.g.updateMatrixWorld(true); o.getWorldPosition(_bw); eShoot(_bw.x,_bw.y,_bw.z,TK.x+(rnd()-0.5)*5+jx,TK.y,TK.z+(rnd()-0.5)*5+jz,HNR); FIRE.spawn(_bw.x,_bw.y,_bw.z,0,0,0,1,2,0.12,1,1,0.75,0.35); sfxRocket(); }); }
   /* bombs dropped from the belly (phase 2+) */
   if(e.ph>=2&&e.bombCD<=0&&e.sees&&d<26){ e.bombCD=e.ph===3?7:10; for(let n=0;n<3;n++) later(n*0.35,()=>{ if(e.dead) return; const b=newEnemy('bomb',e.x,e.z); buildE(b); b.state='fly'; b.fy=e.y-0.8; sO(1500,420,0.9,0.045,'sine'); const T=1.0, a=rnd()*TAU; b.fv={x:e.vx*0.6+Math.cos(a)*2,z:e.vz*0.6+Math.sin(a)*2,y:-2}; b.aggro=true; b.noCol=true; b.noScrap=true; b.fromBoss=true; sO(500,200,0.3,0.05,'sine'); }); }
   /* flares break a lock-on */
@@ -5137,8 +5137,12 @@ function updHornet(e,dt){ const dx=TK.x-e.x, dz=TK.z-e.z, d=Math.max(1e-3,Math.h
   e.beacon.color.setRGB((e.t*2%1)<0.15?1:0.15,0.05,0.04); eyeColor(e,true,e.firing); }
 const HNW={speed:72,g:0,spread:0.05,radius:0.32,power:0.55,dmg:3.0,kind:'bullet',burst:1,gap:0,mag:99};
 const HNR={speed:38,g:2.5,spread:0.04,radius:1.4,power:0.9,dmg:11,kind:'shell',size:0.55,burst:1,gap:0,mag:99};
+/* v27.3: phase 2+ — a hit shoves and tilts the machine and throws the gunner's aim off for a moment */
+function hornetHit(e,dmg,dx,dz,src){ if(e.ph<2||e.st==='crash'||src==='area') return; const l=Math.hypot(dx,dz)||1, k=Math.min(1,0.45+dmg/70), ch=Math.cos(e.h), sh=Math.sin(e.h);
+  e.vx+=dx/l*2.6*k; e.vz+=dz/l*2.6*k; e.hkP=(dx*sh+dz*ch)/l*0.3; e.hkR=-(dx*ch-dz*sh)/l*0.34; e.hitK=1; e.jamT=1.2; e.cnCD=Math.max(e.cnCD,0.5); e.yawV=(e.yawV||0);
+  if(e.g){ e.g.updateMatrixWorld(true); for(let n=0;n<4;n++) spark(e.x,e.y+0.4,e.z,(rnd()-0.5)*6,rnd()*4,(rnd()-0.5)*6,1,0.7,0.35,0.3); } sO(260,140,0.14,0.07,'square'); }
 function hornetPose(e,dt,ax,az){ const ch=Math.cos(e.h), sh=Math.sin(e.h), aF=ax*sh+az*ch, aR=ax*ch-az*sh;
-  e.tp+=(clamp(aF*0.07,-0.35,0.35)-e.tp)*Math.min(1,dt*3); e.tr+=(clamp(-aR*0.08,-0.45,0.45)-e.tr)*Math.min(1,dt*3); e.fus.rotation.set(e.tp,0,e.tr);
+  e.tp+=(clamp(aF*0.07,-0.35,0.35)-e.tp)*Math.min(1,dt*3); e.tr+=(clamp(-aR*0.08,-0.45,0.45)-e.tr)*Math.min(1,dt*3); e.hitK=Math.max(0,(e.hitK||0)-dt*1.7); e.fus.rotation.set(e.tp+(e.hkP||0)*e.hitK,0,e.tr+(e.hkR||0)*e.hitK);
   const vF=e.vx*sh+e.vz*ch; for(const D of e.ducts){ D.piv.rotation.x=clamp(vF*0.04,-0.45,0.45); D.bl.rotation.y+=dt*(e.st==='crash'&&D.s<0?8:38)*D.s; }
   /* v27: control surfaces follow the commanded accelerations; ion thrusters pulse with climb and acceleration */
   const kk=Math.min(1,dt*6), pt=clamp(-aF*0.11-(e.vy||0)*0.03,-0.5,0.5), rl=clamp(aR*0.14,-0.5,0.5), yw=clamp(-(e.yawCmd||0)*0.7,-0.55,0.55);
@@ -5505,7 +5509,7 @@ function spawnBoss(t){ const L=ARENA.lair||[WX/2,WZ/2]; let e;
     /* two robot lions sleep inside the crypt; one leaps out toward the top of the map, the other toward the bottom */
     [[80,75.2,[80,61.5],1.15,6.2],[80,84.8,[80,98.5],1.0,4.4]].forEach(([x,z,out,T,arc])=>{ const q=newEnemy('lion',x,z); buildE(q); q.hp=q.maxHp=Math.round(650*bossMul()); q.bossPart=true; q.lockable=false; q.out=out; q.leapT=T; q.arc=arc; q.h=Math.atan2(out[0]-x,out[1]-z); q.pedY=0; });
     e.xfs=XF_PADS.map(([x,z,g])=>{ const q=newEnemy('xfmr',x,z); buildE(q); q.grp=g; q.fromBoss=true; q.h=Math.atan2(80-x,80-z); eRender(q,0); return q; }); }
-  else if(t==='krot'){ const p=pickNear(L[0],L[1]-28,3.4)||[L[0],L[1]-28]; e=newEnemy('krot',p[0],p[1]); buildE(e); bossSetup(e,BOSS_SPEC.krot.name,BOSS_SPEC.krot.hp); }
+  else if(t==='krot'){ const p=pickNear(L[0],L[1]-46,3.4)||pickNear(L[0],L[1]-28,3.4)||[L[0],L[1]-28]; e=newEnemy('krot',p[0],p[1]); buildE(e); bossSetup(e,BOSS_SPEC.krot.name,BOSS_SPEC.krot.hp); }
   else if(t==='hornet'){ e=newEnemy('hornet',L[0],L[1]); buildE(e); bossSetup(e,BOSS_SPEC.hornet.name,BOSS_SPEC.hornet.hp); e.alt=11; e.yOv=11; }
   else if(t==='dragon'){ const R=ARENA.ring||[[80,40]]; e=newEnemy('dragon',R[0][0],R[0][1]); buildE(e); bossSetup(e,BOSS_SPEC.dragon.name,BOSS_SPEC.dragon.hp); e.barHp=()=>dragonBar(e); e.h=Math.PI/2; }
   return e; }
@@ -6003,7 +6007,7 @@ function dbgBoss(t){ const i=STORY.findIndex(m=>m.boss&&m.k===t); if(i<0||transi
   if(menuOpen) $('#bMenu').click(); TK.hp=Math.max(TK.hp,maxHP()); toast('Отладка · бой: '+(ENAME[t]||t)); goLocation(STORY[i].loc,DBG_SIDE[STORY[i].loc]); }
 $('#bDbg').addEventListener('click',()=>{ const r=$('#dbgBoss'); r.hidden=!r.hidden; $('#bDbg').textContent=r.hidden?'Отладка ▸':'Отладка ▾'; });
 document.querySelectorAll('#dbgBoss [data-boss]').forEach(b=>b.addEventListener('click',e=>{ e.stopPropagation(); dbgBoss(b.dataset.boss); }));
-window.__dbg={enemyHit,ARENA,get transit(){return transit},GD,gdLaunch,gdBoom,EW,rdDie,MAG,magPress,makePickup,CDK,get gdOk(){return gdOk()},autoQ,CAS,sun,SHR,get REALSH(){return REALSH},get GTILE(){return GTILE},DYN,get qMode(){return qMode},ARM,civMake,gaitPose,makeSoldier,CIVL:CIV,GAR,losClear,navOk,CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
+window.__dbg={enemyHit,get WEAP(){return WEAP},ARENA,get transit(){return transit},GD,gdLaunch,gdBoom,EW,rdDie,MAG,magPress,makePickup,CDK,get gdOk(){return gdOk()},autoQ,CAS,sun,SHR,get REALSH(){return REALSH},get GTILE(){return GTILE},DYN,get qMode(){return qMode},ARM,civMake,gaitPose,makeSoldier,CIVL:CIV,GAR,losClear,navOk,CHASSIS,selectTank,SHD,STL,BEE,shieldToggle,get tank(){return tank},buildGameTank,forceWin:()=>completeMission(),killTank,STORY,MXTRA,SEEN,radioSay,openMC,zontOn,eShoot,get proj(){return proj},RDR,ART,CIV,FLG,TLS,AIMIDLE,useArt,computeFlagPoints,flagPoints,MISSIONS,missionAt,objUI,get LOCS(){return LOCS},TK,UP,ST,updateWeaponUI,get LOC(){return LOC_ID},get Q(){return Q},goLocation,openGarage,closeGarage,rebuild,explode:(x,z)=>explode(x,1,z,1.7,1,0,-1,0,'shell',null),
   crater:(x,z)=>craterAt(x,z,1.6,0.3),sim:(n)=>{const o=[];for(let i=0;i<n;i++){tankUpdate(1/60,{throttle:1,steer:0,hb:false,joy:null,fire:false});if(i%4===0)o.push([+TK.z.toFixed(1),+TK.y.toFixed(3),+TK.pitch.toFixed(3),TK.air?1:0]);}return o;},damage:(a,dx,dz)=>damageTank(a,dx,dz,0),groundH,GATES,get gx(){return gx},get GS(){return GS},get ROADS(){return ROADS},get VS(){return VS},get,raycast,RH,get XRK(){return xrK},XR,HOLD,NAV,navPath,VEHS,pvSet,pvRender,renderer,scene,CRATES,get hitStop(){return hitStop},ENEMIES,PICKUPS,DRONES,MS,AIM,spawnEnemy,killEnemy,eRemove,LOC_STATE,toScreen,craterAt,get xr(){return XR.r.value},get wcur(){return wcur},switchWeapon};
 })();
 </script>
