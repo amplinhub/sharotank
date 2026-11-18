@@ -4,4 +4,4 @@ Retro-futuristic voxel tank game: smash robots and buildings across Chinese-styl
 
 Играть: https://amplinhub.github.io/sharotank/
 
-Версия v30.1 игры [Шаротанк Онлайн](https://github.com/amplinhub/sharotank-online) без игры с другом: кампания, «Онлайн рейтинг» (пилоты, друзья, сообщения, лом, медали) и меню отладки. Собирается там командой `npm run build` (`dist-solo/index.html`). Three.js. Управление: WASD — движение, мышь — прицел и огонь, средняя кнопка — захват цели. На телефоне — два стика.
+Версия v30.2 игры [Шаротанк Онлайн](https://github.com/amplinhub/sharotank-online) без игры с другом: кампания, «Онлайн рейтинг» (пилоты, друзья, сообщения, лом, медали) и меню отладки. Собирается там командой `npm run build` (`dist-solo/index.html`). Three.js. Управление: WASD — движение, мышь — прицел и огонь, средняя кнопка — захват цели. На телефоне — два стика.
